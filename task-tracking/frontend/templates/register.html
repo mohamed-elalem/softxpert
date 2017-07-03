@@ -30,9 +30,9 @@
                     </div>
                     <div class="form-group" ng-class="(registerForm.repassword.$dirty && registerForm.repassword.$invalid ? 'has-error' : '')" required>
                         <label>Password Confirmation</label>
-                        <input type="password" class="form-control" ng-model="repassword" name="repassword" required />
-                        <div class="text-danger" ng-show="registerForm.repassword.$dirty && registerForm.repassword.$invalid">
-                            Password confirmation is required
+                        <input type="password" class="form-control" ng-model="repassword" name="repassword" required password-confirm="password" />
+                        <div class="text-danger" ng-show="registerForm.repassword.$dirty && registerForm.repassword.$invalid && registerForm.repassword.$passwordConfirm">
+                            <strong>Password confirmation is required</strong>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-block btn-default">Register</button>
