@@ -1,0 +1,8 @@
+#login_homepage:
+#    path:     /
+#    defaults: { _controller: LoginBundle:Default:index }
+register_user:
+    path: /api/register
+    defaults: { _controller: LoginBundle:Register:register }
+    methods: [post]
+

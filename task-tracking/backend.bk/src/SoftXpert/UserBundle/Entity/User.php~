@@ -1,0 +1,74 @@
+<?php
+
+namespace SoftXpert\UserBundle\Entity;
+
+/**
+ * User
+ */
+class User
+{
+    /**
+     * @var int
+     */
+    private $id;
+
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+
+    private $name;
+    private $email;
+    private $password;
+    private $role;
+    private $created_at;
+    private $updated_at;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setName($name) {
+        $this->name = $name;
+    }
+
+    public function getName() {
+        return $this->name;
+    }
+
+    public function setEmail($email) {
+        $this->email = $email;
+    }
+
+    public function getEmail() {
+        return $this->email;
+    }
+
+    public function setPassword($password) {
+        $this->password = $password;
+    }
+
+    public function getPassword() {
+        return $this->password;
+    }
+    
+    public function setCreatedAt() {
+        $this->created_at = new \DateTime();
+    }
+    
+    public function getCreatedAt() {
+        return $this->created_at;
+    }
+    
+    public function setUpdatedAt() {
+        $this->updated_at = new \DateTime();
+    }
+    
+    public function getUpdatedAt() {
+        return $this->updated_at;
+    }
+}
+

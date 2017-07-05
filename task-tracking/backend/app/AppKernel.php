@@ -18,8 +18,6 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
             new TaskTrackBundle\TaskTrackBundle(),
             new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
-            new SoftXpert\LoginBundle\LoginBundle(),
-            new SoftXpert\UserBundle\UserBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

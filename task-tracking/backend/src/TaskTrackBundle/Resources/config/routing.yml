@@ -1,3 +1,16 @@
-task_track_homepage:
-    path:     /
-    defaults: { _controller: TaskTrackBundle:Default:index }
+#task_track_homepage:
+#    path:     /
+#    defaults: { _controller: TaskTrackBundle:Default:index }
+    
+api_trainee_register:
+    path: /api/register
+    defaults: { _controller: TaskTrackBundle:User:register }
+
+api_trainee_login:
+    path: /api/login
+    defaults: { _controller: TaskTrackBundle:User:login }
+    
+    
+api_login_check:
+    path: /api/login_check
+    

@@ -1,0 +1,50 @@
+TaskTrackBundle\Entity\Challenge:
+    type: entity
+    table: challenge
+    
+        
+    oneToMany:
+        children:
+            targetEntity: Challenge
+            mappedBy: parent
+            
+        tasks:
+            targetEntity: Task
+            mappedBy: challenge
+            
+    manyToOne:
+        parent:
+            targetEntity: Challenge
+            inversedBy: children
+        
+        supervisor:
+            targetEntity: User
+            inversedBy: challenges
+            joinColumn:
+                name: user_id
+                referencedColumnName: id    
+                        
+    
+    repositoryClass: TaskTrackBundle\Repository\ChallengeRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+                
+    fields:
+        duration:
+            type: integer
+        description:
+            type: string
+        created_at:
+            type: datetime
+            nullable: true
+        updated_at:
+            type: datetime
+            nullable: true
+        
+    lifecycleCallbacks:
+        prePersist: [ setTimeStamps ]
+        preUpdate: [ updateTime ]

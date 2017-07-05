@@ -22,9 +22,9 @@ security:
 
             # https://symfony.com/doc/current/security/form_login_setup.html
             #form_login: ~
-            
+        
         login:
-            pattern:  ^/api/login_check$
+            pattern:  ^/api/login
             stateless: true
             anonymous: true
             form_login:
@@ -34,13 +34,21 @@ security:
                 require_previous_session: false
 
         api:
-            pattern:   ^/api$
+            pattern:   ^/api/(?!(register)).*$
             stateless: true
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
+                    
     access_control:
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/admin, roles: ROLE_ADMIN }
-
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: POST }
+        - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: POST }
+        - { path: ^/api/admin/login, ip: 127.0.0.1, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: POST }
+        - { path: ^/api/supervisor/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: POST }
+        - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY, ROLE_TRAINEE ] }
+        - { path: ^/api/admin, ip: 127.0.0.1, roles: [ IS_AUTHENTICATED_FULLY, ROLE_ADMIN ]}
+        - { path: ^/api/supervisor, roles: [ IS_AUTHENTICATED_FULLY, ROLE_SUPERVISOR ] }
+            
+    encoders:
+        TaskTrackBundle\Entity\User: sha512
+        Symfony\Component\Security\Core\User\User: plaintext

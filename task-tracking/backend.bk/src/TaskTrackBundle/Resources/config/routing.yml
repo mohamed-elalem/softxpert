@@ -1,0 +1,3 @@
+task_track_homepage:
+    path:     /
+    defaults: { _controller: TaskTrackBundle:Default:index }

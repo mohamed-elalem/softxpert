@@ -23,15 +23,15 @@
                     </div>
                     <div class="form-group" ng-class="(registerForm.password.$dirty && registerForm.password.$invalid ? 'has-error' : '')" required>
                         <label>Password</label>
-                        <input type="text" class="form-control" ng-model="password" name="password" required />
+                        <input type="password" class="form-control" ng-model="password" name="password" required password-limit />
                         <div class="text-danger" ng-show="registerForm.password.$dirty && registerForm.password.$invalid">
-                            <strong>Password is required</strong>
+                            <strong>Password must contain 6 to 60 characters</strong>
                         </div>
                     </div>
                     <div class="form-group" ng-class="(registerForm.repassword.$dirty && registerForm.repassword.$invalid ? 'has-error' : '')" required>
                         <label>Password Confirmation</label>
                         <input type="password" class="form-control" ng-model="repassword" name="repassword" required password-confirm="password" />
-                        <div class="text-danger" ng-show="registerForm.repassword.$dirty && registerForm.repassword.$invalid && registerForm.repassword.$passwordConfirm">
+                        <div class="text-danger" ng-show="registerForm.repassword.$dirty && registerForm.repassword.$invalid">
                             <strong>Password confirmation is required</strong>
                         </div>
                     </div>

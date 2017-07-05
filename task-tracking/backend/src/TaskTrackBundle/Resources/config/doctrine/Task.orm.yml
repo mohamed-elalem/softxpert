@@ -1,0 +1,43 @@
+TaskTrackBundle\Entity\Task:
+    type: entity
+    table: task
+    
+    manyToOne:
+        user:
+            targetEntity: User
+            inversedBy: tasks
+            joinColumn:
+                name: user_id
+                referencedColumnName: id
+        challenge:
+            targetEntity: Challenge
+            inversedBy: tasks
+            joinColumn:
+                name: challenge_id
+                referencedColumnName: id
+    
+            
+    
+    repositoryClass: TaskTrackBundle\Repository\TaskRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+                
+    fields:
+        score:
+            type: float
+        seconds:
+            type: integer
+        created_at:
+            type: datetime
+            nullable: true
+        updated_at:
+            type: datetime
+            nullable: true
+           
+    lifecycleCallbacks:
+        prePersist: [ setTimeStamps ]
+        preUpdate: [ updateTime ]

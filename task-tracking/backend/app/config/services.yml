@@ -33,3 +33,7 @@ services:
     # AppBundle\Service\ExampleService:
     #     arguments:
     #         $someArgument: 'some_value'
+    
+    
+    acme_api.encoder.nixilla_jwt_encoder:
+        class: AppBundle\Encoder\NixillaJWTEncoder
