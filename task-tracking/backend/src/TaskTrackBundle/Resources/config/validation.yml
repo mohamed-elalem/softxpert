@@ -20,5 +20,5 @@
 #            - NotNull:
 #                message: Email cannot be null.
 #            - Email:
-#                message: "{{ value }} is not a valid email."
+#                message: Not a valid email.
 #                

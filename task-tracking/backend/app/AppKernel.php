@@ -18,6 +18,8 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
             new TaskTrackBundle\TaskTrackBundle(),
             new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
+            new Nelmio\CorsBundle\NelmioCorsBundle(),
+            new FOS\UserBundle\FOSUserBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

@@ -13,6 +13,12 @@ app.factory("User", function($http, $q) {
             $http({
                 method: "post",
                 url: loginUrl,
+                transformRequest: function(obj) {
+                    var str = [];
+                    for (var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                },
                 data: { "email": email, "password": password }
             }).then(function(res) {
                 console.log(res);
@@ -34,7 +40,15 @@ app.factory("User", function($http, $q) {
             $http({
                 method: "post",
                 url: registerationURl,
-                dataType: "json",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                transformRequest: function(obj) {
+                    var str = [];
+                    for (var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                },
                 data: {
                     "name": name,
                     "email": email,

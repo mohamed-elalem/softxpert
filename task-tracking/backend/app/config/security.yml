@@ -6,7 +6,11 @@ security:
     providers:
         in_memory:
             memory: ~
-
+        fos_userbundle:
+            id: fos_user.user_provider.username_email
+        jwt:
+            lexik_jwt:
+                class: TaskTrackBundle\Entity\User
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
@@ -39,6 +43,7 @@ security:
             guard:
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
+                provider: jwt
                     
     access_control:
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: POST }
@@ -50,5 +55,6 @@ security:
         - { path: ^/api/supervisor, roles: [ IS_AUTHENTICATED_FULLY, ROLE_SUPERVISOR ] }
             
     encoders:
-        TaskTrackBundle\Entity\User: sha512
-        Symfony\Component\Security\Core\User\User: plaintext
+        FOS\UserBundle\Model\UserInterface: sha512
+        
+    

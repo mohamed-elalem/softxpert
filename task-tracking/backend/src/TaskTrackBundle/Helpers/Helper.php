@@ -9,7 +9,7 @@ class Helper {
         $errors = array();
 
         // Global
-        foreach ($form->getErrors() as $error) {
+        foreach ($form->getErrors(true) as $error) {
             $errors[$form->getName()][] = $error->getMessage();
         }
 

@@ -4,44 +4,61 @@ namespace TaskTrackBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
+use FOS\UserBundle\Model\User as BaseUser;
+
+
 
 /**
  * User
  */
-class User implements UserInterface
+class User extends BaseUser
 {
     /**
      * @var integer
+     * 
+     * @Assert\NotBlank()
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
+     * 
+     * @Assert\NotBlank()
      */
     private $name;
 
     /**
      * @var string
+     * 
+     * @Assert\NotBlank()
      */
-    private $email;
+//    protected $email;
 
     /**
      * @var string
+     * 
+     * @Assert\NotBlank()
      */
-    private $password;
+    protected $password;
 
     /**
      * @var integer
+     * 
+     * @Assert\NotBlank()
      */
     private $role;
 
     /**
      * @var \DateTime
+     * 
      */
     private $created_at;
 
     /**
      * @var \DateTime
+     * 
      */
     private $updated_at;
 
@@ -109,22 +126,22 @@ class User implements UserInterface
      *
      * @return User
      */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * Get email
-     *
-     * @return string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
+//    public function setEmail($email)
+//    {
+//        $this->email = $email;
+//
+//        return $this;
+//    }
+//
+//    /**
+//     * Get email
+//     *
+//     * @return string
+//     */
+//    public function getEmail()
+//    {
+//        return $this->email;
+//    }
 
     /**
      * Set password
@@ -322,6 +339,10 @@ class User implements UserInterface
 
     public function getUsername(): string {
         
+    }
+
+    public static function createFromPayload($username, array $payload): JWTUserInterface {
+        return new self($username, $payload["role"], $payload["name"]);
     }
 
 }

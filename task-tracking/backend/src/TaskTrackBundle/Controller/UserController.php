@@ -12,6 +12,7 @@ use TaskTrackBundle\Entity\User;
 use TaskTrackBundle\Encoder\NixillaJWTEncoder;
 use TaskTrackBundle\Form\UserType;
 use TaskTrackBundle\Helpers;
+use TaskTrackBundle\Handlers\SerializationHandler;
 
 class UserController extends Controller
 {
@@ -36,18 +37,14 @@ class UserController extends Controller
                 $response->setContent($responseHandler->handle(Status::FAILURE, "json"));
             }
             else {
-                $token = $this->get('lexik_jwt_authentication.encoder')
-                    ->encode([
-                        'email' => $user->getEmail(),
-                        'exp' => time() + 3600 // 1 hour expiration
-                    ]);
+                $token = $this->get('lexik_jwt_authentication.jwt_manager')->create($user);
                 $response->setContent($responseHandler->handle(Status::SUCCESS, "json", ["token" => $token]));
             }
         }
         else {
             $response->setContent($responseHandler->handle(Status::FAILURE, "json"));
         }
-        
+        $response->headers->set("Content-Type", "application/json");
         return $response;
     }
 //    
@@ -56,7 +53,6 @@ class UserController extends Controller
 //    }
     
     public function registerAction(Request $request) {
-        
         $user = new User();
         $form = $this->createForm(UserType::class, $user, array('csrf_protection' => false));
         
@@ -64,18 +60,24 @@ class UserController extends Controller
         $encoder = $this->get("security.password_encoder");
         $responseHandler = ResponseHandler::getInstance();
         
+        $em = $this->get("doctrine")->getManager();
         
-        $name = $request->get("name");
-        $email = $request->get("email");
-        $password = $request->get("password");
+        
+        $name = $request->request->get("name");
+        $email = $request->request->get("email");
+        $password = $request->request->get("password");
+        
+        
         
         $user->setName($name)
                 ->setEmail($email)
                 ->setPassword($encoder->encodePassword($user, $password))
                 ->setRole(Role::TRAINEE);
-        
+//        dump($user);
         $response = new Response();
-        $valid = true; // $form->isValid();
+//        $form->submit($request->request->get($form->getName()));
+        $valid = true || $form->isValid();
+        
         
         if($userRepository->findOneBy(["email" => $email])) {
             $response->setContent($responseHandler->handle(Status::EXIST, "json"));
@@ -86,8 +88,6 @@ class UserController extends Controller
             $response->setContent($responseHandler->handle(Status::SUCCESS, "json"));
         }
         else {
-            dump(Helpers\Helper::getFormErrors($form));
-            die();
             $response->setContent($responseHandler->handle(Status::FAILURE, "json"));
         }
         $response->headers->set("Content-Type", "application/json");        
