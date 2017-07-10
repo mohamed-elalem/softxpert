@@ -3,94 +3,67 @@
 namespace TaskTrackBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use \Symfony\Component\HttpFoundation\Request;
-use TaskTrackBundle\Handlers\ResponseHandler;
-use TaskTrackBundle\Constants\Status;
-use TaskTrackBundle\Constants\Role;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use TaskTrackBundle\Entity\User;
-use TaskTrackBundle\Encoder\NixillaJWTEncoder;
-use TaskTrackBundle\Form\UserType;
-use TaskTrackBundle\Helpers;
-use TaskTrackBundle\Handlers\SerializationHandler;
+use TaskTrackBundle\Constants\Role;
+use TaskTrackBundle\Constants\Status;
+use TaskTrackBundle\Handlers\ResponseHandler;
 
 class UserController extends Controller
 {
-    
-//    public function index() {
-//        return $this->render("index.html.twig");
-//    }
-//    
-    public function loginAction(Request $request) {
-        $email = $request->get("email");
-        $password = $request->get("password");
+    public function registerAction(Request $request)
+    {
+        $em = $this->get('doctrine')->getManager();
+        $encoder = $this->container->get('security.password_encoder');
+
+        $username = $request->request->get("username");
+        $email = $request->request->get('email');
+        $password = $request->request->get('password');
+        $name = $request->request->get("name");
+        
+        $registered = $this->getDoctrine()->getRepository("TaskTrackBundle:User")->checkIfRegistered($username, $email);
         
         $response = new Response();
-        $responseHandler = ResponseHandler::getInstance();
         
-        $user = $this->getDoctrine()->getRepository("TaskTrackBundle:User")->findOneBy(["email" => $email]);
-        
-        if($user) {
-            $isValidPassword = $this->get("security.password_encoder")->isPasswordValid($user, $password);
-  
-            if(! $isValidPassword) {
-                $response->setContent($responseHandler->handle(Status::FAILURE, "json"));
-            }
-            else {
-                $token = $this->get('lexik_jwt_authentication.jwt_manager')->create($user);
-                $response->setContent($responseHandler->handle(Status::SUCCESS, "json", ["token" => $token]));
-            }
+        if(! $registered) {
+            $user = new User();
+            $user->setUsername($username);
+            $user->setEmail($email);
+            $user->setPassword($encoder->encodePassword($user, $password));
+            $user->setName($name);
+            $user->setRole(Role::TRAINEE);
+            $em->persist($user);
+            $em->flush($user);
+            $response->setContent(ResponseHandler::getInstance()->handle(Status::SUCCESS, "json"));
+            return $response;    
         }
         else {
-            $response->setContent($responseHandler->handle(Status::FAILURE, "json"));
+            $response->setContent(ResponseHandler::getInstance()->handle(Status::EXIST, "json"));
+            $response->setStatusCode(Status::RESPONSE_CODES[Status::EXIST]);
         }
-        $response->headers->set("Content-Type", "application/json");
         return $response;
     }
-//    
-//    public function showRegistrationFormAction() {
-////        return $this->render("");
-//    }
     
-    public function registerAction(Request $request) {
-        $user = new User();
-        $form = $this->createForm(UserType::class, $user, array('csrf_protection' => false));
+    public function getUserInfoAction() {
         
-        $userRepository = $this->getDoctrine()->getRepository("TaskTrackBundle:User");
-        $encoder = $this->get("security.password_encoder");
-        $responseHandler = ResponseHandler::getInstance();
+        $role = "";
+        $roleNumber = $this->getUser()->getRole();
         
-        $em = $this->get("doctrine")->getManager();
-        
-        
-        $name = $request->request->get("name");
-        $email = $request->request->get("email");
-        $password = $request->request->get("password");
-        
-        
-        
-        $user->setName($name)
-                ->setEmail($email)
-                ->setPassword($encoder->encodePassword($user, $password))
-                ->setRole(Role::TRAINEE);
-//        dump($user);
-        $response = new Response();
-//        $form->submit($request->request->get($form->getName()));
-        $valid = true || $form->isValid();
-        
-        
-        if($userRepository->findOneBy(["email" => $email])) {
-            $response->setContent($responseHandler->handle(Status::EXIST, "json"));
+        if($roleNumber == Role::ADMIN) {
+            $role = "admin";
         }
-        else if($valid) {
-            $em->persist($user);
-            $em->flush();
-            $response->setContent($responseHandler->handle(Status::SUCCESS, "json"));
+        else if($roleNumber == Role::SUPERVISOR) {
+            $role = "supervisor";
         }
-        else {
-            $response->setContent($responseHandler->handle(Status::FAILURE, "json"));
-        }
-        $response->headers->set("Content-Type", "application/json");        
-        return $response;
+        
+        return new Response(ResponseHandler::getInstance()->handle(Status::SUCCESS, "json", ["name" => $this->getUser()->getName(), "role" => $role]));
+    }
+    
+    public function apiAction(Request $request)
+    {
+        return new Response(sprintf('Logged in as %s', $this->getUser()->getUsername()));
     }
 }

@@ -4,61 +4,62 @@ namespace TaskTrackBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
-use FOS\UserBundle\Model\User as BaseUser;
-
-
+use TaskTrackBundle\Constants\Role;
 
 /**
  * User
  */
-class User extends BaseUser
+class User implements UserInterface
 {
     /**
-     * @var integer
-     * 
-     * @Assert\NotBlank()
+     * @var int
      */
-    protected $id;
+    private $id;
+
 
     /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+    /**
      * @var string
-     * 
-     * @Assert\NotBlank()
      */
     private $name;
+    
+    
 
     /**
      * @var string
-     * 
-     * @Assert\NotBlank()
      */
-//    protected $email;
+    private $username;
 
     /**
      * @var string
-     * 
-     * @Assert\NotBlank()
      */
-    protected $password;
+    private $email;
+
+    /**
+     * @var string
+     */
+    private $password;
 
     /**
      * @var integer
-     * 
-     * @Assert\NotBlank()
      */
     private $role;
 
     /**
      * @var \DateTime
-     * 
      */
     private $created_at;
 
     /**
      * @var \DateTime
-     * 
      */
     private $updated_at;
 
@@ -79,20 +80,6 @@ class User extends BaseUser
     {
         $this->tasks = new \Doctrine\Common\Collections\ArrayCollection();
         $this->challenges = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-    
-    public function __toString() {
-        return "Generate the magic method";
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**
@@ -118,6 +105,26 @@ class User extends BaseUser
     {
         return $this->name;
     }
+    
+    
+    public function getUsername(): string {
+        return $this->username;
+    }
+
+
+    /**
+     * Set username
+     *
+     * @param string $username
+     *
+     * @return User
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+
+        return $this;
+    }
 
     /**
      * Set email
@@ -126,22 +133,22 @@ class User extends BaseUser
      *
      * @return User
      */
-//    public function setEmail($email)
-//    {
-//        $this->email = $email;
-//
-//        return $this;
-//    }
-//
-//    /**
-//     * Get email
-//     *
-//     * @return string
-//     */
-//    public function getEmail()
-//    {
-//        return $this->email;
-//    }
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
 
     /**
      * Set password
@@ -311,10 +318,8 @@ class User extends BaseUser
      */
     public function setTimeStamps()
     {
-        $this->created_at = new \DateTime();
-    
-        $this->updated_at = new \DateTime();    
-        
+        $this->setCreatedAt(new \DateTime());
+        $this->setUpdatedAt(new \DateTime());
     }
 
     /**
@@ -322,7 +327,7 @@ class User extends BaseUser
      */
     public function updateTime()
     {
-        $this->updated_at = new \DateTime();
+        $this->setUpdatedAt(new \DateTime());
     }
 
     public function eraseCredentials() {
@@ -330,19 +335,20 @@ class User extends BaseUser
     }
 
     public function getRoles() {
-        
+        $roles = [];
+        if($this->role == Role::ADMIN) {
+            $roles[] = "ROLE_SUPERADMIN";
+        }
+        else if($this->role == Role::SUPERVISOR) {
+            $roles[] = "ROLE_ADMIN";
+        }
+        else if($this->role == Role::TRAINEE) {
+            $roles[] = "ROLE_USER";
+        }
+        return $roles;
     }
 
     public function getSalt() {
         
     }
-
-    public function getUsername(): string {
-        
-    }
-
-    public static function createFromPayload($username, array $payload): JWTUserInterface {
-        return new self($username, $payload["role"], $payload["name"]);
-    }
-
 }

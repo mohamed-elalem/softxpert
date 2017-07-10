@@ -1,6 +1,7 @@
 <?php
 
 namespace TaskTrackBundle\Entity;
+
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -9,10 +10,20 @@ use Doctrine\ORM\Mapping as ORM;
 class Challenge
 {
     /**
-     * @var integer
+     * @var int
      */
     private $id;
 
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
     /**
      * @var integer
      */
@@ -60,16 +71,6 @@ class Challenge
     {
         $this->children = new \Doctrine\Common\Collections\ArrayCollection();
         $this->tasks = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**
@@ -288,9 +289,8 @@ class Challenge
      */
     public function setTimeStamps()
     {
-        $this->created_at = new \DateTime();
-    
-        $this->updated_at = new \DateTime();
+        $this->setCreatedAt(new \DateTime());
+        $this->setUpdatedAt(new \DateTime());
     }
 
     /**
@@ -298,6 +298,6 @@ class Challenge
      */
     public function updateTime()
     {
-        $this->updated_at = new \DateTime();
+        $this->setUpdatedAt(new \DateTime());
     }
 }

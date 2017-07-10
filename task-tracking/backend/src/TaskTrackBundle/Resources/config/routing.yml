@@ -1,16 +1,18 @@
-#task_track_homepage:
-#    path:     /
-#    defaults: { _controller: TaskTrackBundle:Default:index }
+task_track_homepage:
+    path:     /
+    defaults: { _controller: TaskTrackBundle:Default:index }
+    methods: [POST]
     
-api_trainee_register:
+register:
     path: /api/register
     defaults: { _controller: TaskTrackBundle:User:register }
+    methods: [POST]
 
-api_trainee_login:
-    path: /api/login
-    defaults: { _controller: TaskTrackBundle:User:login }
+check:
+    path: /api
+    defaults: { _controller: TaskTrackBundle:User:api }
     
-    
-api_login_check:
-    path: /api/login_check
-    
+get_name:
+    path: /api/get_user_info
+    defaults: { _controller: TaskTrackBundle:User:getUserInfo }
+    methods: [POST]

@@ -1,19 +1,30 @@
 <?php
 
 namespace TaskTrackBundle\Entity;
-use Symfony\Component\Validator\Constraints as Assert;
 
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * User
  */
-class User
+class User implements UserInterface
 {
     /**
-     * @var integer
+     * @var int
      */
     private $id;
 
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
     /**
      * @var string
      */
@@ -61,16 +72,6 @@ class User
     {
         $this->tasks = new \Doctrine\Common\Collections\ArrayCollection();
         $this->challenges = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**
@@ -289,10 +290,8 @@ class User
      */
     public function setTimeStamps()
     {
-        $this->created_at = new \DateTime();
-    
-        $this->updated_at = new \DateTime();    
-        
+        $this->setCreatedAt(new \DateTime());
+        $this->setUpdatedAt(new \DateTime());
     }
 
     /**
@@ -300,7 +299,23 @@ class User
      */
     public function updateTime()
     {
-        $this->updated_at = new \DateTime();
+        $this->setUpdatedAt(new \DateTime());
     }
-}
 
+    public function eraseCredentials() {
+        
+    }
+
+    public function getRoles() {
+        
+    }
+
+    public function getSalt() {
+        
+    }
+
+    public function getUsername(): string {
+        
+    }
+
+}

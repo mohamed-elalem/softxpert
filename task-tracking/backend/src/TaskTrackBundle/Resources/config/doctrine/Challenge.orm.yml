@@ -1,8 +1,7 @@
 TaskTrackBundle\Entity\Challenge:
     type: entity
-    table: challenge
+    table: null
     
-        
     oneToMany:
         children:
             targetEntity: Challenge

@@ -1,6 +1,7 @@
 TaskTrackBundle\Entity\Task:
     type: entity
-    table: task
+    table: null
+    
     
     manyToOne:
         user:

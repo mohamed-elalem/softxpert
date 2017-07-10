@@ -1,8 +1,8 @@
 <?php
 
 namespace TaskTrackBundle\Entity;
-use Doctrine\ORM\Mapping as ORM;
 
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Task
@@ -10,10 +10,20 @@ use Doctrine\ORM\Mapping as ORM;
 class Task
 {
     /**
-     * @var integer
+     * @var int
      */
     private $id;
 
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
     /**
      * @var float
      */
@@ -35,26 +45,15 @@ class Task
     private $updated_at;
 
     /**
-     * @var \TaskTrackBundle\Entity\Challenge
-     */
-    private $challenge;
-    
-    /**
      * @var \TaskTrackBundle\Entity\User
      */
     private $user;
 
-
-
     /**
-     * Get id
-     *
-     * @return integer
+     * @var \TaskTrackBundle\Entity\Challenge
      */
-    public function getId()
-    {
-        return $this->id;
-    }
+    private $challenge;
+
 
     /**
      * Set score
@@ -153,31 +152,6 @@ class Task
     }
 
     /**
-     * Set challenge
-     *
-     * @param \TaskTrackBundle\Entity\Challenge $challenge
-     *
-     * @return Task
-     */
-    public function setChallenge(\TaskTrackBundle\Entity\Challenge $challenge = null)
-    {
-        $this->challenge = $challenge;
-
-        return $this;
-    }
-
-    /**
-     * Get challenge
-     *
-     * @return \TaskTrackBundle\Entity\Challenge
-     */
-    public function getChallenge()
-    {
-        return $this->challenge;
-    }
-    
-    
-    /**
      * Set user
      *
      * @param \TaskTrackBundle\Entity\User $user
@@ -200,15 +174,37 @@ class Task
     {
         return $this->user;
     }
-    
+
+    /**
+     * Set challenge
+     *
+     * @param \TaskTrackBundle\Entity\Challenge $challenge
+     *
+     * @return Task
+     */
+    public function setChallenge(\TaskTrackBundle\Entity\Challenge $challenge = null)
+    {
+        $this->challenge = $challenge;
+
+        return $this;
+    }
+
+    /**
+     * Get challenge
+     *
+     * @return \TaskTrackBundle\Entity\Challenge
+     */
+    public function getChallenge()
+    {
+        return $this->challenge;
+    }
     /**
      * @ORM\PrePersist
      */
     public function setTimeStamps()
     {
-        $this->created_at = new \DateTime();
-    
-        $this->updated_at = new \DateTime();
+        $this->setCreatedAt(new \DateTime());
+        $this->setUpdatedAt(new \DateTime());
     }
 
     /**
@@ -216,8 +212,6 @@ class Task
      */
     public function updateTime()
     {
-        $this->updated_at = new \DateTime();
+        $this->setUpdatedAt(new \DateTime());
     }
-
-
 }

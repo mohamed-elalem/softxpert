@@ -10,4 +10,14 @@ namespace TaskTrackBundle\Repository;
  */
 class UserRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function checkIfRegistered($username, $email) {
+        $user = $this->createQueryBuilder('u')
+                ->where("u.username = :username")
+                ->orWhere("u.email = :email")
+                ->setParameters([
+                    "email" => $email,
+                    "username" => $username
+                ])->getQuery()->getResult();
+        return count($user) == 1;
+    }
 }

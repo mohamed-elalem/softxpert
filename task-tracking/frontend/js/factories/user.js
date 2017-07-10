@@ -1,45 +1,44 @@
 app.factory("User", function($http, $q) {
-    var loginUrl = "http://localhost:8000/api/login";
-    var registerationURl = "http://localhost:8000/api/register";
+    var base = "http://localhost:8000/";
+    var prefix = "api/";
+    var loginUrl = "login_check";
+    var registerationURl = "register";
+    var getUserFullNameUrl = "get_user_info";
 
     return {
-        login: function(email, password) {
+        login: function(username, password, role) {
             console.log("Login attempt");
-            console.log("email", email);
+            console.log("username", username);
             console.log("password", password);
+            role = role || '';
 
-            var def = $q.defer();
-
-            $http({
+            return $http({
                 method: "post",
-                url: loginUrl,
+                url: base + prefix + role + loginUrl,
                 transformRequest: function(obj) {
                     var str = [];
                     for (var p in obj)
                         str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
                     return str.join("&");
                 },
-                data: { "email": email, "password": password }
-            }).then(function(res) {
-                console.log(res);
-                def.resolve();
-            }).then(function(err) {
-                console.log(err);
-                def.reject();
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                dataType: 'json',
+                data: { "_username": username, "_password": password }
             });
-            return def.promise;
         },
-        register: function(name, email, password) {
+        register: function(username, name, email, password) {
             console.log("Registration attempt");
+            console.log("username", username);
             console.log("name", name);
             console.log("email", email);
             console.log("password", password);
 
-            var def = $q.defer();
 
-            $http({
+            return $http({
                 method: "post",
-                url: registerationURl,
+                url: base + prefix + registerationURl,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -50,19 +49,22 @@ app.factory("User", function($http, $q) {
                     return str.join("&");
                 },
                 data: {
+                    "username": username,
                     "name": name,
                     "email": email,
                     "password": password
                 }
-            }).then(function(res) {
-                console.log(res);
-                def.resolve();
-            }).then(function(err) {
-                console.log(err);
-                def.reject();
             });
-
-            return def.promise;
+        },
+        getUserInfo: function() {
+            return $http({
+                "method": "post",
+                "url": base + prefix + getUserFullNameUrl,
+                "headers": {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                },
+                "dataType": "json"
+            });
         }
     }
 })

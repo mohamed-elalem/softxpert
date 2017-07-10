@@ -2,16 +2,28 @@
 
 namespace TaskTrackBundle\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * Task
  */
 class Task
 {
     /**
-     * @var integer
+     * @var int
      */
     private $id;
 
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
     /**
      * @var float
      */
@@ -33,20 +45,15 @@ class Task
     private $updated_at;
 
     /**
+     * @var \TaskTrackBundle\Entity\User
+     */
+    private $user;
+
+    /**
      * @var \TaskTrackBundle\Entity\Challenge
      */
     private $challenge;
 
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Set score
@@ -145,6 +152,30 @@ class Task
     }
 
     /**
+     * Set user
+     *
+     * @param \TaskTrackBundle\Entity\User $user
+     *
+     * @return Task
+     */
+    public function setUser(\TaskTrackBundle\Entity\User $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \TaskTrackBundle\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
      * Set challenge
      *
      * @param \TaskTrackBundle\Entity\Challenge $challenge
@@ -172,9 +203,8 @@ class Task
      */
     public function setTimeStamps()
     {
-        $this->created_at = new \DateTime();
-    
-        $this->updated_at = new \DateTime();
+        $this->setCreatedAt(new \DateTime());
+        $this->setUpdatedAt(new \DateTime());
     }
 
     /**
@@ -182,7 +212,6 @@ class Task
      */
     public function updateTime()
     {
-        $this->updated_at = new \DateTime();
+        $this->setUpdatedAt(new \DateTime());
     }
 }
-
