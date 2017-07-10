@@ -23,6 +23,13 @@ app.config(function($routeProvider, $httpProvider) {
             templateUrl: "/templates/register.html",
             controller: "RegisterController",
             access: ANONYMOUS
+        }).when("/admin/login", {
+            templateUrl: "/templates/admin-login.html",
+            controller: "AdminLoginController",
+            access: ANONYMOUS
+        }).when("/admin/", {
+            templateUrl: "/templates/admin-home.html",
+            access: ALLOWED
         })
 
     $httpProvider.defaults.headers.common = {};

@@ -6,7 +6,6 @@ app.controller("LoginController", function($location, $scope, User, $rootScope) 
     $scope.login = function(form) {
         if (form.$valid) {
             console.log("Valid form");
-            var role = $rootScope.role;
             User.login($scope.username, $scope.password)
                 .then(function(res) {
                     console.log(res);
