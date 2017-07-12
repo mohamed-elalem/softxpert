@@ -11,6 +11,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use TaskTrackBundle\Constants\Role;
 use TaskTrackBundle\Entity\User;
 use TaskTrackBundle\Repository\UserRepository;
+use Symfony\Component\Console\Question\Question;
 
 class AppGenerateAdminCommand extends ContainerAwareCommand
 {
@@ -40,6 +41,16 @@ class AppGenerateAdminCommand extends ContainerAwareCommand
         $text = null;
         $style = null;
         
+        $adminUsernameQuestion = new Question("<fg=yellow;options=blink,bold>Enter admin username(admin) </>", "admin");
+        $adminEmailQuestion = new Question("<fg=yellow;options=blink,bold>Enter admin email(admin@webmaster.com) </>", "admin@webmaster.com");
+        $adminPasswordQuestion = new Question("<fg=yellow;options=blink,bold>Enter admin password(123456) </>", "123456");
+        
+        $helper = $this->getHelper("question");
+        
+        $adminUsername = $helper->ask($input, $output, $adminUsernameQuestion);
+        $adminEmail = $helper->ask($input, $output, $adminEmailQuestion);
+        $adminPassword = $helper->ask($input, $output, $adminPasswordQuestion);
+        
         $userRepository = $this->getContainer()->get('doctrine')->getEntityManager()->getRepository('TaskTrackBundle:User');
         
         $user = $userRepository->findOneBy(["username" => "admin"]);
@@ -49,11 +60,11 @@ class AppGenerateAdminCommand extends ContainerAwareCommand
             $style = new OutputFormatterStyle("white", "cyan", ["blink", "bold"]);
             
             $user = new User();
-            $user->setEmail("admin@webmaster.com")
+            $user->setEmail($adminEmail)
                     ->setName("Administrator")
                     ->setRole(Role::ADMIN)
-                    ->setUsername("admin")
-                    ->setPassword($encoder->encodePassword($user, "123456"));
+                    ->setUsername($adminUsername)
+                    ->setPassword($encoder->encodePassword($user, $adminPassword));
             $em->persist($user);
             $em->flush();
             

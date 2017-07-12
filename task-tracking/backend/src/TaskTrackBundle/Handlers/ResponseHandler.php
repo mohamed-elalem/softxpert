@@ -26,9 +26,11 @@ class ResponseHandler {
             "code" => $status,
             "message" => Status::MESSAGES[$status]
         ];
-        $response['extra'] = [];
-        foreach($extra as $key => $message) {
-            $response['extra'][$key] = $message;
+        if(count($extra)) {
+            $response['extra'] = [];
+            foreach($extra as $key => $message) {
+                $response['extra'][$key] = $message;
+            }
         }
         return $this->serializer->serialize($response, $format);
     }

@@ -7,6 +7,11 @@ register:
     path: /api/register
     defaults: { _controller: TaskTrackBundle:User:register }
     methods: [POST]
+    
+register_supervisor:
+    path: /api/admin/register_supervisor
+    defaults: { _controller: TaskTrackBundle:User:registerSupervisor }
+    methods: [POST]
 
 check:
     path: /api

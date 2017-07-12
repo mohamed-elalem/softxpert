@@ -14,9 +14,14 @@ use TaskTrackBundle\Handlers\ResponseHandler;
 
 class UserController extends Controller
 {
+    
     public function registerAction(Request $request)
     {
-        $em = $this->get('doctrine')->getManager();
+        return $this->register($request, Role::TRAINEE);
+    }
+    
+    public function register(Request $request, $role) {
+        $userRepository = $this->getDoctrine()->getRepository("TaskTrackBundle:User");
         $encoder = $this->container->get('security.password_encoder');
 
         $username = $request->request->get("username");
@@ -24,19 +29,12 @@ class UserController extends Controller
         $password = $request->request->get('password');
         $name = $request->request->get("name");
         
-        $registered = $this->getDoctrine()->getRepository("TaskTrackBundle:User")->checkIfRegistered($username, $email);
+        $registered = count($userRepository->checkIfRegistered($username, $email)) == 1;
         
         $response = new Response();
         
         if(! $registered) {
-            $user = new User();
-            $user->setUsername($username);
-            $user->setEmail($email);
-            $user->setPassword($encoder->encodePassword($user, $password));
-            $user->setName($name);
-            $user->setRole(Role::TRAINEE);
-            $em->persist($user);
-            $em->flush($user);
+            $userRepository->addNewUser($name, $username, $email, $encoder->encodePassword(new User(), $password), $role);
             $response->setContent(ResponseHandler::getInstance()->handle(Status::SUCCESS, "json"));
             return $response;    
         }
@@ -45,6 +43,10 @@ class UserController extends Controller
             $response->setStatusCode(Status::RESPONSE_CODES[Status::EXIST]);
         }
         return $response;
+    }
+    
+    public function registerSupervisorAction(Request $request) {
+        return $this->register($request, Role::SUPERVISOR);
     }
     
     public function getUserInfoAction() {

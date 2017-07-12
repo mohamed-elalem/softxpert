@@ -2,6 +2,8 @@
 
 namespace TaskTrackBundle\Repository;
 
+use TaskTrackBundle\Entity\User;
+
 /**
  * UserRepository
  *
@@ -18,6 +20,49 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                     "email" => $email,
                     "username" => $username
                 ])->getQuery()->getResult();
-        return count($user) == 1;
+        return $user;
+    }
+    
+    public function addNewUser($name, $username, $email, $password, $role) {
+        $em = $this->getEntityManager();
+        $user = new User();
+        $user->setUsername($username)
+                ->setName($name)
+                ->setRole($role)
+                ->setPassword($password)
+                ->setEmail($email);
+        $em->persist($user);
+        $em->flush();
+    }
+    
+    public function deleteUser($username) {
+        $user = $this->findOne($user);
+        $em = $this->getEntityManager();
+        $em->getEntityManager()->remove($user);
+        $em->flush();
+    }
+//    
+//    public function updateUser($parameters, $whereCondition) {
+//        $n = count($columns);
+//        $q = $this->createQueryBuilder('u')
+//                ->update()
+//                ->setParameters($parameters)
+//                ->where();
+//                
+//    }
+    
+    public function selectAllUsers() {
+        $users = $this->createQueryBuilder("q")->select()->getQuery()->getResult();
+        
+        return $users;
+    }
+    
+    public function selectUsersByRole($role) {
+        $users = $this->selectQueryBuilder("q")
+                ->select()
+                ->where("u.role = :role")
+                ->setParameter("role", $role)
+                ->getQuery()->getResult();
+        return $users;
     }
 }

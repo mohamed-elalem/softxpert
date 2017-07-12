@@ -11,7 +11,14 @@ app.controller("LoginController", function($location, $scope, User, $rootScope) 
                     console.log(res);
                     if (res.data.hasOwnProperty("token")) {
                         localStorage.setItem("token", res.data.token);
-                        $location.path("/");
+                        if (res.data.role == '') {
+                            $location.path("/");
+                        } else if (res.data.role == 'supervisor') {
+                            $location.path("/supervisor");
+                        } else if (res.data.role == 'admin') {
+                            $location.path("/admin");
+                        }
+
                     } else {
 
                     }

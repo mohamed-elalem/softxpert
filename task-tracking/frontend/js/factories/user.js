@@ -1,9 +1,9 @@
 app.factory("User", function($http, $q) {
-    var base = "http://localhost:8000/";
-    var prefix = "api/";
-    var loginUrl = "login_check";
-    var registerationURl = "register";
-    var getUserFullNameUrl = "get_user_info";
+    // var base = "http://localhost:8000/";
+    // var prefix = "api/";
+    // var loginUrl = "login_check";
+    // var registerationURl = "register";
+    // var getUserFullNameUrl = "get_user_info";
 
     return {
         login: function(username, password, role) {
@@ -14,7 +14,7 @@ app.factory("User", function($http, $q) {
 
             return $http({
                 method: "post",
-                url: base + prefix + role + loginUrl,
+                url: BASE + PREFIX + role + LOGIN_URL,
                 transformRequest: function(obj) {
                     var str = [];
                     for (var p in obj)
@@ -38,7 +38,7 @@ app.factory("User", function($http, $q) {
 
             return $http({
                 method: "post",
-                url: base + prefix + registerationURl,
+                url: BASE + PREFIX + REGISTRATION_URl,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -59,7 +59,7 @@ app.factory("User", function($http, $q) {
         getUserInfo: function() {
             return $http({
                 "method": "post",
-                "url": base + prefix + getUserFullNameUrl,
+                "url": BASE + PREFIX + GET_USER_FULL_NAME_URL,
                 "headers": {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
