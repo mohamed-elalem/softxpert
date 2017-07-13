@@ -12,9 +12,15 @@ class SerializationHandler {
     private $serializer;
     
     public function __construct() {
-        $encoders = array(new XmlEncoder(), new JsonEncoder());
-        $normalizers = array(new ObjectNormalizer());
-        $this->serializer = new Serializer($normalizers, $encoders);
+        $xmlEncoder = new XmlEncoder();
+        $jsonEncoder = new JsonEncoder();
+        $normalizer = new ObjectNormalizer();
+//        $normalizer->setIgnoredAttributes(["user_id", "challenge_id"]);
+        $normalizer->setCircularReferenceHandler(function ($object) {
+            return $object;
+        });
+        
+        $this->serializer = new Serializer([$normalizer], [$xmlEncoder, $jsonEncoder]);
     }
     
     public function serialize($data, $format) {

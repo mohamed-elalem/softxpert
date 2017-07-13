@@ -214,4 +214,33 @@ class Task
     {
         $this->setUpdatedAt(new \DateTime());
     }
+    /**
+     * @var boolean
+     */
+    private $done;
+
+
+    /**
+     * Set done
+     *
+     * @param boolean $done
+     *
+     * @return Task
+     */
+    public function setDone($done)
+    {
+        $this->done = $done;
+
+        return $this;
+    }
+
+    /**
+     * Get done
+     *
+     * @return boolean
+     */
+    public function getDone()
+    {
+        return $this->done;
+    }
 }

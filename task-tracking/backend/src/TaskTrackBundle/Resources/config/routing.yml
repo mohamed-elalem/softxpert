@@ -4,12 +4,12 @@ task_track_homepage:
     methods: [POST]
     
 register:
-    path: /api/register
+    path: /api/user
     defaults: { _controller: TaskTrackBundle:User:register }
     methods: [POST]
     
 register_supervisor:
-    path: /api/admin/register_supervisor
+    path: /api/admin/supervisor
     defaults: { _controller: TaskTrackBundle:User:registerSupervisor }
     methods: [POST]
 
@@ -17,7 +17,54 @@ check:
     path: /api
     defaults: { _controller: TaskTrackBundle:User:api }
     
-get_name:
-    path: /api/get_user_info
-    defaults: { _controller: TaskTrackBundle:User:getUserInfo }
+get_users:
+    path: /api/admin/users/
+    defaults: { _controller: TaskTrackBundle:User:getAllUsers }
+    methods: [GET]
+
+get_trainees:
+    path: /api/supervisor/users
+    defaults: { _controller: TaskTrackBundle:User:getAllTrainees }
+    methods: [GET]
+
+get_user:
+    path: /api/admin/users/{id}
+    defaults: { _controller: TaskTrackBundle:User:getUser }
+    methods: [GET]
+    requirements:
+        id: '\d+'
+
+
+get_user_tasks:
+    path: /api/users/{user_id}/tasks
+    defaults: { _controller: TaskTrackBundle:User:getUserTasks }
+    requirements:
+        user_id: '\d+'
+    methods: [GET]
+    
+get_supervisor_challenges:
+    path: /api/supervisor/challenges
+    defaults: { _controller: TaskTrackBundle:User:getSupervisorChallenges }
+    methods: [GET]
+    
+create_new_challenge:
+    path: /api/supervisor/challenges
+    defaults: { _controller: TaskTrackBundle:User:createNewChallenge }
     methods: [POST]
+    
+delete_user:
+    path: /api/admin/users/{id}
+    defaults: { _controller: TaskTrackBundle:User:deleteUser }
+    requirements:
+        id: '\d+'
+    methods: [DELETE]
+    
+get_authenticated:
+    path: /api/auth
+    defaults: { _controller: TaskTrackBundle:User:getAuthenticatedUser }
+    methods: [GET]
+
+get_user_details_admin:
+    path: /api/admin/users/{id}
+    defaults: { _controller: TaskTrackBundle:User:getUser }
+    methods: [GET]

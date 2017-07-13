@@ -2,7 +2,6 @@ TaskTrackBundle\Entity\Task:
     type: entity
     table: null
     
-    
     manyToOne:
         user:
             targetEntity: User
@@ -32,6 +31,8 @@ TaskTrackBundle\Entity\Task:
             type: float
         seconds:
             type: integer
+        done:
+            type: boolean
         created_at:
             type: datetime
             nullable: true

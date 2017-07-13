@@ -2,6 +2,8 @@
 
 namespace TaskTrackBundle\Repository;
 
+use TaskTrackBundle\Entity\Challenge;
+
 /**
  * ChallengeRepository
  *
@@ -10,4 +12,20 @@ namespace TaskTrackBundle\Repository;
  */
 class ChallengeRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function addNewChallenge($user, $parent, $duration, $description) {
+        $em = $this->getEntityManager();
+        
+        $challenge = new Challenge;
+        $challenge->setParent($parent);
+        $challenge->setDuration($duration);
+        $challenge->setDescription($description);
+        $challenge->setSupervisor($user);
+        
+        $em->persist($challenge);
+        $em->flush();
+    }
+    
+    public function getChallenge($id) {
+        return $this->findOneById($id);
+    }
 }

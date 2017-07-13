@@ -35,23 +35,24 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         $em->flush();
     }
     
-    public function deleteUser($username) {
-        $user = $this->findOne($user);
+    public function deleteUser($id) {
+        $user = $this->findOneById($id);
         $em = $this->getEntityManager();
-        $em->getEntityManager()->remove($user);
+        $em->remove($user);
         $em->flush();
     }
-//    
-//    public function updateUser($parameters, $whereCondition) {
-//        $n = count($columns);
-//        $q = $this->createQueryBuilder('u')
-//                ->update()
-//                ->setParameters($parameters)
-//                ->where();
-//                
-//    }
     
-    public function selectAllUsers() {
+    public function updateUser($user, $data) {
+        $q = $this->createQueryBuilder("u")->update();
+
+        foreach($data as $key => $value) {
+            $q = $q->set($key, $value);
+        }
+        
+        $q->where(["id" => ":id"])->setParameter("id", $user->getId())->getQuery()->execute();
+    }
+    
+    public function getAllUsers() {
         $users = $this->createQueryBuilder("q")->select()->getQuery()->getResult();
         
         return $users;
@@ -63,6 +64,45 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 ->where("u.role = :role")
                 ->setParameter("role", $role)
                 ->getQuery()->getResult();
+        return $users;
+    }
+    
+    public function getUser($id) {
+        
+        $user = $this->findOneById($id);
+        
+        if(! $user) {
+            throw new Exception("User " . $id . " wasn't found");
+        }
+        return $user;
+    }
+    
+    public function getUserChallenges($id) {
+        $user = $this->findOneBy($id);
+        
+        if(! $user) {
+            throw new Exception("User " . $id . " wasn't found");
+        }
+        
+        return $user->getChallenges();
+    }
+    
+    public function getUserTasks($id) {
+        $user = $this->findByOne($id);
+        
+        if(! $user) {
+            throw new Exception("User " . $id . " wasn't found");
+        }
+        
+        return $user->getTasks();
+    }
+    
+    public function getAllUsersByRole($role) {
+        $users = $this->createQueryBuilder("u")
+                ->where("u.role = :role")
+                ->setParameter("role", $role)
+                ->getQuery()
+                ->getResult();
         return $users;
     }
 }

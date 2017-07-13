@@ -38,8 +38,14 @@ services:
         parent: lexik_jwt_authentication.security.guard.jwt_token_authenticator
         class: TaskTrackBundle\Security\Guard\JWTAuthenticator
         
-    acme_api.event.authentication_success_listener:
-        class: TaskTrackBundle\EventListener\AuthenticationSuccessListener
-        arguments: [ '@request_stack' ]
-        tags:
-            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
+#    acme_api.event.authentication_success_listener:
+#        class: TaskTrackBundle\EventListener\AuthenticationSuccessListener
+#        arguments: [ '@request_stack' ]
+#        tags:
+#            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
+            
+            
+    
+    TaskTrackBundle\Helpers\:
+        resource: "../../src/TaskTrackBundle/Helpers/"
+        public: true

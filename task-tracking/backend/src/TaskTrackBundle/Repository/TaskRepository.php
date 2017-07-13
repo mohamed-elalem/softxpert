@@ -2,6 +2,8 @@
 
 namespace TaskTrackBundle\Repository;
 
+use TaskTrackBundle\Entity\Task;
+
 /**
  * TaskRepository
  *
@@ -10,4 +12,67 @@ namespace TaskTrackBundle\Repository;
  */
 class TaskRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getUserTask($user_id, $challenge_id) {
+        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id]);
+        if(! $task) {
+            throw new Exception("Task wasn't found");
+        }
+        
+        return $task;
+    }
+    
+    public function updateUserTaskScore($user_id, $challenge_id, $score) {
+        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id]);
+        if(! $task) {
+            throw new Exception("Task wasn't found");
+        }
+        
+        $task->setScore($score);
+        
+        return $task;
+    }
+    
+    public function updateUserTaskDuration($user_id, $challenge_id, $duration) {
+        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id]);
+        
+        if(! $task) {
+            throw new Exception("Task wasn't found");
+        }
+        
+        $task->setSeconds($task->getSeconds() + $duration);
+        
+        return $task;
+    }
+    
+    public function updateUserTaskDone($user_id, $challenge_id, $done) {
+        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id", $challenge_id]);
+        
+        if(! $task) {
+            throw new Exception("Task wasn't found");
+        }
+        
+        $task->setDone($done);
+        
+        return $task;
+    }
+    
+    public function addNewUserTask($user, $challenge, $score = 0, $seconds = 0, $done = false) {
+        $em = $this->getEntityManager();
+        $task = new Task;
+        
+        $task->setUser($user);
+        $task->setChallenge($challenge);
+        $task->setScore($score);
+        $task->setSeconds($seconds);
+        $task->setDone($done);
+        
+        $em->persist($task);
+        $em->flush();
+    }
+    
+    public function checkIfTaskExists($user_id, $challenge_id) {
+        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id, "done" => false]);
+        return $task;
+    }
 }
+

@@ -46,6 +46,6 @@ security:
         - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/admin, roles: [ROLE_SUPERADMIN] }
         - { path: ^/api/supervisor, roles: [ROLE_ADMIN] }
-        - { path: ^/api/get_user_info, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/auth, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api, roles: [ROLE_USER] }
         
