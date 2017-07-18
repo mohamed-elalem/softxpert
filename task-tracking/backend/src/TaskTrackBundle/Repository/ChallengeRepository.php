@@ -12,20 +12,44 @@ use TaskTrackBundle\Entity\Challenge;
  */
 class ChallengeRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function addNewChallenge($user, $parent, $duration, $description) {
+    public function addNewChallenge($user, $title, $duration, $description) {
         $em = $this->getEntityManager();
         
         $challenge = new Challenge;
-        $challenge->setParent($parent);
         $challenge->setDuration($duration);
         $challenge->setDescription($description);
+        $challenge->setTitle($title);
         $challenge->setSupervisor($user);
-        
         $em->persist($challenge);
         $em->flush();
+        
     }
     
     public function getChallenge($id) {
         return $this->findOneById($id);
+    }
+    
+    public function updateChallenge($challenge_id, $data) {
+        $q = $this->createQueryBuilder("c")
+                ->update();
+        
+        foreach($data as $key => $value) {
+            $q = $q->set("c." . $key, "'$value'");
+        }
+        
+        $q->where("c.id = :challenge_id")
+                ->setParameter("challenge_id", $challenge_id)
+                ->getQuery()->execute();
+    }
+    
+    public function makeConnection($parent_id, $child_id) {
+        $em = $this->getEntityManager();
+        $parent = $this->getChallenge($parent_id);
+        $child = $this->getChallenge($child_id);
+        $child->addParent($parent);
+        $parent->addChild($child);
+        $em->persist($child);
+        $em->persist($parent);
+        $em->flush();
     }
 }

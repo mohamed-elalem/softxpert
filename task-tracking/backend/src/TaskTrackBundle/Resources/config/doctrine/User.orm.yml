@@ -2,19 +2,15 @@ TaskTrackBundle\Entity\User:
     type: entity
     table: null
     
-    TaskTrackBundle\Entity\User:
-    type: entity
-    table: user
-    
-        
-    
     oneToMany:
         tasks:
             targetEntity: Task
             mappedBy: user
+
         challenges:
             targetEntity: Challenge
             mappedBy: supervisor
+    
             
     repositoryClass: TaskTrackBundle\Repository\UserRepository
     id:

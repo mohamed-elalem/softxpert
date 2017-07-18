@@ -9,21 +9,17 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Challenge
 {
+ 
     /**
-     * @var int
+     * @var integer
      */
     private $id;
 
-
     /**
-     * Get id
-     *
-     * @return int
+     * @var string
      */
-    public function getId()
-    {
-        return $this->id;
-    }
+    private $title;
+
     /**
      * @var integer
      */
@@ -47,17 +43,7 @@ class Challenge
     /**
      * @var \Doctrine\Common\Collections\Collection
      */
-    private $children;
-
-    /**
-     * @var \Doctrine\Common\Collections\Collection
-     */
     private $tasks;
-
-    /**
-     * @var \TaskTrackBundle\Entity\Challenge
-     */
-    private $parent;
 
     /**
      * @var \TaskTrackBundle\Entity\User
@@ -65,12 +51,57 @@ class Challenge
     private $supervisor;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    private $children;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    private $parents;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
-        $this->children = new \Doctrine\Common\Collections\ArrayCollection();
         $this->tasks = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->children = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->parents = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set title
+     *
+     * @param string $title
+     *
+     * @return Challenge
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get title
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
     }
 
     /**
@@ -170,40 +201,6 @@ class Challenge
     }
 
     /**
-     * Add child
-     *
-     * @param \TaskTrackBundle\Entity\Challenge $child
-     *
-     * @return Challenge
-     */
-    public function addChild(\TaskTrackBundle\Entity\Challenge $child)
-    {
-        $this->children[] = $child;
-
-        return $this;
-    }
-
-    /**
-     * Remove child
-     *
-     * @param \TaskTrackBundle\Entity\Challenge $child
-     */
-    public function removeChild(\TaskTrackBundle\Entity\Challenge $child)
-    {
-        $this->children->removeElement($child);
-    }
-
-    /**
-     * Get children
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getChildren()
-    {
-        return $this->children;
-    }
-
-    /**
      * Add task
      *
      * @param \TaskTrackBundle\Entity\Task $task
@@ -238,30 +235,6 @@ class Challenge
     }
 
     /**
-     * Set parent
-     *
-     * @param \TaskTrackBundle\Entity\Challenge $parent
-     *
-     * @return Challenge
-     */
-    public function setParent(\TaskTrackBundle\Entity\Challenge $parent = null)
-    {
-        $this->parent = $parent;
-
-        return $this;
-    }
-
-    /**
-     * Get parent
-     *
-     * @return \TaskTrackBundle\Entity\Challenge
-     */
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    /**
      * Set supervisor
      *
      * @param \TaskTrackBundle\Entity\User $supervisor
@@ -284,13 +257,80 @@ class Challenge
     {
         return $this->supervisor;
     }
+
+    /**
+     * Add child
+     *
+     * @param \TaskTrackBundle\Entity\Challenge $child
+     *
+     * @return Challenge
+     */
+    public function addChild(\TaskTrackBundle\Entity\Challenge $child)
+    {
+        $this->children[] = $child;
+
+        return $this;
+    }
+
+    /**
+     * Remove child
+     *
+     * @param \TaskTrackBundle\Entity\Challenge $child
+     */
+    public function removeChild(\TaskTrackBundle\Entity\Challenge $child)
+    {
+        $this->children->removeElement($child);
+    }
+
+    /**
+     * Get children
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    /**
+     * Add parent
+     *
+     * @param \TaskTrackBundle\Entity\Challenge $parent
+     *
+     * @return Challenge
+     */
+    public function addParent(\TaskTrackBundle\Entity\Challenge $parent)
+    {
+        $this->parents[] = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Remove parent
+     *
+     * @param \TaskTrackBundle\Entity\Challenge $parent
+     */
+    public function removeParent(\TaskTrackBundle\Entity\Challenge $parent)
+    {
+        $this->parents->removeElement($parent);
+    }
+
+    /**
+     * Get parents
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getParents()
+    {
+        return $this->parents;
+    }
     /**
      * @ORM\PrePersist
      */
     public function setTimeStamps()
     {
-        $this->setCreatedAt(new \DateTime());
-        $this->setUpdatedAt(new \DateTime());
+        // Add your code here
     }
 
     /**
@@ -298,6 +338,6 @@ class Challenge
      */
     public function updateTime()
     {
-        $this->setUpdatedAt(new \DateTime());
+        // Add your code here
     }
 }

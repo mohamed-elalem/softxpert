@@ -2,3 +2,11 @@ services:
 #    task_track.example:
 #        class: TaskTrackBundle\Example
 #        arguments: ["@service_id", "plain_value", "%parameter%"]
+    services.user_service:
+        class: TaskTrackBundle\Service\UserService
+        arguments: 
+            - '@doctrine.orm.entity_manager'
+            - '@jms_serializer'
+            
+    services.graph_service.kosaraju:
+        class: TaskTrackBundle\Graphs\Kosaraju

@@ -4,36 +4,12 @@ namespace TaskTrackBundle\Handlers;
 
 use TaskTrackBundle\Constants\Status;
 use TaskTrackBundle\Handlers\SerializationHandler;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class ResponseHandler {
     
-//    private static $handler = null;
-//    private $serializer;
-//    
-//    public static function getInstance() {
-//        if(is_null(static::$handler)) {
-//            static::$handler = new ResponseHandler();
-//        }
-//        return static::$handler;
-//    }
-//    
-//    public function __construct() {
-//        $this->serializer = new SerializationHandler();
-//    }
-//    
-//    public function handle($status, $format, $extra = []) {
-//        $response = [
-//            "code" => $status,
-//            "message" => Status::MESSAGES[$status]
-//        ];
-//        if(count($extra)) {
-//            $response['extra'] = [];
-//            foreach($extra as $key => $message) {
-//                $response['extra'][$key] = $message;
-//            }
-//        }
-//        return $this->serializer->serialize($response, $format);
-//    }
+    private static $serializer = null;
     
     /**
      * 
@@ -44,37 +20,49 @@ class ResponseHandler {
      * @param type $extra Extra info other than code and message
      */
     
-    public static function handle($response, $extra = [], $status = null, $message = null) {
-        $response->headers->set("Content-Type", "application/json");
+    public static function handle($code, $extra = [], $errorCode = null, $message = null) {
         $serializer = new SerializationHandler();
+        $response = new Response();
+        
+        
+        /**
+         * Setting response header to application/json
+         */
+        $response->headers->set("Content-Type", "application/json");
+        
+        
         /**
          * Filling response body with necessary data
          */
         
         $responseBody = [];
-        if(is_null($status)) {
-            $responseBody["code"] = Status::SUCCESS;
-        }
-        else {
-            $responseBody["code"] = $status;    
-        }
-        
-        $status = $responseBody["code"];
-        
-        if(is_null($message)) {
-            $responseBody["message"] = Status::MESSAGES[$status];
-        }
-        else {
-            $responseBody["message"] = $message;        
+        $responseBody["code"] = (is_null($code) ? Status::STATUS_SUCCESS : $code);
+        if($responseBody["code"] != Status::STATUS_SUCCESS) {
+            $responseBody["err_code"] = $errorCode;
+            $responseBody["err_message"] = (! is_null($message) ? $message : (! is_null($errorCode) ? Status::MESSAGES[$errorCode] : ""));
         }
         if(count($extra)) {
-            foreach($extra as $key => $value) {
-                $responseBody["extra"][$key] = $value;
-            }
+            $responseBody["data"] = static::fillData($extra);
         }
-        $content = $serializer->serialize($responseBody, "json");
-        
+        if($errorCode) {
+            $response->setStatusCode(Status::RESPONSE_CODES[$errorCode]);
+        }
+        $content = self::$serializer->serialize($responseBody, "json");
         $response->setContent($content);
         return $response;
     }
+    
+    public static function setSerializer($serializer) {
+        self::$serializer = $serializer;
+    }
+    
+    private static function fillData($extra) {
+        $data = [];
+        foreach($extra as $key => $value) {
+            $data[$key] = $value;
+        }
+        return $data;
+        
+    }
+    
 }

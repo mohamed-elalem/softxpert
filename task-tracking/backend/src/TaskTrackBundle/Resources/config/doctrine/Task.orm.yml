@@ -6,15 +6,19 @@ TaskTrackBundle\Entity\Task:
         user:
             targetEntity: User
             inversedBy: tasks
+            fetch: EAGER
             joinColumn:
                 name: user_id
                 referencedColumnName: id
+                onDelete: cascade
         challenge:
             targetEntity: Challenge
             inversedBy: tasks
+            fetch: EAGER
             joinColumn:
                 name: challenge_id
                 referencedColumnName: id
+                onDelete: cascade
     
             
     

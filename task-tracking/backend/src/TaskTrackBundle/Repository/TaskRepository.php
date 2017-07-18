@@ -56,7 +56,7 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         return $task;
     }
     
-    public function addNewUserTask($user, $challenge, $score = 0, $seconds = 0, $done = false) {
+    public function addNewTask($user, $challenge, $score = 0, $seconds = 0, $done = false) {
         $em = $this->getEntityManager();
         $task = new Task;
         
@@ -71,7 +71,7 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
     }
     
     public function checkIfTaskExists($user_id, $challenge_id) {
-        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id, "done" => false]);
+        $task = $this->findOneBy(["user" => $user_id, "challenge" => $challenge_id, "done" => false]);
         return $task;
     }
 }

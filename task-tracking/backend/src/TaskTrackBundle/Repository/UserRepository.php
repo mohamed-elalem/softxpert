@@ -3,6 +3,7 @@
 namespace TaskTrackBundle\Repository;
 
 use TaskTrackBundle\Entity\User;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * UserRepository
@@ -44,12 +45,10 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     
     public function updateUser($user, $data) {
         $q = $this->createQueryBuilder("u")->update();
-
         foreach($data as $key => $value) {
-            $q = $q->set($key, $value);
+            $q = $q->set("u." . $key, "'$value'");
         }
-        
-        $q->where(["id" => ":id"])->setParameter("id", $user->getId())->getQuery()->execute();
+        return $q->where("u.id = :id")->setParameter("id", $user->getId())->getQuery()->execute();
     }
     
     public function getAllUsers() {
@@ -58,8 +57,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         return $users;
     }
     
-    public function selectUsersByRole($role) {
-        $users = $this->selectQueryBuilder("q")
+    public function getUsersByRole($role) {
+        $users = $this->createQueryBuilder("u")
                 ->select()
                 ->where("u.role = :role")
                 ->setParameter("role", $role)
@@ -70,6 +69,15 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     public function getUser($id) {
         
         $user = $this->findOneById($id);
+        
+        if(! $user) {
+            throw new Exception("User " . $id . " wasn't found");
+        }
+        return $user;
+    }
+    
+    public function getUserByRole($id, $role) {
+        $user = $this->findOneBy(["id" => $id, "role" => $role]);
         
         if(! $user) {
             throw new Exception("User " . $id . " wasn't found");
@@ -97,12 +105,4 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         return $user->getTasks();
     }
     
-    public function getAllUsersByRole($role) {
-        $users = $this->createQueryBuilder("u")
-                ->where("u.role = :role")
-                ->setParameter("role", $role)
-                ->getQuery()
-                ->getResult();
-        return $users;
-    }
 }

@@ -2,26 +2,40 @@
 
 namespace TaskTrackBundle\Constants;
 class Status {
-    const SUCCESS = 0;
-    const FAILURE = 1;
-    const EXIST = 2;
-    const FORBIDDEN = 3;
-    const TASK_EXIST = 4;
+    
+    /**
+     * Status Codes
+     */
+    
+    const ERR_USER_EXIST = 100;
+    const ERR_ACTION_FORBIDDEN = 101;
+    const ERR_TASK_EXIST = 102;
+    const ERR_SERVER_ERROR = 103;
+    const ERR_CHALLENGE_OWNER = 104;
+    
+    /**
+     * Return Codes
+     */
+    
+    const STATUS_SUCCESS = 1;
+    const STATUS_FAILURE = 0;
     
     const MESSAGES = [
-        0 => "Response Ok. no errors found",
-        1 => "Request failed. errors were found",
-        2 => "This email is already Registered",
-        3 => "This is action is forbidden to your current status",
-        4 => "This task already exists",
+        1 => "Response Ok. no errors found",
+        100 => "This account is already Registered",
+        101 => "This is action is forbidden to your current status",
+        102 => "This task already exists",
+        103 => "Server error. Please try again later",
+        104 => "You're not the owner of this action please select an owned one"
     ];
     
     const RESPONSE_CODES = [
-        0 => 200,
-        1 => 500,
-        2 => 200,
-        3 => 403,
-        4 => 201,
+        1 => 200,
+        100 => 406,
+        101 => 403,
+        102 => 406,
+        103 => 500,
+        104 => 403,
     ];
 }
 

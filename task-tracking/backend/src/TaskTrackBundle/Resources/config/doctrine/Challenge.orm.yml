@@ -3,26 +3,32 @@ TaskTrackBundle\Entity\Challenge:
     table: null
     
     oneToMany:
-        children:
-            targetEntity: Challenge
-            mappedBy: parent
-            
+        
         tasks:
             targetEntity: Task
             mappedBy: challenge
             
     manyToOne:
-        parent:
-            targetEntity: Challenge
-            inversedBy: children
         
         supervisor:
             targetEntity: User
             inversedBy: challenges
+            fetch: EAGER
             joinColumn:
                 name: user_id
-                referencedColumnName: id    
-                        
+                referencedColumnName: id
+                onDelete: cascade
+    
+    manyToMany:
+        children:
+          targetEntity: Challenge
+          inversedBy: parents
+        
+        parents:
+            targetEntity: Challenge
+            mappedBy: children
+
+          
     
     repositoryClass: TaskTrackBundle\Repository\ChallengeRepository
     id:
@@ -33,6 +39,8 @@ TaskTrackBundle\Entity\Challenge:
                 strategy: AUTO
                 
     fields:
+        title:
+            type: string
         duration:
             type: integer
         description:
