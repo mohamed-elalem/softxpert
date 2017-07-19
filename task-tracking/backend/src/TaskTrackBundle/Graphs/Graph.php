@@ -14,45 +14,30 @@ namespace TaskTrackBundle\Graphs;
  * @author mohamedelalem
  */
 abstract class Graph implements StronglyConnectedComponents {
-    private $discovered;
-    private $adjList;
-    private $explored;
+    protected $discovered;
+    protected $explored;
     private $time;
     protected $state;
     protected $stack;
-    private $dp;
-    private $depth;
-    private $parent;
+    private $topoSort;
+    protected $depth;
+    protected $parent;
     private $vertices;
+    protected $inward;
     const WHITE = 0;
     const GRAY = 1;
     const BLACK = 2;
     
-    public function initialize($adjList) {
-        $this->discovered = [];
-        $this->explored = [];
+    public function initialize() {
         $this->time = 0;
-        $this->state = [];
         $this->stack = [];
-        $this->adjList = $adjList;
-        $this->dp = [];
-        
-        foreach($adjList as $parent => $children) {
-            foreach($children as $child) {
-                $dp[$parent][$child] = 0;
-                $dp[$child][$parent] = 0;
-            }
-        }
-//        $this->dp = new SplFixedArray($numOfVertices);
-//        for($i = 0; $i < $numOfVertices; $i++) {
-//            $this->dp[$i] = 0;
-//        }
-        $this->depth = [];
+        $this->topoSort = [];
     }
     
     public abstract function setup($setup);
     
-    public abstract function run();
+    public abstract function checkForCycles();
+    public abstract function getCycles();
     
     public function clear() {
         foreach($this->discovered as $vertex => $time) {
@@ -65,81 +50,125 @@ abstract class Graph implements StronglyConnectedComponents {
     
     /**
      * This method is responsible for traversing the graph with depth first search strategy
-     * and check whether this graph is cyclic or not and return strongly connected components if reuqests
-     * @param type $u
+     * and check whether this graph is cyclic or not.
+     * @param matrix Adjacency matrix that represents the graph
+     * @param integer $u
      * @return boolean true if the graph is valid | false if the graph is invalid
      */
     
-    public function dfs($adjList, $parent, $setDepth = false, $depth = 0, $returnComponents = false) {
+    public function checkGraphValidity($adjList, $parent) {
+        // Calling of discovery time of a vertex 
         $this->discovered[$parent] = $this->time++;
         $this->state[$parent] = static::GRAY;
-        $this->depth[$parent] = $depth;
         $valid = true;
+        
+        /**
+         * Traversing all the neighbors of current parent
+         */
+        foreach($adjList[$parent] as $idx => $neighbor) {
+
+            /**
+             * if neighbor has never been visited before then we explore it
+             * else if this neighbor is being explored and returned back to it then it's either of two cases:
+             * first case is a back edge (direct) u -> v & v -> u this is an invalid state
+             * second case is a back edge (cycle) u -> w & w -> v & v -> u this is an invalid state
+             * for the curious wondering why not just else
+             * there are other two cases forward edge and cross edge which they are totally legit
+             */
+
+            if($this->state[$neighbor] === self::WHITE) {
+                $this->parent[$neighbor] = $parent;
+                $valid &= $this->checkGraphValidity($adjList, $neighbor);
+            }
+            else if($this->state[$neighbor] === static::GRAY) {
+                $valid = false;
+                break;
+            }
+
+        }
+        // Declaring that this node is fully explored
+        $this->explored[$parent] = $this->time++;
+        $this->state[$parent] = static::BLACK;
+        
+        // Incase of a cycle we store the vertices inside stack to get cycles
+        $this->stack[] = $parent;
+        
+        return $valid;
+    }
+    
+    public function getStronglyConnectedComponents($adjList, $parent) {
+        // Calling of discovery time of a vertex 
+        $this->discovered[$parent] = $this->time++;
+        $this->state[$parent] = static::GRAY;
         $cycle = [$parent];
         
-        if($setDepth) {
-            $this->depth[$parent] = $depth;
+        /**
+         * Traversing all the neighbors of current parent
+         */
+        foreach($adjList[$parent] as $idx => $neighbor) {
+
+            /**
+             * Recursively build the cycle vector
+             */
+            if($this->state[$neighbor] == self::WHITE) {
+                $cycle = array_merge($cycle, $this->getStronglyConnectedComponents($adjList, $neighbor));
+            }
+
         }
-        dump($parent);
-        if(isset($adjList[$parent])) {
-            foreach($adjList[$parent] as $idx => $neighbor) {
-                
-                if(! isset($this->state[$neighbor]) || $this->state[$neighbor] == self::WHITE) {
-                    if(! $returnComponents) {
-                        $this->parent[$neighbor] = $parent;
-                        $valid &= $this->dfs($adjList, $neighbor, $setDepth, $depth + 1);
-                    }
-                    else {
-                        $cycle = array_merge($cycle, $this->dfs($adjList, $neighbor, $setDepth, $depth + 1, $returnComponents));
-                    }
-                }
-                else if($parent != $neighbor && $this->state[$neighbor] == static::GRAY) {
-                    $valid = false;
+        // Declaring that this node is fully explored
+        $this->explored[$parent] = $this->time++;
+        $this->state[$parent] = static::BLACK;
+        
+        
+        return $cycle;
+    }
+
+    
+    public function topologicalSort($adjList) {
+        $q = new \SplQueue();
+        
+        /**
+         * Inserting vertices with 0 in degree into queue
+         */
+        
+        foreach($adjList as $parent => $children) {
+            if($this->inward[$parent] == 0) {
+                $q->enqueue($parent);
+                $this->depth[$parent] = 0;
+            }
+        }
+        
+        while(! $q->isEmpty()) {
+            /*
+             * Getting the queue head and exploring its children
+             */
+            $u = $q->dequeue();
+            $this->topoSort[] = $u;
+            foreach($adjList[$u] as $v) {
+                /*
+                 * At each iteration decrease in degree each child with 1
+                 * if it became 0 we consider it to explore next
+                 */
+                $this->inward[$v]--;
+                if($this->inward[$v] == 0) {
+                    $q->enqueue($v);
+                    $this->depth[$v] = $this->depth[$u] + 1;
+                    $this->parent[$v] = $u;
                 }
             }
         }
-        $this->explored[$parent] = $this->time++;
-        $this->state[$parent] = static::BLACK;
-        if(! $returnComponents) {
-            $this->stack[] = $parent;
-            return $valid;
-        }
-        else {
-            return $cycle;
-        }
-    }
-    
-    /**
-     * This method will be responsible of finding the lowest possible vertex
-     * Assuming that there's a single component ( not necessary traversed )
-     */
-    
-    public function getLowestPossibleVertex() {
-        $n = count($this->stack);
-        $maxDepth = -1;
-        $vertex = -1;
-        for($i = $n - 1; $i >= 0; $i--) {
-            $parent = $this->stack[$i];
-            $dp[$parent] = 0;
-//            dump($parent);
-//            foreach($this->adjList[$parent] as $child) {
-//                $this->dp[$parent] = max($this->dp[$parent], $this->dp[$child] + 1);
-//                if($this->dp[$parent] > $maxDepth) {
-//                    $maxDepth = $this->dp[$parent];
-//                    $vertex = $parent;
-//                }
-//            }
-        }
-        die();
-        return $vertex;
-    }
-    
-    public function getAdjList() {
-        return $this->adjList;
     }
     
     public function getTopoSort() {
-        return $this->stack;
+        return $this->topoSort;
+    }
+    
+    public function getTaskPriority() {
+        $priority = [];
+        foreach($this->topoSort as $task) {
+            $priority[] = [$task, $this->depth[$task]];
+        }
+        return $priority;
     }
     
     protected function isVertex($vertex) {

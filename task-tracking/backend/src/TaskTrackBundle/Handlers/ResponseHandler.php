@@ -44,7 +44,7 @@ class ResponseHandler {
         if(count($extra)) {
             $responseBody["data"] = static::fillData($extra);
         }
-        if($errorCode) {
+        if($errorCode > -1) {
             $response->setStatusCode(Status::RESPONSE_CODES[$errorCode]);
         }
         $content = self::$serializer->serialize($responseBody, "json");

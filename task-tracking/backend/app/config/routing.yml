@@ -18,3 +18,7 @@ admin_login_check:
 app:
     resource: '@AppBundle/Controller/'
     type: annotation
+    
+gesdinet_jwt_refresh_token:
+    path:     /api/token/refresh
+    defaults: { _controller: gesdinet.jwtrefreshtoken:refresh }

@@ -39,9 +39,15 @@ security:
                 authenticators:
                     - app.jwt_token_authenticator
         
+        refresh:
+            pattern:  ^/api/token/refresh
+            stateless: true
+            anonymous: true
         
         
     access_control:
+        - { path: ^/api/token/refresh, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/token/revoke, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/user, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/admin, roles: [ROLE_SUPERADMIN] }

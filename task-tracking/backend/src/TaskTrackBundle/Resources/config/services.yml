@@ -8,5 +8,17 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@jms_serializer'
             
+    services.task_service:
+        class: TaskTrackBundle\Service\TaskService
+        arguments: 
+            - '@doctrine.orm.entity_manager'
+            - '@jms_serializer'
+            
+    services.challenge_service:
+        class: TaskTrackBundle\Service\ChallengeService
+        arguments: 
+            - '@doctrine.orm.entity_manager'
+            - '@jms_serializer'
+            
     services.graph_service.kosaraju:
         class: TaskTrackBundle\Graphs\Kosaraju

@@ -3,6 +3,11 @@ task_track_homepage:
     defaults: { _controller: TaskTrackBundle:Default:index }
     methods: [POST]
     
+revoke_refresh_token:
+    path: /api/token/revoke
+    defaults: { _controller: TaskTrackBundle:User:logout }
+    methods: [POST]
+
 register:
     path: /api/user
     defaults: { _controller: TaskTrackBundle:User:registerTrainee }

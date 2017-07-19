@@ -13,12 +13,27 @@ use TaskTrackBundle\Constants\Status;
 use TaskTrackBundle\Handlers\ResponseHandler;
 use TaskTrackBundle\Entity\Challenge;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Output\BufferedOutput;
+use \Symfony\Component\Console\Input\ArrayInput;
 
 class UserController extends Controller
 {
     
-    public function getHelper() {
-        return $this->get("TaskTrackBundle\Helpers\Helper");
+    public function revokeRefreshToken(Request $request) {
+        $kernel = $this->get("kernel");
+        $application = new Application($kernel);
+        $application->setAutoExit(true);
+        $input = new ArrayInput([
+            "command" => "gesdinet:jwt:revoke",
+            "refresh_token" => $request->request->get("refresh_token")
+        ]);
+        
+        $output = new BufferedOutput();
+        $application->run($input);
+        
+
+        return $this->getResponse(["code" => Status::STATUS_SUCCESS, "extra" => [$content]]);
     }
     
     public function registerTraineeAction(Request $request) {
@@ -63,61 +78,64 @@ class UserController extends Controller
     }
     
     public function getAllTraineesAction() {
-        return $this->get("services.user_service")->getAllUsersByRole(new Response, Role::TRAINEE);
+        $data = $this->get("services.user_service")->getAllUsersByRole(Role::TRAINEE);
+        return $this->getResponse($data);
     }
 
     public function deleteUserAction(Request $request) {
-        $id = $request->request->get("id");
-        
-        return $this->get("services.user_service")->deleteUser(new Response, $id);
+        $data = $this->get("services.user_service")->deleteUser($request->request->get("id"));
+        return $this->getResponse($data);
     }
     
     public function getUserTasksAction($user_id) {
-        return $this->get("services.user_service")->getUserTasks(new Response, $user_id);
+        $data = $this->get("services.task_service")->getUserTasks($user_id);
+        return $this->getResponse($data);
     }
     
     public function getUserTaskAction($user_id, $challenge_id) {
-        return $this->get("services.user_service")->getUserTasks(new Response, $user_id, $challenge_id);
+        $data = $this->get("services.user_service")->getUserTasks($user_id, $challenge_id);
+        return $this->getResponse($data);
     }
     
     public function getMyTasksAction() {
-        return $this->get("services.user_service")->getMyTasks(new Response, $this->getUser(), $this->get("services.graph_service.kosaraju"));
+        $data = $this->get("services.task_service")->getMyTasks($this->getUser()->getId(), $this->get("services.graph_service.kosaraju"));
+        return $this->getResponse($data);
     }
     
     public function getMyChallengesAction() {
-        
-        return $this->get("services.user_service")->getMyChallenges(new Response, $this->getUser());
+        $data = $this->get("services.challenge_service")->getMyChallenges($this->getUser()->id);
+        return $this->getResponse($data);
     }
     
     public function updateUserTaskScoreAction(Request $request, $user_id, $challenge_id) {
-        $score = $request->request->get("score");
-        
-        return $this->get("services.user_service")->updateUserTaskScore(new Response, $user_id, $challenge_id, $score);
+        $data = $this->get("services.task_service")->updateUserTaskScore($user_id, $challenge_id, $request->request->get("score"));
+        return $this->getResponse($data);
     }
     
     public function updateUserTaskDurationAction(Request $request, $user_id, $challenge_id) {
-        $duration = $request->request->get("duration");
-        return $this->get("services.user_service")->updateUserTaskDuration(new Response, $user_id, $challenge_id, $duration);
+        $data = $this->get("services.user_service")->updaterUserTaskDuration($user_id, $challenge_id, $request->request->get("duration"));
+        return $this->getResponse($data);
     }
     
     public function updateTaskDoneAction(Request $request, $user_id, $challenge_id) {
-        $done = $request->request->get("done");
-        return $this->get("services.user_service")->updateTaskDone(new Response, $user_id, $challenge_id, $done);
+        $data = $this->get("services.task_service")->updateTaskDone($user_id, $challenge_id, $request->request->get("done"));
+        return $this->getResponse($data);
     }
     
     public function createNewChallengeAction(Request $request) {
-        $user = $this->getUser();
-        $title = $request->request->get("title");
-        $duration = $request->request->get("duration");
-        $description = $request->request->get("description");
-        return $this->get("services.user_service")->createNewChallenge(new Response, $user, $title, $duration, $description);
+        $data = $this->get("services.challenge_service")
+                ->createNewChallenge(
+                        $this->getUser()->getId(),
+                        $request->request->get("title"),
+                        $request->request->get("duration"),
+                        $request->request->get("description")
+                        );
+        return $this->getResponse($data);
     }
     
     public function createNewTaskAction(Request $request, $user_id) {
-        
-        $challenge_id = $request->request->get("challenge_id");
-        
-        return $this->get("services.user_service")->createNewTask(new Response, $this->getUser(), $user_id, $challenge_id);
+        $data = $this->get("services.task_service")->createNewTask($this->getUser()->getId(), $user_id, $request->request->get("challenge_id"));
+        return $this->getResponse($data);
     }
     
     public function updateUserInfoAction(Request $request) {
@@ -140,21 +158,25 @@ class UserController extends Controller
             $name = $request->request->get("name");
         }
         
-        return $this->get("services.user_service")->updateUserInfo($user, $password, $password_confirmation, $email, $name);
+        $data =  $this->get("services.user_service")->updateUserInfo($user, $password, $password_confirmation, $email, $name);
+    
+        return $this->getResponse($data);
     }
 
     public function updateChallengeAction(Request $request) {
-        $duration = $request->request->get("duration");
-        $description = $request->request->get("description");
-        $challenge_id = $request->request->get("challenge_id");
-        
-        return $this->get("services.user_service")->updateChallenge(new Response, $this->getUser(), $challenge_id, $duration, $description);
+        $data = $this->get("services.challenge_service")
+                ->updateChallenge(
+                        $this->getUser()->getId(),
+                        $request->request->get("challenge_id"),
+                        $request->request->get("duration"),
+                        $request->request->get("description")
+                        );
+        return $this->getResponse($data);
     }
     
     public function addChallengeChildAction(Request $request) {
-        $parent_id = $request->request->get("parent");
-        $child_id = $request->request->get("child");
-        return $this->get("services.user_service")->addChallengeChild(new Response, $parent_id, $child_id);
+        $data = $this->get("services.challenge_service")->addChallengeChild($request->request->get("parent"), $request->request->get("child"));
+        return $this->getResponse($data);
     }
     
     public function apiAction(Request $request) {

@@ -74,5 +74,16 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         $task = $this->findOneBy(["user" => $user_id, "challenge" => $challenge_id, "done" => false]);
         return $task;
     }
+    
+    public function getTasksByChallengeIds($user_id, $challenge_ids) {
+        $qb = $this->createQueryBuilder("t");
+        $qs = $qb->select()
+                ->where($qb->expr()->in("t.challenge", $challenge_ids))
+                ->where("t.user = :user_id")
+                ->setParameter("user_id", $user_id)
+                ->getQuery()
+                ->getResult();
+        return $qs;
+    }
 }
 

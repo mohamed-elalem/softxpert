@@ -13,6 +13,6 @@ namespace TaskTrackBundle\Graphs;
  * @author mohamedelalem
  */
 interface StronglyConnectedComponents {
-    public function run();
-    public function getStronglyConnectedComponents();
+    public function checkForCycles();
+    public function getCycles();
 }
