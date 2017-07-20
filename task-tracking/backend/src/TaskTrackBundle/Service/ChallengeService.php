@@ -34,9 +34,11 @@ class ChallengeService {
         ];
     }
     
-    public function createNewChallenge($user, $title, $duration, $description) {
+    public function createNewChallenge($user_id, $title, $duration, $description) {
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
-    
+        $userRepository = $this->em->getRepository("TaskTrackBundle:User");
+        $user = $userRepository->getUser($user_id);
+        
         $challengeRepository->addNewChallenge($user, $title, $duration, $description);
         
         return [

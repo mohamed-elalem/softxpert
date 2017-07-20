@@ -1,0 +1,39 @@
+TaskTrackBundle\Entity\AboutPage:
+    type: entity
+    table: null
+    
+    oneToMany:
+        children:
+            targetEntity: AboutPage
+            mappedBy: parent
+    
+    manyToOne:
+        parent:
+            targetEntity: AboutPage
+            inversedBy: children
+    
+    repositoryClass: TaskTrackBundle\Repository\AboutPageRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    
+    fields:
+        title:
+            type: string
+        content:
+            type: string
+        section:
+            type: integer
+        font_size:
+            type: integer
+        font_color:
+            type: string
+        font_family:
+            type: string
+    
+    lifecycleCallbacks: {  }
+    
+    

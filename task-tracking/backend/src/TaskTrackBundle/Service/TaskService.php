@@ -127,47 +127,36 @@ class TaskService {
     
     private function getEdgeList($user) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
-        
-        $tasks = $user->getTasks();
+        $tasks = $taskRepository->getTraineeUnfinishedTasks($user->getId());
         $edgeList = [];
         $stack = [];
+        $challengeToTask = [];
+        $challengeIdx = [];
         foreach($tasks as $task) {
-            $stack[] = $task->getChallenge();
+            $challenge = $task->getChallenge();
+            $challengeToTask[$challenge->getId()] = $task;
+            $stack[] = $challenge;
+            $challengeIdx[$challenge->getId()] = true;
         }
-        $challenge_ids = $this->getChallengeIds($stack);
         
-        $tasks = $taskRepository->getTasksByChallengeIds($user->getId(), $challenge_ids);
-        dump($tasks);
-        die();
         while(count($stack)) {
             $child = array_pop($stack);
             if(! isset($childUsed[$child->getId()])) {
                 $childUsed[$child->getId()] = true;
-                $challenge_ids[] = $child()->getId();
                 $parents = $child->getParents();
                 foreach($parents as $parent) {
-                    $edgeList[] = [$parent->getId(), $child->getId()];
-                    $stack[] = $parent;
+                    if(isset($challengeIdx[$parent->getId()])) {
+                        $edgeList[] = [$parent->getId(), $child->getId()];
+                        $stack[] = $parent;
+                    }
                 }
             }
+        }
+        foreach($edgeList as $idx => $pairs) {
+            $u = $pairs[0];
+            $v = $pairs[1];
+            $edgeList[$idx] = [$challengeToTask[$u]->getId(), $challengeToTask[$v]->getId()];
         }
         return $edgeList;
-    }
-    
-    private function getChallengeIds($stack) {
-        $challenge_ids = [];
-        $childUsed = [];
-        while(count($stack)) {
-            $child = array_pop($stack);
-            if(! isset($childUsed[$child->getId()])) {
-                $childUsed[$child->getId()] = true;
-                $challenge_ids[] = $child->getId();
-                $parents = $child->getParents();
-                foreach($parents as $parent) {
-                    $stack[] = $parent;
-                }
-            }
-        }
-        return $challenge_ids;
     }
 }

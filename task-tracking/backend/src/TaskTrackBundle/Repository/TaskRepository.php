@@ -85,5 +85,15 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
                 ->getResult();
         return $qs;
     }
+    
+    public function getTraineeUnfinishedTasks($user_id) {
+        $tasks = $this->createQueryBuilder("t")
+                ->select()
+                ->where("t.user = :user_id and t.done = false")
+                ->setParameter("user_id", $user_id)
+                ->getQuery()
+                ->getResult();
+        return $tasks; 
+    }
 }
 

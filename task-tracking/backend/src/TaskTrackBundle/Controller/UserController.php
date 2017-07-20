@@ -58,8 +58,8 @@ class UserController extends Controller
     }
     
     public function getAuthenticatedUserAction() {
-        return ResponseHandler::handle(Status::STATUS_SUCCESS, $this->unsetPasswords([$this->getUser]));
-
+        $data = $this->get("services.user_service")->getAuthenticatedUser($this->getUser()->getId());
+        return $this->getResponse($data);
     }
     
     public function getUserAction($id) {
@@ -103,7 +103,7 @@ class UserController extends Controller
     }
     
     public function getMyChallengesAction() {
-        $data = $this->get("services.challenge_service")->getMyChallenges($this->getUser()->id);
+        $data = $this->get("services.challenge_service")->getMyChallenges($this->getUser()->getId());
         return $this->getResponse($data);
     }
     
@@ -194,7 +194,7 @@ class UserController extends Controller
             $data["err_code"] = -1;
         }
         if(! isset($data["err_message"])) {
-            $data["err_message"] = '';
+            $data["err_message"] = null;
         }
         return ResponseHandler::handle($data["code"], $data["extra"], $data["err_code"], $data["err_message"]);
     }

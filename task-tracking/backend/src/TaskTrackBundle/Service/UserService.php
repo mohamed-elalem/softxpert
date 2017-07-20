@@ -17,6 +17,15 @@ class UserService {
         ResponseHandler::setSerializer($serializer);
     }
     
+    public function getAuthenticatedUser($user_id) {
+        $userRepository = $this->em->getRepository("TaskTrackBundle:User");
+        $users = $this->unsetPasswords([ $userRepository->getUser($user_id) ]);
+        return [
+            "code" => Status::STATUS_SUCCESS,
+            "extra" => $users
+        ];
+    }
+    
     public function register($username, $email, $password, $name, $role) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
         
