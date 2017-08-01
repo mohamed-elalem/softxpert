@@ -36,6 +36,12 @@ class UserController extends Controller
         return $this->getResponse(["code" => Status::STATUS_SUCCESS, "extra" => [$content]]);
     }
     
+    public function logoutAction(Request $request) {
+        $token = $request->headers->get("Authorization");
+        $data = $this->get("services.user_service")->logout($token);
+        return $this->getResponse($data);
+    }
+    
     public function registerTraineeAction(Request $request) {
         return $this->register($request, Role::TRAINEE);
     }
@@ -67,13 +73,17 @@ class UserController extends Controller
         return $this->getResponse($data);
     }
     
-    public function getAllUsersAction() {
-        $data = $this->get("services.user_service")->getAllUsers(new Response);
+    public function getAllUsersAction($page) {
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+        $data = $this->get("services.user_service")->getAllUsers($paginator, $page, $itemsPerPage);
         return $this->getResponse($data);
     }
     
-    public function getAllSupervisorsAction() {
-        $data = $this->get("services.user_service")->getAllUsersByRole(Role::SUPERVISOR);
+    public function getAllSupervisorsAction($page) {
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+        $data = $this->get("services.user_service")->getAllUsersByRole(Role::SUPERVISOR, $paginator, $itemsPerPage);
         return $this->getResponse($data);
     }
     
@@ -102,8 +112,14 @@ class UserController extends Controller
         return $this->getResponse($data);
     }
     
-    public function getMyChallengesAction() {
-        $data = $this->get("services.challenge_service")->getMyChallenges($this->getUser()->getId());
+    public function getMyChallengesAction($page) {
+        $data = $this->get("services.challenge_service")
+                ->getMyChallenges(
+                        $this->getUser()->getId(), 
+                        $this->get("helpers.paginator_helper"),
+                        $page,
+                        $this->getParameter("paginator_items_per_page")
+                    );
         return $this->getResponse($data);
     }
     
@@ -134,7 +150,8 @@ class UserController extends Controller
     }
     
     public function createNewTaskAction(Request $request, $user_id) {
-        $data = $this->get("services.task_service")->createNewTask($this->getUser()->getId(), $user_id, $request->request->get("challenge_id"));
+        $data = $this->get("services.task_service")->createNewTask($this->getUser()->getId(), $user_id, $request->request->get("challenge_id"), $this->get("services.graph_service.kosaraju"));
+        
         return $this->getResponse($data);
     }
     
@@ -179,13 +196,61 @@ class UserController extends Controller
         return $this->getResponse($data);
     }
     
+    
+    public function getFilteredTasksAction(Request $request, $page) {
+        $filter = $this->get("services.filters.entity_filter.filter_by_supervisor")
+                ->init(
+                        $this->getUser()->getId(), 
+                        $this->get("services.filters.entity_filter")
+                        );
+        
+        $filter = $this->get("services.filters.entity_filter.factory")->getFilters($request->query->all(), $filter);
+        
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+        
+        $data = $this->get("services.task_service")->getFilteredTasks($filter, $paginator, $page, $itemsPerPage);
+        
+        return $this->getResponse($data);
+        
+    }
+    
+    public function getFilteredUsersAction(Request $request, $page) {
+        
+        $filter = $this->get("services.filters.entity_filter.factory")->getFilters($request->query->all());
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+        
+        $data = $this->get("services.user_service")->getFilteredUsers($filter, $paginator, $page, $itemsPerPage);
+        
+        return $this->getResponse($data);
+    }
+    
+    public function getFilteredChallengesAction(Request $request, $page) {
+        $filter = $this->get("services.filters.entity_filter.filter_by_user")
+                ->init(
+                        $this->getUser()->getId(), 
+                        $this->get("services.filters.entity_filter")
+                        );
+        
+        $filter = $this->get("services.filters.entity_filter.factory")->getFilters($request->query->all(), $filter);
+        
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+        
+        $data = $this->get("services.challenge_service")->getFilteredChallenges($filter, $paginator, $page, $itemsPerPage);
+        
+        return $this->getResponse($data);
+    }
+    
     public function apiAction(Request $request) {
         return new Response(sprintf('Logged in as %s', $this->getUser()->getUsername()));
     }
     
+    
     private function getResponse($data) {
         if(! isset($data["code"])) {
-            $data["code"] = Status::STATUS_SUCCESS;
+            $data["code"] = Status::STATUS_FAILURE;
         }
         if(! isset($data["extra"])) {
             $data["extra"] = [];
@@ -198,5 +263,4 @@ class UserController extends Controller
         }
         return ResponseHandler::handle($data["code"], $data["extra"], $data["err_code"], $data["err_message"]);
     }
-
 }

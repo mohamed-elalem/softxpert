@@ -16,6 +16,16 @@ class Kosaraju extends Graph {
         $this->maxVertex = 0;
     }
 
+    /**
+     * Initializes the Adjacency List and its transpose along with useful information that may be used in the future.
+     * Extra information stored...
+     * inward -> In-degree of a vertex
+     * discovered -> the start time of a vertex exploration
+     * explored -> the end time of a vertex exploration
+     * state -> The current state of a vertex (white -> untouched, gray -> visited, black -> finished)
+     * @param type $edgeList
+     */
+    
     public function setup($edgeList) {
         
         foreach ($edgeList as $idx => $pairs) {
@@ -44,6 +54,12 @@ class Kosaraju extends Graph {
 
         parent::initialize($this->adjList);
     }
+    
+    /**
+     * Checks whether there's a cycle or not in the provided graph
+     * by performing a single depth first search 
+     * @return boolean
+     */
 
     public function checkForCycles() {
         $valid = true;
@@ -56,6 +72,48 @@ class Kosaraju extends Graph {
         }
         return $valid;
     }
+    
+    /**
+     * Another Depth first search used to get the strongly connected components
+     * by traversing the transpose of the original adjacency list
+     * @param 2D array $adjList
+     * @param integer $parent
+     * @return 2D array
+     */
+    
+    public function getStronglyConnectedComponents($adjList, $parent) {
+        // Calling of discovery time of a vertex 
+        $this->discovered[$parent] = $this->time++;
+        $this->state[$parent] = static::GRAY;
+        $cycle = [$parent];
+        
+        /**
+         * Traversing all the neighbors of current parent
+         */
+        foreach($adjList[$parent] as $idx => $neighbor) {
+
+            /**
+             * Recursively build the cycle vector
+             */
+            if($this->state[$neighbor] == self::WHITE) {
+                $cycle = array_merge($cycle, $this->getStronglyConnectedComponents($adjList, $neighbor));
+            }
+
+        }
+        // Declaring that this node is fully explored
+        $this->explored[$parent] = $this->time++;
+        $this->state[$parent] = static::BLACK;
+        
+        
+        return $cycle;
+    }
+    
+    /**
+     * Gets the invalid parts of the provided graph
+     * by performing a single depth first search
+     * and return independent components
+     * @return 2D array
+     */
 
     public function getCycles() {
         $cycles = [];

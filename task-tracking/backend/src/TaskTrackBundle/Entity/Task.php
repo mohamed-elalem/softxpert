@@ -244,4 +244,33 @@ class Task
     {
         $this->setUpdatedAt(new \DateTime());
     }
+    /**
+     * @var \TaskTrackBundle\Entity\User
+     */
+    private $supervisor;
+
+
+    /**
+     * Set supervisor
+     *
+     * @param \TaskTrackBundle\Entity\User $supervisor
+     *
+     * @return Task
+     */
+    public function setSupervisor(\TaskTrackBundle\Entity\User $supervisor = null)
+    {
+        $this->supervisor = $supervisor;
+
+        return $this;
+    }
+
+    /**
+     * Get supervisor
+     *
+     * @return \TaskTrackBundle\Entity\User
+     */
+    public function getSupervisor()
+    {
+        return $this->supervisor;
+    }
 }

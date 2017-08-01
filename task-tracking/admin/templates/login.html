@@ -1,0 +1,28 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <form ng-submit="submit(loginForm)" name="loginForm" style="margin-bottom: 10px;">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input class="form-control" ng-model="username" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input class="form-control" ng-model="password" type="password" />
+                </div>
+                <div class="row">
+                    <div class="col-md-9"></div>
+                    <div class="col-md-3">
+                        <button type="submit" ng-disabled="loginform.$invalid" class="btn btn-info btn-block">Login</button>
+                    </div>
+                </div>
+            </form>
+            <div class="alert alert-danger fx-fade-up fx-ease-sine" ng-show="forbidden">
+                <h4>You're not authorized to access this page<br>Please refer to your access domain</h4>
+            </div>
+            <div class="alert alert-warning fx-fade-up fx-ease-sine" ng-show="invalidCredintials">
+                <h4>Your credintials doesn't meet ours in database</h4>
+            </div>
+        </div>
+    </div>
+</div>

@@ -330,7 +330,8 @@ class Challenge
      */
     public function setTimeStamps()
     {
-        // Add your code here
+        $this->setCreatedAt(new \DateTime());
+        $this->setUpdatedAt(new \DateTime());
     }
 
     /**
@@ -338,6 +339,6 @@ class Challenge
      */
     public function updateTime()
     {
-        // Add your code here
+        $this->setUpdatedAt(new \DateTime());
     }
 }

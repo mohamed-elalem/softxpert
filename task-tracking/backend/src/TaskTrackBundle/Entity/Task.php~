@@ -199,22 +199,6 @@ class Task
         return $this->challenge;
     }
     /**
-     * @ORM\PrePersist
-     */
-    public function setTimeStamps()
-    {
-        $this->setCreatedAt(new \DateTime());
-        $this->setUpdatedAt(new \DateTime());
-    }
-
-    /**
-     * @ORM\PreUpdate
-     */
-    public function updateTime()
-    {
-        $this->setUpdatedAt(new \DateTime());
-    }
-    /**
      * @var boolean
      */
     private $done;
@@ -242,5 +226,51 @@ class Task
     public function getDone()
     {
         return $this->done;
+    }
+    
+    /**
+     * @ORM\PrePersist
+     */
+    public function setTimeStamps()
+    {
+        $this->setCreatedAt(new \DateTime());
+        $this->setUpdatedAt(new \DateTime());
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function updateTime()
+    {
+        $this->setUpdatedAt(new \DateTime());
+    }
+    /**
+     * @var \TaskTrackBundle\Entity\User
+     */
+    private $supervisor;
+
+
+    /**
+     * Set supervisor
+     *
+     * @param \TaskTrackBundle\Entity\User $supervisor
+     *
+     * @return Task
+     */
+    public function setSupervisor(\TaskTrackBundle\Entity\User $supervisor = null)
+    {
+        $this->supervisor = $supervisor;
+
+        return $this;
+    }
+
+    /**
+     * Get supervisor
+     *
+     * @return \TaskTrackBundle\Entity\User
+     */
+    public function getSupervisor()
+    {
+        return $this->supervisor;
     }
 }

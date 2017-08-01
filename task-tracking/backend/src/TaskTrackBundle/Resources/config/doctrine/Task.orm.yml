@@ -6,7 +6,7 @@ TaskTrackBundle\Entity\Task:
         user:
             targetEntity: User
             inversedBy: tasks
-            fetch: EAGER
+            maxDepth: 1
             joinColumn:
                 name: user_id
                 referencedColumnName: id
@@ -14,9 +14,18 @@ TaskTrackBundle\Entity\Task:
         challenge:
             targetEntity: Challenge
             inversedBy: tasks
-            fetch: EAGER
+            maxDepth: 1
             joinColumn:
                 name: challenge_id
+                referencedColumnName: id
+                onDelete: cascade
+                
+        supervisor:
+            targetEntity: User
+            inversedBy: tasks
+            maxDepth: 1
+            joinColumn:
+                name: supervisor_id
                 referencedColumnName: id
                 onDelete: cascade
     

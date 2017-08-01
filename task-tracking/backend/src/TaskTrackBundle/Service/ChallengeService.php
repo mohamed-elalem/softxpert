@@ -15,6 +15,7 @@ use TaskTrackBundle\Handlers\ResponseHandler;
 use TaskTrackBundle\Constants\Status;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use JMS\Serializer\Serializer;
+use TaskTrackBundle\Entity\Challenge;
 
 class ChallengeService {
 
@@ -22,22 +23,27 @@ class ChallengeService {
 
     public function __construct(EntityManager $em, Serializer $serializer) {
         $this->em = $em;
-        ResponseHandler::setSerializer($serializer);
     }
     
-    public function getMyChallenges($user_id) {
-        $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $user = $userRepository->getUser($user_id);
+    public function getMyChallenges($user_id, $paginator, $page, $itemsPerPage) {
+        $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
+        $challenges = $challengeRepository->getUserChallenges($user_id, $paginator, $page, $itemsPerPage);
+        
+        $pageCount = $challengeRepository->getUserChallenges($user_id, $paginator, $page, $itemsPerPage, true);
+        
         return [
             "code" => Status::STATUS_SUCCESS,
-            "extra" => $user->getChallenges()
+            "extra" => [
+                "challenges" => $challenges,
+                "pageCount" => $pageCount
+                ]
         ];
     }
     
     public function createNewChallenge($user_id, $title, $duration, $description) {
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $user = $userRepository->getUser($user_id);
+        $user = $userRepository->find($user_id);
         
         $challengeRepository->addNewChallenge($user, $title, $duration, $description);
         

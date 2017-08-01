@@ -3,7 +3,7 @@
 namespace TaskTrackBundle\Constants;
 
 class Role {
-    const ADMIN = 0;
-    const SUPERVISOR = 1;
-    const TRAINEE = 2;
+    const ADMIN = 1;
+    const SUPERVISOR = 2;
+    const TRAINEE = 4;
 }

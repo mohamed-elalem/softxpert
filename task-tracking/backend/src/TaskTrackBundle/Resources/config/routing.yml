@@ -9,12 +9,12 @@ about_us_page:
     methods: [GET]
 
 revoke_refresh_token:
-    path: /api/token/revoke
+    path: /api/logout
     defaults: { _controller: TaskTrackBundle:User:logout }
-    methods: [POST]
+    methods: [GET]
 
 register:
-    path: /api/user
+    path: /api/register
     defaults: { _controller: TaskTrackBundle:User:registerTrainee }
     methods: [POST]
     
@@ -40,9 +40,11 @@ check:
     defaults: { _controller: TaskTrackBundle:User:api }
     
 get_users:
-    path: /api/admin/users/
-    defaults: { _controller: TaskTrackBundle:User:getAllUsers }
+    path: /api/admin/users/{page}
+    defaults: { _controller: TaskTrackBundle:User:getFilteredUsers, page:1 }
     methods: [GET]
+    requirements:
+        page: '\d*'
 
 #get_trainees:
 #    path: /api/supervisor/users
@@ -72,9 +74,11 @@ get_my_tasks:
     methods: [GET]
     
 get_supervisor_challenges:
-    path: /api/supervisor/challenges
-    defaults: { _controller: TaskTrackBundle:User:getMyChallenges }
+    path: /api/supervisor/challenges/{page}
+    defaults: { _controller: TaskTrackBundle:User:getMyChallenges, page: 1 }
     methods: [GET]
+    requirements:
+        page: '\d*'
     
 create_new_challenge:
     path: /api/supervisor/challenges
@@ -132,3 +136,11 @@ add_challenge_child:
     path: /api/supervisor/challenges
     defaults: { _controller: TaskTrackBundle:User:addChallengeChild }
     methods: [PATCH]
+    
+get_filtered_tasks:
+    path: /api/supervisor/tasks/{page}
+    defaults: { _controller: TaskTrackBundle:User:getFilteredTasks, page: 1 }
+    methods: [GET]
+    requirements: 
+        page: '\d*'
+    

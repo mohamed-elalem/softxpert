@@ -56,11 +56,12 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         return $task;
     }
     
-    public function addNewTask($user, $challenge, $score = 0, $seconds = 0, $done = false) {
+    public function addNewTask($supervisor, $user, $challenge, $score = 0, $seconds = 0, $done = false) {
         $em = $this->getEntityManager();
         $task = new Task;
         
         $task->setUser($user);
+        $task->setSupervisor($supervisor);
         $task->setChallenge($challenge);
         $task->setScore($score);
         $task->setSeconds($seconds);
@@ -70,8 +71,8 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         $em->flush();
     }
     
-    public function checkIfTaskExists($user_id, $challenge_id) {
-        $task = $this->findOneBy(["user" => $user_id, "challenge" => $challenge_id, "done" => false]);
+    public function checkIfTaskExists($supervisor_id, $user_id, $challenge_id) {
+        $task = $this->findOneBy(["user" => $user_id, "supervisor" => $supervisor_id, "challenge" => $challenge_id, "done" => false]);
         return $task;
     }
     
@@ -82,7 +83,7 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
                 ->where("t.user = :user_id")
                 ->setParameter("user_id", $user_id)
                 ->getQuery()
-                ->getResult();
+                ->getArrayResult();
         return $qs;
     }
     
@@ -92,8 +93,31 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
                 ->where("t.user = :user_id and t.done = false")
                 ->setParameter("user_id", $user_id)
                 ->getQuery()
-                ->getResult();
+                ->getArrayResult();
         return $tasks; 
+    }
+    
+    public function getTraineeTasks($user_id) {
+        $tasks = $this->createQueryBuilder("t")
+                ->select()
+                ->where("t.user = :user_id")
+                ->setParameter("user_id", $user_id)
+                ->getQuery()
+                ->getResult();
+        return $tasks;
+    }
+    
+    public function getFilteredTasks($filter, $paginator, $page, $itemsPerPage, $count = false) {
+        
+        $qb = $this->createQueryBuilder("t")->select();
+        $tasks = $filter->filter($qb);
+        if($count) {
+            $tasks = $paginator->getPages($tasks, $itemsPerPage);
+        }
+        else {
+            $tasks = $paginator->getResult($tasks, $page, $itemsPerPage);
+        }
+        return $tasks;
     }
 }
 

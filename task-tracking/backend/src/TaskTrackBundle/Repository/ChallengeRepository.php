@@ -12,9 +12,9 @@ use TaskTrackBundle\Entity\Challenge;
  */
 class ChallengeRepository extends \Doctrine\ORM\EntityRepository
 {
+    
     public function addNewChallenge($user, $title, $duration, $description) {
         $em = $this->getEntityManager();
-        
         $challenge = new Challenge;
         $challenge->setDuration($duration);
         $challenge->setDescription($description);
@@ -51,5 +51,31 @@ class ChallengeRepository extends \Doctrine\ORM\EntityRepository
         $em->persist($child);
         $em->persist($parent);
         $em->flush();
+    }
+    
+    public function getUserChallenges($user_id, $paginator, $page, $itemsPerPage, $count = false) {
+        $qb = $this->createQueryBuilder("c");
+        $challenges = $qb
+                ->select()
+                ->where("c.supervisor = :user_id")
+                ->setParameter("user_id", $user_id);
+        
+        if($count) {
+            return $paginator->getPages($challenges, $itemsPerPage);
+        }
+        else {
+            return $paginator->getResult($challenges, $page, $itemsPerPage);
+        }
+        
+    }
+    
+    public function getChallengeBySupervisor($supervisor_id, $challenge_id) {
+        $challenge = $this->createQueryBuilder("c")
+                ->select()
+                ->where("c.supervisor = :supervisor_id and c.id = :challenge_id") 
+                ->setParameter("supervisor_id", $supervisor_id)
+                ->setParameter("challenge_id", $challenge_id)
+                ->getQuery()->getResult();
+        return $challenge;
     }
 }

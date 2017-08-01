@@ -7,6 +7,7 @@ use TaskTrackBundle\Handlers\ResponseHandler;
 use TaskTrackBundle\Constants\Status;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use JMS\Serializer\Serializer;
+use TaskTrackBundle\Constants\Role; 
 
 class UserService {
 
@@ -14,12 +15,19 @@ class UserService {
 
     public function __construct(EntityManager $em, Serializer $serializer) {
         $this->em = $em;
-        ResponseHandler::setSerializer($serializer);
+    }
+    
+    public function logout($token) {
+        $blackList = $this->em->getRepository("TaskTrackBundle:Blacklist");
+        $blackList->blackListToken($token);
+        return [
+            "code" => Status::STATUS_SUCCESS,
+        ];
     }
     
     public function getAuthenticatedUser($user_id) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $users = $this->unsetPasswords([ $userRepository->getUser($user_id) ]);
+        $users = $this->unsetPasswords($userRepository->getUser($user_id));
         return [
             "code" => Status::STATUS_SUCCESS,
             "extra" => $users
@@ -41,12 +49,17 @@ class UserService {
         return $data;
     }
     
-    public function getAllUsers() {
+    public function getAllUsers($paginator, $page, $itemsPerPage) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $users = $this->unsetPasswords($userRepository->getAllUsers());
+        
+        $users = $this->unsetPasswords($userRepository->getUsersExceptRole(Role::ADMIN, $paginator, $page, $itemsPerPage));
+        $pageCount = $userRepository->getUsersExceptRole(Role::ADMIN, $paginator, $page, $itemsPerPage, true);
         return [
             "code" => Status::STATUS_SUCCESS,
-            "extra" => $users
+            "extra" => [
+                "users" => $users,
+                "pageCount" => $pageCount,
+                ]
         ];
     }
     
@@ -61,7 +74,7 @@ class UserService {
     
     public function getUser($id) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $user = $userRepository->getUser($id);
+        $user = $this->unsetPasswords($userRepository->getUser($id));
         return [
             "code" => Status::STATUS_SUCCESS,
             "extra" => $user
@@ -102,11 +115,33 @@ class UserService {
             "code" => Status::STATUS_SUCCESS
         ];
     }
+    
+    public function getFilteredUsers($filter, $paginator, $pages, $itemsPerPage) {
+        $userRepository = $this->em->getRepository("TaskTrackBundle:User");
+        $users = $userRepository->getFilteredUsers($filter, $paginator, $pages, $itemsPerPage);
+        $pagesCount = $userRepository->getFilteredUsers($filter, $paginator, $pages, $itemsPerPage, true);
+        return [
+            "code" => Status::STATUS_SUCCESS,
+            "extra" => ["users" => $users, "pagesCount" => $pagesCount]
+        ];
+    }
    
         
     private function unsetPasswords($users) {
-        foreach($users as $user) {
-            $user->setPassword(null);
+        foreach($users as $idx => $user) {
+            unset($user["password"]);
+            
+            if($user["role"] == Role::ADMIN) {
+                $user["role"] = "Administrator";
+            }
+            else if($user["role"] == Role::SUPERVISOR) {
+                $user["role"] = "Supervisor";
+            }
+            else {
+                $user["role"] = "Trainee";
+            }
+            
+            $users[$idx] = $user;
         }
         return $users;
     }

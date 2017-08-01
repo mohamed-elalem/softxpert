@@ -13,6 +13,7 @@ use TaskTrackBundle\Handlers\ResponseHandler;
 use TaskTrackBundle\Constants\Status;
 use TaskTrackBundle\Constants\Role;
 use \TaskTrackBundle\Graphs\Graph;
+use TaskTrackBundle\Filters\TaskInterface;
 use JMS\Serializer\Serializer;
 
 class TaskService {
@@ -21,9 +22,8 @@ class TaskService {
 
     public function __construct(EntityManager $em, Serializer $serializer) {
         $this->em = $em;
-        ResponseHandler::setSerializer($serializer);
     }
-    
+
     public function getUserTasks($user_id) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
         $tasks = $userRepository->getUser($user_id)->getTasks();
@@ -32,130 +32,248 @@ class TaskService {
             "extra" => $tasks
         ];
     }
-    
+
     public function getUserTask($user_id, $challenge_id) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
-        
+
         $tasks = $taskRepository->getUserTask($user_id, $challenge_id);
-        
+
         return [
             "code" => Status::STATUS_SUCCESS,
             "extra" => $tasks
         ];
     }
-    
+
     public function getMyTasks($user_id, Graph $graph) {
-        $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $user = $userRepository->getUser($user_id);
-        $graph->setup($this->getEdgeList($user));
+        $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
+        $tasks = $taskRepository->getTraineeUnfinishedTasks($user_id);
+        $graph->setup($this->getEdgeListByTasks($tasks));
         $adjList = $graph->getAdjList();
         $valid = $graph->checkForCycles();
-        if($valid) {
+        if ($valid) {
             $graph->topologicalSort($adjList);
             $extra["tasks"] = $graph->getTopoSort();
             $extra["priority"] = $graph->getTaskPriority();
-        }
-        else {
+        } else {
             $extra["cycles"] = $graph->getCycles();
         }
         $extra["Acyclic"] = $valid;
-        return [
-            "code" => Status::STATUS_SUCCESS,
-            "extra" => $extra
-        ];
+
+        $data = [];
+        $data["code"] = Status::STATUS_SUCCESS;
+        $data["extra"] = $extra;
+        if (!$valid) {
+            $data["code"] = Status::STATUS_FAILURE;
+            $data["err_code"] = Status::ERR_INVALID_CHALLENGES_STRUCTURE;
+        }
+
+        return $data;
     }
-    
+
     public function updateUserTaskScore($user_id, $challenge_id, $score) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
-        
+
         $taskRepository->updateScore($user_id, $challenge_id, $score);
-        
+
         return [
             "code" => Status::STATUS_SUCCESS
         ];
     }
-    
+
     public function updateUserTaskDuration($user_id, $challenge_id, $duartion) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
-        
+
         $taskRepository->updateDuration($user_id, $challenge_id, $duration);
-        
+
         return [
             "code" => Status::STATUS_SUCCESS
         ];
     }
-    
+
     public function updateTaskDone($user_id, $challenge_id, $done) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
-        
+
         $taskRepository->updateDone($user_id, $challenge_id, $done);
-        
+
         return [
             "code" => Status::STATUS_SUCCESS
         ];
     }
-    
-    public function createNewTask($supervisor_id, $user_id, $challenge_id) {
+
+    public function createNewTask($supervisor_id, $user_id, $challenge_id, Graph $graph) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
+        $supervisor = $userRepository->find($supervisor_id);
+
+        /**
+         * Checking whether this task finished its prerequisites successfully
+         * or return the required prerequisites.
+         * Idea is simple just use the same topological sort but on the graph transpose
+         * (i.e. Flip edges direction) 
+         */
+        $tasks = $taskRepository->getTraineeTasks($user_id);
         
-        $supervisor = $userRepository->getUser($supervisor_id);
-        $task = $taskRepository->checkIfTaskExists($user_id, $challenge_id);
-        $data = [];
-        if(! $task) {
-            $user = $userRepository->getUserByRole($user_id, Role::TRAINEE);
-            $challenge = $challengeRepository->getChallenge($challenge_id);
-            
-            if($supervisor->getChallenges()->contains($challenge)) {
-            
-                $taskRepository->addNewTask($user, $challenge);
-            
-                $data["code"] = Status::STATUS_SUCCESS;
+        $edgeList = $this->getEdgeListByChallenge($challenge_id);
+        $graph->setup($edgeList);
+        $valid = $graph->checkForCycles();
+        $allOk = true;
+        $challengesToAdd = [];
+        if ($valid) {
+            $adjList = $graph->getAdjList();
+            $graph->topologicalSort($adjList);
+            $topoSort = $graph->getTopoSort();
+            $tmp = $graph->getTaskPriority();
+            $priority = [];
+            $challengeIdx = $this->getChallengeIdx($this->getInitialStack($tasks));
+            $n = count($topoSort);
+            for ($i = $n - 1; $i >= 0; $i--) {
+                if (!isset($challengeIdx[$topoSort[$i]]) && $challenge_id != $topoSort[$i]) {
+                    $challengesToAdd[] = $topoSort[$i];
+                    $allOk = false;
+                    $priority[] = $tmp[$i];
+                }
             }
-            else {
+            
+        }
+
+        // End of checking
+
+        $task = $taskRepository->checkIfTaskExists($supervisor_id, $user_id, $challenge_id);
+        $data = [];
+        if (!$valid) {
+            $data["code"] = Status::ERR_INVALID_CHALLENGES_STRUCTURE;
+            $data["extra"] = $graph->getCycles();
+        } else if (!$task && $allOk) {
+            $user = $userRepository->getUserByRole($user_id, Role::TRAINEE);
+            $challenge = $challengeRepository->find($challenge_id);
+
+            if (! is_null($challenge) && $challenge->getSupervisor()->getId() == $supervisor_id) {
+
+                $taskRepository->addNewTask($supervisor, $user, $challenge);
+
+                $data["code"] = Status::STATUS_SUCCESS;
+            } else {
                 $data["code"] = Status::STATUS_FAILURE;
                 $data["err_code"] = Status::ERR_CHALLENGE_OWNER;
             }
-        }
-        else {
+        } else if ($task) {
             $data["code"] = Status::STATUS_FAILURE;
             $data["err_code"] = Status::ERR_TASK_EXIST;
+        } else if (!$allOk) {
+            
+            $data["code"] = Status::STATUS_FAILURE;
+            $data["err_code"] = Status::ERR_MISSING_TASKS;
+            $data["extra"] = [
+                "challengesToAdd" => $challengesToAdd,
+                "order" => "asc",
+                "taskPriorities" => $priority,
+            ];
+            
+            /**
+             * Garbage code will be removed after testing
+             */
+            /*$challengeNames = [];
+            $challenges = $supervisor->getChallenges();
+            $challengeAssociativeArray = [];
+            foreach($challenges as $challenge) {
+                $challengeAssociativeArray[$challenge->getId()] = $challenge;
+            }
+            foreach($challengesToAdd as $id) {
+                $challengeNames[] = $challengeAssociativeArray[$id]->getTitle();
+            }
+            
+            $data["extra"]["names"] = $challengeNames;
+            */
+            /**
+             * End of garbage
+             */
+            
+            
+            
         }
         return $data;
     }
     
-    private function getEdgeList($user) {
+    public function getFilteredTasks($filter, $paginator, $pages, $itemsPerPage) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
-        $tasks = $taskRepository->getTraineeUnfinishedTasks($user->getId());
-        $edgeList = [];
-        $stack = [];
+        $tasks = $taskRepository->getFilteredTasks($filter, $paginator, $pages, $itemsPerPage);
+        $pagesCount = $taskRepository->getFilteredTasks($filter, $paginator, $pages, $itemsPerPage, true);
+        return [
+            "code" => Status::STATUS_SUCCESS,
+            "extra" => ["tasks" => $tasks, "pagesCount" => $pagesCount]
+        ];
+    }
+
+    private function getChallengeToTask($tasks) {
         $challengeToTask = [];
-        $challengeIdx = [];
-        foreach($tasks as $task) {
+        foreach ($tasks as $task) {
             $challenge = $task->getChallenge();
             $challengeToTask[$challenge->getId()] = $task;
-            $stack[] = $challenge;
+        }
+        return $challengeToTask;
+    }
+
+    private function getChallengeIdx($stack) {
+        $challengeIdx = [];
+        foreach ($stack as $challenge) {
             $challengeIdx[$challenge->getId()] = true;
         }
-        
-        while(count($stack)) {
+        return $challengeIdx;
+    }
+
+    private function getInitialStack($tasks) {
+        $stack = [];
+        foreach ($tasks as $task) {
+            $challenge = $task->getChallenge();
+            $stack[] = $challenge;
+        }
+        return $stack;
+    }
+
+    private function getEdgeListByTasks($tasks) {
+        $stack = $this->getInitialStack($tasks);
+        $challengeToTask = $this->getChallengeToTask($tasks);
+
+        $edgeList = $this->getEdgeList($stack);
+        foreach ($edgeList as $idx => $pairs) {
+            $u = $pairs[0];
+            $v = $pairs[1];
+            $edgeList[$idx] = [$challengeToTask[$u]->getId(), $challengeToTask[$v]->getId()];
+        }
+        return $edgeList;
+    }
+
+    private function getEdgeListByChallenge($challenge_id) {
+        $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
+        $challenge = $challengeRepository->getChallenge($challenge_id);
+        $stack = [$challenge];
+
+        $edgeList = $this->getEdgeList($stack, true);
+        foreach ($edgeList as $idx => $pairs) {
+            $u = $pairs[0];
+            $v = $pairs[1];
+            $edgeList[$idx] = [$v, $u];
+        }
+        return $edgeList;
+    }
+
+    private function getEdgeList($stack, $deep = false) {
+        $challengeIdx = $this->getChallengeIdx($stack);
+        $childUsed = [];
+        $edgeList = [];
+        while (count($stack)) {
             $child = array_pop($stack);
-            if(! isset($childUsed[$child->getId()])) {
+            if (! isset($childUsed[$child->getId()])) {
                 $childUsed[$child->getId()] = true;
                 $parents = $child->getParents();
-                foreach($parents as $parent) {
-                    if(isset($challengeIdx[$parent->getId()])) {
+                foreach ($parents as $parent) {
+                    if ($deep || isset($challengeIdx[$parent->getId()])) {
                         $edgeList[] = [$parent->getId(), $child->getId()];
                         $stack[] = $parent;
                     }
                 }
             }
-        }
-        foreach($edgeList as $idx => $pairs) {
-            $u = $pairs[0];
-            $v = $pairs[1];
-            $edgeList[$idx] = [$challengeToTask[$u]->getId(), $challengeToTask[$v]->getId()];
         }
         return $edgeList;
     }

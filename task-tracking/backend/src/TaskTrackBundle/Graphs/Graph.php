@@ -24,6 +24,11 @@ abstract class Graph implements StronglyConnectedComponents {
     protected $parent;
     private $vertices;
     protected $inward;
+    
+    /**
+     * State colors
+     */
+    
     const WHITE = 0;
     const GRAY = 1;
     const BLACK = 2;
@@ -34,10 +39,14 @@ abstract class Graph implements StronglyConnectedComponents {
         $this->topoSort = [];
     }
     
-    public abstract function setup($setup);
+    public abstract function setup($edgeList);
     
     public abstract function checkForCycles();
     public abstract function getCycles();
+    
+    /**
+     * Reset stored information to perform additional operations
+     */
     
     public function clear() {
         foreach($this->discovered as $vertex => $time) {
@@ -96,32 +105,12 @@ abstract class Graph implements StronglyConnectedComponents {
         return $valid;
     }
     
-    public function getStronglyConnectedComponents($adjList, $parent) {
-        // Calling of discovery time of a vertex 
-        $this->discovered[$parent] = $this->time++;
-        $this->state[$parent] = static::GRAY;
-        $cycle = [$parent];
-        
-        /**
-         * Traversing all the neighbors of current parent
-         */
-        foreach($adjList[$parent] as $idx => $neighbor) {
-
-            /**
-             * Recursively build the cycle vector
-             */
-            if($this->state[$neighbor] == self::WHITE) {
-                $cycle = array_merge($cycle, $this->getStronglyConnectedComponents($adjList, $neighbor));
-            }
-
-        }
-        // Declaring that this node is fully explored
-        $this->explored[$parent] = $this->time++;
-        $this->state[$parent] = static::BLACK;
-        
-        
-        return $cycle;
-    }
+    public abstract function getStronglyConnectedComponents($adjList, $parent);
+    
+    /**
+     * Generated topological sort favoring nearest tasks first (Kahn algorithm)
+     * @param type $adjList
+     */
 
     
     public function topologicalSort($adjList) {
@@ -137,6 +126,7 @@ abstract class Graph implements StronglyConnectedComponents {
                 $this->depth[$parent] = 0;
             }
         }
+        
         
         while(! $q->isEmpty()) {
             /*

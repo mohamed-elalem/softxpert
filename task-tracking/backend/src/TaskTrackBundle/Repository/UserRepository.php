@@ -20,7 +20,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameters([
                     "email" => $email,
                     "username" => $username
-                ])->getQuery()->getResult();
+                ])->getQuery()->getArrayResult();
         return $user;
     }
     
@@ -52,7 +52,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     }
     
     public function getAllUsers() {
-        $users = $this->createQueryBuilder("q")->select()->getQuery()->getResult();
+        $users = $this->createQueryBuilder("q")->select()->getQuery()->getArrayResult();
         
         return $users;
     }
@@ -62,13 +62,31 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 ->select()
                 ->where("u.role = :role")
                 ->setParameter("role", $role)
-                ->getQuery()->getResult();
+                ->getQuery()->getArrayResult();
+        return $users;
+    }
+    
+    public function getUsersExceptRole($role, $paginator, $page, $itemsPerPage, $count = false) {
+        $users = $this->createQueryBuilder("u")
+                ->select()
+                ->where("u.role != :role")
+                ->setParameter("role", $role);
+        if($count) {
+            return $paginator->getPages($users, $itemsPerPage);
+        }
+        else {
+            return $paginator->getResult($users, $page, $itemsPerPage);
+        }
         return $users;
     }
     
     public function getUser($id) {
         
-        $user = $this->findOneById($id);
+        $user = $this->createQueryBuilder("u")
+                ->select()
+                ->where("u.id = :id")
+                ->setParameter("id", $id)
+                ->getQuery()->getArrayResult();
         
         if(! $user) {
             throw new Exception("User " . $id . " wasn't found");
@@ -103,6 +121,19 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         }
         
         return $user->getTasks();
+    }
+    
+    public function getFilteredUsers($filter, $paginator, $page, $itemsPerPage, $count = false) {
+        
+        $qb = $this->createQueryBuilder("u")->select();
+        $users = $filter->filter($qb);
+        if($count) {
+            $users = $paginator->getPages($users, $itemsPerPage);
+        }
+        else {
+            $users = $paginator->getResult($users, $page, $itemsPerPage);
+        }
+        return $users;
     }
     
 }

@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResponseHandler {
     
-    private static $serializer = null;
-    
     /**
      * 
      * This method is responsible for creating a response object
@@ -38,8 +36,10 @@ class ResponseHandler {
         $responseBody = [];
         $responseBody["code"] = (is_null($code) ? Status::STATUS_SUCCESS : $code);
         if($responseBody["code"] != Status::STATUS_SUCCESS) {
-            $responseBody["err_code"] = $errorCode;
-            $responseBody["err_message"] = (! is_null($message) ? $message : (! is_null($errorCode) ? Status::MESSAGES[$errorCode] : ""));
+            if($errorCode > -1) {
+                $responseBody["err_code"] = $errorCode;
+                $responseBody["err_message"] = (! is_null($message) ? $message : Status::MESSAGES[$errorCode]);
+            }
         }
         if(count($extra)) {
             $responseBody["data"] = static::fillData($extra);
@@ -47,8 +47,10 @@ class ResponseHandler {
         if($errorCode > -1) {
             $response->setStatusCode(Status::RESPONSE_CODES[$errorCode]);
         }
-        $content = self::$serializer->serialize($responseBody, "json");
+        $content = $serializer->serialize($responseBody, "json");
+
         $response->setContent($content);
+        
         return $response;
     }
     

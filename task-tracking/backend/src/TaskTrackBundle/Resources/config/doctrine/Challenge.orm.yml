@@ -7,6 +7,7 @@ TaskTrackBundle\Entity\Challenge:
         tasks:
             targetEntity: Task
             mappedBy: challenge
+            maxDepth: 1
             
     manyToOne:
         
@@ -14,6 +15,7 @@ TaskTrackBundle\Entity\Challenge:
             targetEntity: User
             inversedBy: challenges
             fetch: EAGER
+            maxDepth: 1
             joinColumn:
                 name: user_id
                 referencedColumnName: id
@@ -23,10 +25,12 @@ TaskTrackBundle\Entity\Challenge:
         children:
           targetEntity: Challenge
           inversedBy: parents
+          maxDepth: 1
         
         parents:
             targetEntity: Challenge
             mappedBy: children
+            maxDepth: 1
 
           
     

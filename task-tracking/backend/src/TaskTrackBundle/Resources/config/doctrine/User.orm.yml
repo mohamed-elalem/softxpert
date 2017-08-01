@@ -6,10 +6,12 @@ TaskTrackBundle\Entity\User:
         tasks:
             targetEntity: Task
             mappedBy: user
+            maxDepth: 1
 
         challenges:
             targetEntity: Challenge
             mappedBy: supervisor
+            maxDepth: 1
     
             
     repositoryClass: TaskTrackBundle\Repository\UserRepository
