@@ -1,0 +1,53 @@
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h4>Registration</h4>
+            </div>
+            <div class="panel-body">
+                <form ng-submit="register(registerForm)" name="registerForm" novalidate>
+                    <div class="form-group" ng-class="(registerForm.username.$dirty && registerForm.username.$invalid ? 'has-error' : '')">
+                        <label>Username</label>
+                        <input type="text" class="form-control" ng-model="username" name="username" restrict-field="username" required />
+                        <div class="text-danger" ng-show="registerForm.username.$dirty && registerForm.username.$invalid">
+                            <strong>Username is required</strong>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="(registerForm.name.$dirty && registerForm.name.$invalid ? 'has-error' : '')">
+                        <label>Name</label>
+                        <input type="text" class="form-control" ng-model="name" name="name" required />
+                        <div class="text-danger" ng-show="registerForm.name.$dirty && registerForm.name.$invalid">
+                            <strong>Name is required</strong>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="(registerForm.username.$dirty && registerForm.username.$invalid ? 'has-error' : '')">
+                        <label>Email</label>
+                        <input type="email" class="form-control" ng-model="email" name="email" required />
+                        <div class="text-danger" ng-show="registerForm.email.$dirty && registerForm.email.$invalid">
+                            <strong>Invalid email format</strong>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="(registerForm.password.$dirty && registerForm.password.$invalid ? 'has-error' : '')" required>
+                        <label>Password</label>
+                        <input type="password" class="form-control" ng-model="password" name="password" required password-limit />
+                        <div class="text-danger" ng-show="registerForm.password.$dirty && registerForm.password.$invalid">
+                            <strong>Password must contain 6 to 60 characters</strong>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-class="(registerForm.repassword.$dirty && registerForm.repassword.$invalid ? 'has-error' : '')" required>
+                        <label>Password Confirmation</label>
+                        <input type="password" class="form-control" ng-model="repassword" name="repassword" required password-confirm="password" />
+                        <div class="text-danger" ng-show="registerForm.repassword.$dirty && registerForm.repassword.$invalid">
+                            <strong>Password confirmation is required</strong>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger" ng-show="registered || failure">
+                        <h5>{{ messages[err] }}</h5>
+                    </div>
+                    <button type="submit" class="btn btn-block btn-default">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

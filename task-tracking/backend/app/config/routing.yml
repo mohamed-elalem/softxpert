@@ -1,0 +1,24 @@
+task_track:
+    resource: "@TaskTrackBundle/Resources/config/routing.yml"
+    prefix:   /
+
+login_check:
+    path:     /api/login_check
+    methods:  [POST]
+
+supervisor_login_check:
+    path:     /api/supervisor/login_check
+    methods:  [POST]
+
+admin_login_check:
+    path:     /api/admin/login_check
+    methods:  [POST]
+
+
+app:
+    resource: '@AppBundle/Controller/'
+    type: annotation
+    
+gesdinet_jwt_refresh_token:
+    path:     /api/token/refresh
+    defaults: { _controller: gesdinet.jwtrefreshtoken:refresh }

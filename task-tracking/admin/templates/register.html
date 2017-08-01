@@ -1,0 +1,37 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <form ng-submit="submit(registerForm)" name="registerForm" style="margin-bottom: 15px;">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input class="form-control" ng-model="supervisor.username" />
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input class="form-control" ng-model="supervisor.name" />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input class="form-control" ng-model="supervisor.email" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input class="form-control" ng-model="supervisor.password" type="password" />
+                </div>
+                <div class="form-group">
+                    <label>Password Confirmation</label>
+                    <input class="form-control" ng-model="supervisor.passwordConfirmation" type="password" />
+                </div>
+                <div class="row">
+                    <div class="col-md-9"></div>
+                    <div class="col-md-3">
+                        <button type="submit" ng-disabled="loginform.$invalid" class="btn btn-info btn-block">Register</button>
+                    </div>
+                </div>
+            </form>
+            <div class="alert alert-success fx-light-speed" ng-show="createdSuccess">
+                <h4>A new supervisor has been added successfully</h4>
+            </div>
+        </div>
+    </div>
+</div>

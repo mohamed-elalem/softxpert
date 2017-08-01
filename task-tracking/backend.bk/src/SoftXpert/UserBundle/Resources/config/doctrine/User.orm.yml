@@ -1,0 +1,28 @@
+SoftXpert\UserBundle\Entity\User:
+    type: entity
+    table: users
+    repositoryClass: SoftXpert\UserBundle\Repository\UserRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    
+    fields:
+        name:
+            type: string
+            length: 100
+        email:
+            type: string
+            length: 100
+        password:
+            type: string
+            length: 100
+        role:
+            type: integer
+        created_at:
+            type: datetime
+        updated_at:
+            type: datetime
+    lifecycleCallbacks: {  }

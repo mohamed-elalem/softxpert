@@ -1,0 +1,58 @@
+TaskTrackBundle\Entity\Task:
+    type: entity
+    table: null
+    
+    manyToOne:
+        user:
+            targetEntity: User
+            inversedBy: tasks
+            maxDepth: 1
+            joinColumn:
+                name: user_id
+                referencedColumnName: id
+                onDelete: cascade
+        challenge:
+            targetEntity: Challenge
+            inversedBy: tasks
+            maxDepth: 1
+            joinColumn:
+                name: challenge_id
+                referencedColumnName: id
+                onDelete: cascade
+                
+        supervisor:
+            targetEntity: User
+            inversedBy: tasks
+            maxDepth: 1
+            joinColumn:
+                name: supervisor_id
+                referencedColumnName: id
+                onDelete: cascade
+    
+            
+    
+    repositoryClass: TaskTrackBundle\Repository\TaskRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+                
+    fields:
+        score:
+            type: float
+        seconds:
+            type: integer
+        done:
+            type: boolean
+        created_at:
+            type: datetime
+            nullable: true
+        updated_at:
+            type: datetime
+            nullable: true
+           
+    lifecycleCallbacks:
+        prePersist: [ setTimeStamps ]
+        preUpdate: [ updateTime ]

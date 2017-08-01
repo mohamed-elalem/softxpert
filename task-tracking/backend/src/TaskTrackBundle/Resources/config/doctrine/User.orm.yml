@@ -1,0 +1,48 @@
+TaskTrackBundle\Entity\User:
+    type: entity
+    table: null
+    
+    oneToMany:
+        tasks:
+            targetEntity: Task
+            mappedBy: user
+            maxDepth: 1
+
+        challenges:
+            targetEntity: Challenge
+            mappedBy: supervisor
+            maxDepth: 1
+    
+            
+    repositoryClass: TaskTrackBundle\Repository\UserRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        name:
+            type: string
+            length: 100
+        username:
+            type: string
+            length: 100
+            unique: true
+        email:
+            type: string
+            length: 100
+            unique: true
+        password:
+            type: string
+            length: 100
+        role:
+            type: integer
+        created_at:
+            type: datetime
+        updated_at:
+            type: datetime
+            
+    lifecycleCallbacks:
+        prePersist: [ setTimeStamps ]
+        preUpdate: [ updateTime ]

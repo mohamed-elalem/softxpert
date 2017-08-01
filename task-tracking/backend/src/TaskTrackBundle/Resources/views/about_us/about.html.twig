@@ -1,0 +1,11 @@
+{% extends 'TaskTrackBundle:base:base.html.twig' %}
+
+
+{% block main %}
+
+{% for item in content %}
+    <p><strong style="color: {{item.fontColor}}; font-size: {{item.fontSize}}; font-family: {{item.fontFamily}} "> {{item.title}} </strong></p>
+    <p style="color: {{item.fontColor}}; font-size: {{item.fontSize - 2}}; font-family: {{item.fontFamily}} ">{{item.content}}</p>
+{% endfor %}
+
+{% endblock %}
