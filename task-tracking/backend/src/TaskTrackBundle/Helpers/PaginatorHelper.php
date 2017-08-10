@@ -17,12 +17,16 @@ class PaginatorHelper {
     
     public function getPages($query, $itemPerPage) {
         $alias = $query->getRootAlias();
-        $recordCount =  $query->add("select", $query->expr()->count("$alias.id"))->getQuery()->getSingleScalarResult();
+        $recordCount = $this->getCount($query);
         return ceil($recordCount / $itemPerPage);
     }
     
+    public function getCount($query) {
+        $alias = $query->getRootAlias();
+        return $query->add("select", $query->expr()->count("$alias.id"))->getQuery()->getSingleScalarResult();
+    }
+    
     public function getResult($query, $page, $itemsPerPage) {
-
-        return $query->setFirstResult(($page - 1) * $itemsPerPage)->setMaxResults($page * $itemsPerPage)->getQuery()->getArrayResult();
+        return $query->setFirstResult(($page - 1) * $itemsPerPage)->setMaxResults($itemsPerPage)->getQuery()->getArrayResult(\Doctrine\ORM\Query::HYDRATE_SINGLE_SCALAR);
     }
 }

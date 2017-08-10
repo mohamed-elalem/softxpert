@@ -51,24 +51,32 @@ class UserService {
     
     public function getAllUsers($paginator, $page, $itemsPerPage) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        
+        dump($userRepository->getUsersExceptRole(Role::ADMIN, $paginator, $page, $itemsPerPage));
+        die();
         $users = $this->unsetPasswords($userRepository->getUsersExceptRole(Role::ADMIN, $paginator, $page, $itemsPerPage));
         $pageCount = $userRepository->getUsersExceptRole(Role::ADMIN, $paginator, $page, $itemsPerPage, true);
         return [
             "code" => Status::STATUS_SUCCESS,
             "extra" => [
                 "users" => $users,
-                "pageCount" => $pageCount,
+                "pagesCount" => $pageCount,
+                "itemsPerPage" => $itemsPerPage
                 ]
         ];
     }
     
-    public function getAllUsersByRole($role) {
+    public function getAllUsersByRole($role, $paginator, $page, $itemsPerPage) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $users = $this->unsetPasswords($userRepository->getUsersByRole($role));
+             
+        $users = $this->unsetPasswords($userRepository->getUsersByRole($role, $paginator, $page, $itemsPerPage));
+        $total = $userRepository->getUsersByRole($role, $paginator, $page, $itemsPerPage, true);
         return [
             "code" => Status::STATUS_SUCCESS,
-            "extra" => $users
+            "extra" => [
+                "users" => $users,
+                "itemsPerPage" => $itemsPerPage,
+                "total" => $total
+            ]
         ];
     }
     
@@ -118,11 +126,11 @@ class UserService {
     
     public function getFilteredUsers($filter, $paginator, $pages, $itemsPerPage) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $users = $userRepository->getFilteredUsers($filter, $paginator, $pages, $itemsPerPage);
-        $pagesCount = $userRepository->getFilteredUsers($filter, $paginator, $pages, $itemsPerPage, true);
+        $users = $this->unsetPasswords($userRepository->getFilteredUsers($filter, $paginator, $pages, $itemsPerPage));
+        $total = $userRepository->getFilteredUsers($filter, $paginator, $pages, $itemsPerPage, true);
         return [
             "code" => Status::STATUS_SUCCESS,
-            "extra" => ["users" => $users, "pagesCount" => $pagesCount]
+            "extra" => ["users" => $users, "total" => $total, "itemsPerPage" => $itemsPerPage]
         ];
     }
    

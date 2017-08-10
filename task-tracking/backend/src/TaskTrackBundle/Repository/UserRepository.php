@@ -57,13 +57,18 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         return $users;
     }
     
-    public function getUsersByRole($role) {
+    public function getUsersByRole($role, $paginator, $page, $itemsPerPage, $count = false) {
         $users = $this->createQueryBuilder("u")
                 ->select()
                 ->where("u.role = :role")
-                ->setParameter("role", $role)
-                ->getQuery()->getArrayResult();
-        return $users;
+                ->setParameter("role", $role);
+        
+        if($count) {
+            return $paginator->getCount($users);
+        }
+        else {
+            return $paginator->getResult($users, $page, $itemsPerPage);
+        }
     }
     
     public function getUsersExceptRole($role, $paginator, $page, $itemsPerPage, $count = false) {
@@ -128,7 +133,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this->createQueryBuilder("u")->select();
         $users = $filter->filter($qb);
         if($count) {
-            $users = $paginator->getPages($users, $itemsPerPage);
+            $users = $paginator->getCount($users, $itemsPerPage);
         }
         else {
             $users = $paginator->getResult($users, $page, $itemsPerPage);

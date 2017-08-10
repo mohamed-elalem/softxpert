@@ -24,7 +24,7 @@ class FilterByEmail extends Filter {
         $alias = $qb->getRootAlias();
         $qb = $qb->andWhere($qb->expr()->like("lower($alias.$this->colName)", ":$this->colName"));
         $qb = $this->next->filter($qb);
-        $qb->setParameter($this->colName, $this->colValue);
+        $qb->setParameter($this->colName, "%" . $this->colValue . "%");
         return $qb;
     }
 }

@@ -1,0 +1,42 @@
+<table class="table table-hover">
+    <tr>
+        <th>#</th>
+        <th>Challenge Title</th>
+        <th>Challenge Description</th>
+        <th>Challenge Duration</th>
+        <th class="text-center">Task Tree</th>
+    </tr>
+    <tr ng-repeat="challenge in challenges">
+        <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
+        <td><strong>{{challenge.title}}</td>
+        <td>{{challenge.description}}</td>
+        <td>{{challenge.duration}} Hours</td>
+        <td class="text-center"><a ng-click="connect(challenge.id)"><i class="fa fa-connectdevelop text-success"></i></a></td>
+    </tr>
+</table>
+
+<div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page}" text-title-first="First Page" text-title-last="Last Page hover title text" text-title-next="Next Page hover"
+    text-title-prev="Previous hover" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left" page="page" page-size="itemsPerPage"
+    total="total" paging-action="getChallengeChildren(page)" show-prev-next="true" show-first-last="true">
+</div>
+<div class="container" ng-show="error">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-danger">
+                <div class="text-center panel-heading">
+                    <h4>Cycles Detected</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="container">
+                        <div class="row" ng-repeat="cycle in cycles">
+                            <p>Cycle {{$index + 1}}</p>
+                            <div class="col-md-3" ng-repeat="title in cycle">
+                                {{$index + 1}}. {{title}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

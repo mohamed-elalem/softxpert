@@ -87,13 +87,18 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         return $qs;
     }
     
-    public function getTraineeUnfinishedTasks($user_id) {
+    public function getTraineeUnfinishedTasks($user_id, $paginator, $page, $itemsPerPage, $count = false) {
         $tasks = $this->createQueryBuilder("t")
-                ->select()
+                ->select("t, c.title, c.duration")
+                ->innerJoin("t.challenge", "c")
                 ->where("t.user = :user_id and t.done = false")
-                ->setParameter("user_id", $user_id)
-                ->getQuery()
-                ->getArrayResult();
+                ->setParameter("user_id", $user_id);
+                
+        if($count) {
+            return $paginator->getCount($tasks);
+        }
+        return $paginator->getResult($tasks, $page, $itemsPerPage);
+                
         return $tasks; 
     }
     
@@ -103,7 +108,7 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
                 ->where("t.user = :user_id")
                 ->setParameter("user_id", $user_id)
                 ->getQuery()
-                ->getResult();
+                ->getArrayResult();
         return $tasks;
     }
     
@@ -112,12 +117,24 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         $qb = $this->createQueryBuilder("t")->select();
         $tasks = $filter->filter($qb);
         if($count) {
-            $tasks = $paginator->getPages($tasks, $itemsPerPage);
+            $tasks = $paginator->getCount($tasks);
         }
         else {
             $tasks = $paginator->getResult($tasks, $page, $itemsPerPage);
         }
         return $tasks;
     }
+    
+    public function deleteTask($task_id) {
+        $tasks = $this->createQueryBuilder("t")
+                ->delete()
+                ->where("t.id = :task_id")
+                ->setParameter("task_id", $task_id)
+                ->getQuery()
+                ->getResult();
+    
+        return $tasks;
+    }
+   
 }
 

@@ -1,3 +1,8 @@
+html,
+body {
+    height: 100%;
+}
+
 .animate-show {
     -webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
     -moz-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 2s;
@@ -20,4 +25,40 @@
 
 .sidebar-menu li {
     margin-bottom: 10px;
+}
+
+.filter .panel-heading {
+    background-color: #000000;
+}
+
+.filter .panel-heading span {
+    color: #9da4ab;
+}
+
+.panel.filter,
+.panel.filter panel-heading,
+.panel.filter panel-body {
+    border: none;
+    margin: 0;
+}
+
+.filter .panel-body {
+    background-color: #4b5868;
+    color: #ecedef;
+}
+
+.filter input {
+    border-radius: 20px;
+}
+
+.full button span {
+    background-color: limegreen;
+    border-radius: 32px;
+    color: black;
+}
+
+.partially button span {
+    background-color: orange;
+    border-radius: 32px;
+    color: black;
 }

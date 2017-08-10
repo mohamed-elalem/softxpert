@@ -61,7 +61,7 @@ class ChallengeRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter("user_id", $user_id);
         
         if($count) {
-            return $paginator->getPages($challenges, $itemsPerPage);
+            return $paginator->getCount($challenges);
         }
         else {
             return $paginator->getResult($challenges, $page, $itemsPerPage);
@@ -77,5 +77,69 @@ class ChallengeRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter("challenge_id", $challenge_id)
                 ->getQuery()->getResult();
         return $challenge;
+    }
+    
+    public function getUnassignedChallenges($supervisor_id, $trainee_id, $paginator, $page, $itemsPerPage, $count = false) {
+        $sqb = $this->createQueryBuilder("sc")
+                ->select("sc.id")
+                ->join("sc.tasks", "t")
+                ->where("t.user = :trainee_id")
+                ->andWhere("sc.supervisor = :supervisor_id")
+                ->getDQL();
+        $qb = $this->createQueryBuilder("c");
+        $challenges = $qb->select()
+                ->where($qb->expr()->notIn("c.id", $sqb))
+                ->setParameter("trainee_id", $trainee_id)
+                ->setParameter("supervisor_id", $supervisor_id);
+                
+
+        if($count) {
+            return $paginator->getCount($challenges);
+        }
+        return $paginator->getResult($challenges, $page, $itemsPerPage);
+    }
+    
+    public function getChallengeChildren($supervisor_id, $challenge_id, $paginator, $page, $itemsPerPage, $count = false) {
+        $sqb = $this->getEntityManager()
+                ->createQueryBuilder()
+                ->select("c.id")
+                ->from("TaskTrackBundle:Challenge", "p")
+                ->join("p.children", "c")
+                ->where("p.id = :challenge_id")
+                ->orWhere("c.id = :challenge_id")
+                ->getDQL();
+
+        $qb = $this->createQueryBuilder("pp");
+        $children = $qb->select()
+                ->where($qb->expr()->notIn("pp.id", $sqb))
+                ->andWhere("pp.supervisor = :supervisor_id")
+                ->andWhere("pp.id != :challenge_id")
+                ->setParameter("challenge_id", $challenge_id)
+                ->setParameter("supervisor_id", $supervisor_id);
+//        dump($children->getQuery()->getDQL());
+//        die;
+        if($count) {
+            return $paginator->getCount($children);
+        }
+        return $paginator->getResult($children, $page, $itemsPerPage);     
+    }
+    
+    public function deleteChallenge($challenge_id) {
+        return $this->createQueryBuilder("c")
+                ->delete()
+                ->where("c.id = :challenge_id")
+                ->setParameter("challenge_id", $challenge_id)
+                ->getQuery()
+                ->getResult();
+    }
+    
+    public function getIdAndTitles($ids) {
+        $qb = $this->createQueryBuilder("c");
+        $challenges = $qb
+                ->select("c.id, c.title")
+                ->where($qb->expr()->in("c.id", $ids))
+                ->getQuery()
+                ->getResult();
+        return $challenges;
     }
 }

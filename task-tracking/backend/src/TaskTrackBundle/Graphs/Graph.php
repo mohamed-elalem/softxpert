@@ -16,7 +16,7 @@ namespace TaskTrackBundle\Graphs;
 abstract class Graph implements StronglyConnectedComponents {
     protected $discovered;
     protected $explored;
-    private $time;
+    protected $time;
     protected $state;
     protected $stack;
     private $topoSort;

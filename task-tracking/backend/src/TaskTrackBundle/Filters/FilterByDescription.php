@@ -25,7 +25,7 @@ class FilterByDescription extends Filter {
     public function filter($qb) {
         $qb = $qb->andWhere($qb->expr()->like("lower($alias.$this->colName)", ":$this->colName"));
         $this->next->filter($qb);
-        $qb = $qb->setParameter($this->colName, $this->colValue);
+        $qb = $qb->setParameter($this->colName, "%" . $this->colValue . "%");
         return $qb;
     }
 

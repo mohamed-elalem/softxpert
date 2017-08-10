@@ -1,0 +1,18 @@
+<table class="table table-hover">
+    <tr>
+        <th>#</th>
+        <th>Username</th>
+        <th>Current tasks</th>
+    </tr>
+    <tr ng-repeat="user in users">
+        <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
+        <td>{{user.username}}</td>
+        <td><a href="#!/trainees/{{user.id}}/challenges"><i style="color: #720035" class="fa fa-cog"></i></a></td>
+        <td><a href="#!/trainees/{{user.id}}/tasks"><i class="fa fa-tasks text-primary"></i></a></td>
+    </tr>
+</table>
+
+<div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page} hover title text" text-title-first="First Page hover title text" text-title-last="Last Page hover title text"
+    text-title-next="Next Page hover title text" text-title-prev="Previous hover Page title text" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left"
+    page="page" page-size="itemsPerPage" total="total" paging-action="getAllTrainees(page)" show-prev-next="true" show-first-last="true">
+</div>

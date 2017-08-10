@@ -24,23 +24,27 @@ class TaskService {
         $this->em = $em;
     }
 
-    public function getUserTasks($user_id) {
-        $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $tasks = $userRepository->getUser($user_id)->getTasks();
+    public function getUserTasks($user_id, $paginator, $page, $itemsPerPage) {
+        $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
+        $tasks = $taskRepository->getTraineeUnfinishedTasks($user_id, $paginator, $page, $itemsPerPage);
+        $total = $taskRepository->getTraineeUnfinishedTasks($user_id, $paginator, $page, $itemsPerPage, true);
+        
         return [
             "code" => Status::STATUS_SUCCESS,
-            "extra" => $tasks
+            "extra" => [
+                "tasks" => $tasks,
+                "total" => $total,
+                "itemsPerPage" => $itemsPerPage
+            ]
         ];
     }
 
     public function getUserTask($user_id, $challenge_id) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
-
-        $tasks = $taskRepository->getUserTask($user_id, $challenge_id);
-
+        $task = $taskRepository->getUserTask($user_id, $challenge_id);
         return [
             "code" => Status::STATUS_SUCCESS,
-            "extra" => $tasks
+            "extra" => $task
         ];
     }
 
@@ -68,6 +72,21 @@ class TaskService {
         }
 
         return $data;
+    }
+    
+    public function deleteTask($supervisor_id, $task_id) {
+        $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
+        $task = $taskRepository->find($task_id);
+        if(! $task) {
+            throw new Exception("Task with id $task_id is not found");
+        }
+        else if($task->getSupervisor()->getId() != $supervisor_id) {
+            throw new Exception("You're not the supervisor of this task");
+        }
+        $data = $taskRepository->deleteTask($task_id);
+        return [
+            "code" => Status::STATUS_SUCCESS,
+        ];
     }
 
     public function updateUserTaskScore($user_id, $challenge_id, $score) {
@@ -204,6 +223,7 @@ class TaskService {
             "extra" => ["tasks" => $tasks, "pagesCount" => $pagesCount]
         ];
     }
+    
 
     private function getChallengeToTask($tasks) {
         $challengeToTask = [];

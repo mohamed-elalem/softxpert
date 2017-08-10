@@ -1,0 +1,29 @@
+<table class="table table-hover">
+    <tr>
+        <th>#</th>
+        <th>Challenge Title</th>
+        <th>Challenge Duration</th>
+        <th>Time spent</th>
+        <th>Score</th>
+        <th>Done</th>
+        <th class="text-center">Delete task</th>
+    </tr>
+    <tr ng-repeat="task in tasks">
+        <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
+        <td><strong>{{task.title}}</strong></td>
+        <td>{{task.duration}}</td>
+        <td>{{task[0].score}}</td>
+        <td><input class="form-control" ng-model="task[0].seconds" type="number" cols="5" /> </td>
+        <td>
+            <form>
+                <switch id="enabled" name="enabled" ng-model="done" class="green"></switch>
+            </form>
+        </td>
+        <td class="text-center"><a ng-click="deleteTask(task[0].id)"><i class="fa fa-times-circle-o text-danger"></i></a></td>
+    </tr>
+</table>
+
+<div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page}" text-title-first="First Page" text-title-last="Last Page hover title text" text-title-next="Next Page hover"
+    text-title-prev="Previous hover" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left" page="page" page-size="itemsPerPage"
+    total="total" paging-action="getUserTasks(page)" show-prev-next="true" show-first-last="true">
+</div>

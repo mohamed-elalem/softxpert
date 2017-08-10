@@ -122,7 +122,7 @@ class Kosaraju extends Graph {
         for ($i = $n - 1; $i >= 0; $i--) {
             $parent = $this->stack[$i];
             if ($this->state[$parent] == parent::WHITE) {
-                $cycles[] = parent::getStronglyConnectedComponents($this->adjListTranspose, $parent, false, 0, true);
+                $cycles[] = $this->getStronglyConnectedComponents($this->adjListTranspose, $parent, false, 0, true);
             }
         }
         return $cycles;

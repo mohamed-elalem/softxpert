@@ -11,9 +11,12 @@
   "dependencies": {
     "angular": "^1.6.5",
     "angular-animate": "^1.6.5",
+    "angular-fx": "^1.1.0",
+    "angular-paging": "^2.2.2",
     "angular-route": "^1.6.5",
     "angular-ui": "^1.0.0",
     "angular-ui-bootstrap": "^2.5.0",
+    "angularjs-datepicker": "^2.1.23",
     "bootstrap": "^3.3.7",
     "jquery": "^3.2.1",
     "ng-fx": "^2.0.4"

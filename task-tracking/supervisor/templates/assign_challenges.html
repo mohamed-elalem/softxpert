@@ -1,0 +1,21 @@
+<table class="table table-hover">
+    <tr>
+        <th>#</th>
+        <th>Challenge Title</th>
+        <th>Challenge Duration</th>
+        <th>Assign</th>
+    </tr>
+    <tr ng-repeat="challenge in challenges">
+        <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
+        <td><strong>{{challenge.title}}</strong></td>
+        <td>{{challenge.duration}} Hours</td>
+        <td>
+            <a ng-click="assignChallenge(challenge.id)"><i style="font-size: 3em;" class="fa fa-arrow-circle-right text-success"></i></a>
+        </td>
+    </tr>
+</table>
+
+<div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page} hover title text" text-title-first="First Page hover title text" text-title-last="Last Page hover title text"
+    text-title-next="Next Page hover title text" text-title-prev="Previous hover Page title text" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left"
+    page="page" page-size="itemsPerPage" total="total" paging-action="getUnassignedChallenges(page)" show-prev-next="true" show-first-last="true">
+</div>

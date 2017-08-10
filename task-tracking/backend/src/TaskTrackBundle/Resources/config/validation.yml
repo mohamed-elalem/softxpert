@@ -1,0 +1,77 @@
+TaskTrackBundle\Entity\User:
+    properties:
+        name:
+            - NotBlank:
+                message: Name cannot be empty.
+            - NotNull: 
+                message: Name cannot be null
+            - Length: 
+                min: 3
+                max: 100
+            - Regex:
+                pattern: '/[^0-9]+/'
+                message: "Name cannot contain numbers"
+        password:
+            - NotBlank:
+                message: Password cannot be empty.
+            - NotNull: 
+                message: Password cannot be null.
+        email: 
+            - NotBlank:
+                message: Email cannot be blank.
+            - NotNull:
+                message: Email cannot be null.
+            - Email:
+                message: "{{ value }} is not a valid email."
+                
+        username:
+            - NotBlank:
+                message: Username cannot be blank.
+            - NotNull:
+                message: Email cannot be null.
+            - Regex:
+                pattern: '/[a-zA-Z0-9-_]*[A-Z][a-zA-Z0-9-_]*/'
+                message: "Required atleast 1 capital letter, allowed [a-z, -, _]"
+
+TaskTrackBundle\Entity\Challenge:
+    properties:
+        duration:
+            - GreaterThan:
+                value: 0
+                message: "Duration must be greater than 0"
+            - NotBlank:
+                message: Duration cannot be blank
+                
+        description:
+            - Length:
+                min: 10
+                max: 80
+                exactMessage: "Description must be of length 10 to 80. yours is {{ limit }}"
+        
+        title:
+            - NotBlank:
+                message: "Title cannot be blank"
+            - Length:
+                min: 8
+                max: 20,
+                exactMessage: "Title must be in length of 8 to 20. yours is {{ limit }}"
+        
+    
+TaskTrackBundle\Entity\Task:
+    properties:
+        score:
+            - Range:
+                min: 0
+                max: 100
+                minMessage: Score must be greater than or equal to 0
+                maxMessage: Score must be less than or equal to 100
+                invalidMessage: Score must be between 0 and 100
+        seconds:
+            - GreaterThan:
+                value: 0
+                message: "Time spent so far must be greater than 0"
+
+        done:
+            - Type:
+                type: bool
+                message: "This value {{ value }} isn't valid"

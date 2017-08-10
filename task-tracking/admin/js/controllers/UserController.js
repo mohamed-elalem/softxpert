@@ -15,24 +15,37 @@ function userController($scope, $rootScope, $location, UserFactory, $routeParams
     vim.scope.setUserToDelete = setUserToDelete;
     vim.scope.unsetUserToDelete = unsetUserToDelete;
     vim.scope.deleteUser = deleteUser;
+    vim.scope.page = 1;
+    vim.scope.total = 10;
+    vim.scope.itemsPerPage = 10;
+    vim.scope.getAllUsers = getAllUsers;
+    vim.scope.data = vim.rootScope.data || {};
+    vim.rootScope.data = {};
 
     var userToDelete = -1;
 
+
     var token = localStorage.getItem("token");
     if (angular.equals($routeParams, {})) {
-        getAllUsers();
+        getAllUsers(vim.scope.page);
     } else {
         var id = $routeParams.id;
         vim.userFactory.getSingleUser(token, id).then(getSingleUserSuccess, getSingleUserError).catch(getSingleUserException);
     }
+
+    vim.rootScope.$on("filtering", function(event, data) {
+        vim.scope.data = data;
+        vim.userFactory.getUsers(token, data).then(getUsersSuccess, getUsersError).catch(getUsersException);
+    });
 
     /**
      * Getting all users from database
      * To be paginated later
      */
 
-    function getAllUsers() {
-        vim.userFactory.getUsers(token).then(getUsersSuccess, getUsersError).catch(getUsersException);
+    function getAllUsers(page) {
+        vim.scope.page = page;
+        vim.userFactory.getUsers(token, vim.scope.data, page).then(getUsersSuccess, getUsersError).catch(getUsersException, vim.rootScope.searchFilters || {});
     }
 
 
@@ -95,7 +108,9 @@ function userController($scope, $rootScope, $location, UserFactory, $routeParams
 
     function getUsersSuccess(res) {
         if (res.status == 200) {
-            vim.scope.users = res.data.data;
+            vim.scope.users = res.data.data.users;
+            vim.scope.itemsPerPage = res.data.data.itemsPerPage;
+            vim.scope.total = res.data.data.total;
         }
     }
 

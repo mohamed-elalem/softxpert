@@ -5,6 +5,8 @@ namespace TaskTrackBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use TaskTrackBundle\Constants\Role;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * User
@@ -34,11 +36,26 @@ class User implements UserInterface
     
 
     /**
+     * @Assert\NotBlank(
+     *  message="Username field cannot be blank",
+     * )
+     * @Assert\Length(
+     *  min=6,
+     *  max=40,
+     *  message="Username must be of length [6 - 40]
+     * )
+     * @Assert\Regex(
+     *  pattern = "/[a-zA-z\-_]",
+     *  message = "Alphabet and -_ are allowed"
+     * )
+     *
      * @var string
      */
-    private $username;
+    private $username = "";
 
     /**
+     * @Assert\NotBlank(message="Email is required")
+     * @Assert\Email(message="Please enter a valid email")
      * @var string
      */
     private $email;

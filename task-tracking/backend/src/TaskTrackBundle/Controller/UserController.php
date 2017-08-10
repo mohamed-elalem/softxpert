@@ -16,11 +16,13 @@ use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Output\BufferedOutput;
 use \Symfony\Component\Console\Input\ArrayInput;
+use TaskTrackBundle\Form\UserType;
 
 class UserController extends Controller
 {
     
     public function revokeRefreshToken(Request $request) {
+        $this->createForm($type)->submit($submittedData)->isValid();
         $kernel = $this->get("kernel");
         $application = new Application($kernel);
         $application->setAutoExit(true);
@@ -29,16 +31,26 @@ class UserController extends Controller
             "refresh_token" => $request->request->get("refresh_token")
         ]);
         
-        $output = new BufferedOutput();
         $application->run($input);
         
 
-        return $this->getResponse(["code" => Status::STATUS_SUCCESS, "extra" => [$content]]);
+        return $this->getResponse(["code" => Status::STATUS_SUCCESS]);
     }
     
     public function logoutAction(Request $request) {
         $token = $request->headers->get("Authorization");
         $data = $this->get("services.user_service")->logout($token);
+        
+//        $kernel = $this->get("kernel");
+//        $application = new Application($kernel);
+//        $application->setAutoExit(true);
+//        $input = new ArrayInput([
+//            "command" => "gesdinet:jwt:revoke",
+//            "refresh_token" => $request->request->get("refresh_token")
+//        ]);
+//        
+//        $application->run($input);
+        
         return $this->getResponse($data);
     }
     
@@ -60,7 +72,13 @@ class UserController extends Controller
     }
     
     public function registerSupervisorAction(Request $request) {
-        return $this->register($request, Role::SUPERVISOR);
+        $validator = $this->get("services.form_service")->init($this->createForm(UserType::class, new User()), $request->request->all());
+        if($validator->isValid()) {
+            return $this->register($request, Role::SUPERVISOR, $this->get("services.form_service")->init());
+        }
+        $data["code"] = Status::STATUS_FAILURE;
+        $data["extra"] = $validator->getErrors();
+        return $data;
     }
     
     public function getAuthenticatedUserAction() {
@@ -87,8 +105,11 @@ class UserController extends Controller
         return $this->getResponse($data);
     }
     
-    public function getAllTraineesAction() {
-        $data = $this->get("services.user_service")->getAllUsersByRole(Role::TRAINEE);
+    public function getAllTraineesAction($page) {
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+  
+        $data = $this->get("services.user_service")->getAllUsersByRole(Role::TRAINEE, $paginator, $page, $itemsPerPage);
         return $this->getResponse($data);
     }
 
@@ -97,13 +118,18 @@ class UserController extends Controller
         return $this->getResponse($data);
     }
     
-    public function getUserTasksAction($user_id) {
-        $data = $this->get("services.task_service")->getUserTasks($user_id);
+    public function getUserTasksAction($user_id, $page) {
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+        $data = $this->get("services.task_service")->getUserTasks($user_id, $paginator, $page, $itemsPerPage);
         return $this->getResponse($data);
     }
     
     public function getUserTaskAction($user_id, $challenge_id) {
-        $data = $this->get("services.user_service")->getUserTasks($user_id, $challenge_id);
+        
+        
+        $data = $this->get("services.user_service")->getUserTasks($user_id, $challenge_id, $paginator, $page, $itemsPerPage);
+        
         return $this->getResponse($data);
     }
     
@@ -192,7 +218,7 @@ class UserController extends Controller
     }
     
     public function addChallengeChildAction(Request $request) {
-        $data = $this->get("services.challenge_service")->addChallengeChild($request->request->get("parent"), $request->request->get("child"));
+        $data = $this->get("services.challenge_service")->addChallengeChild($request->request->get("parent_id"), $request->request->get("child_id"), $this->get("services.graph_service.kosaraju"));
         return $this->getResponse($data);
     }
     
@@ -239,6 +265,45 @@ class UserController extends Controller
         $itemsPerPage = $this->getParameter("paginator_items_per_page");
         
         $data = $this->get("services.challenge_service")->getFilteredChallenges($filter, $paginator, $page, $itemsPerPage);
+        
+        return $this->getResponse($data);
+    }
+    
+    public function getUnassignedChallengesAction(Request $request, $user_id, $page) {
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+        
+        $data = $this->get("services.challenge_service")->getUnassignedChallenges(
+                $this->getUser()->getId(),
+                $user_id,
+                $paginator,
+                $page,
+                $itemsPerPage
+                );
+        return $this->getResponse($data);
+    }
+    
+    public function getChallengeChildrenAction(Request $request, $challenge_id, $page) {
+        $paginator = $this->get("helpers.paginator_helper");
+        $itemsPerPage = $this->getParameter("paginator_items_per_page");
+        
+        $data = $this->get("services.challenge_service")->getChallengeChildren(
+                $this->getUser()->getId(),
+                $challenge_id,
+                $paginator,
+                $page,
+                $itemsPerPage
+                );
+        return $this->getResponse($data);
+    }
+    
+    public function deleteTaskAction(Request $request) {
+        $data = $this->get("services.task_service")->deleteTask($this->getUser()->getId(), $request->request->get("task_id"));
+        return $this->getResponse($data);
+    }
+    
+    public function deleteChallengeAction(Request $request) {
+        $data = $this->get("services.challenge_service")->deleteChallenge($this->getUser()->getId(), $request->request->get("challenge_id"));
         
         return $this->getResponse($data);
     }

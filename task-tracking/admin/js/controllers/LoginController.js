@@ -18,8 +18,7 @@ function LoginController($scope, $location, $rootScope, UserFactory) {
      */
 
     function submit(loginForm) {
-        vim.scope.invalidCredintials = false;
-        vim.scope.forbidden = false;
+        vim.scope.loginError = false;
         vim.userFactory.login($scope.username, $scope.password).then(success, error).catch(exception);
 
 
@@ -54,8 +53,8 @@ function LoginController($scope, $location, $rootScope, UserFactory) {
              */
 
             function error(err) {
-                console.log("Forbidden access");
-                vim.scope.forbidden = true;
+                vim.scope.loginError = true;
+                vim.scope.errorMessage = "You're not authorized to access this domain. Please contact us for more information";
             }
 
             /**
@@ -76,8 +75,11 @@ function LoginController($scope, $location, $rootScope, UserFactory) {
         function error(err) {
             console.log(err);
             if (err.status == 401) {
-                vim.scope.invalidCredintials = true;
-                console.log("Invalid credintials");
+                vim.scope.loginError = true;
+                vim.scope.errorMessage = "Invalid Credintials please supply the correct ones";
+            } else if (err.status == -1) {
+                vim.scope.loginError = true;
+                vim.scope.errorMessage = "Server is down this moment. please try again later"
             }
         }
 

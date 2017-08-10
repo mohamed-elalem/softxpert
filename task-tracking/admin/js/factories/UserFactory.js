@@ -16,7 +16,8 @@ function userFactory($http) {
         getUsers: getUsers,
         getSingleUser: getSingleUser,
         logout: logout,
-        deleteUser: deleteUser
+        deleteUser: deleteUser,
+        refreshLogin: refreshLogin
     }
 
     function login(username, password) {
@@ -73,18 +74,20 @@ function userFactory($http) {
         });
     }
 
-    function getUsers(token, page = 1) {
+    function getUsers(token, data = {}, page = 1) {
         return $http({
-            "url": "http://localhost:8000/api/admin/users",
+            "url": "http://localhost:8000/api/admin/users/" + page,
+            "method": "get",
+            "params": data,
             "headers": {
                 "Authorization": "Bearer " + token
-            }
+            },
         })
     }
 
     function getSingleUser(token, id) {
         return $http({
-            "url": "http://localhost:8000/api/admin/users/" + id,
+            "url": "http://localhost:8000/api/admin/users/" + id + "/info",
             "headers": {
                 "Authorization": "Bearer " + token
             }
@@ -117,6 +120,15 @@ function userFactory($http) {
                 "Authorization": "Bearer " + token,
                 "Content-Type": "application/x-www-form-urlencoded"
             },
+        });
+    }
+
+    function refreshLogin(refreshToken) {
+        return $http({
+            "url": "http://localhost:8000/api/token/refresh",
+            "params": {
+                "refresh_token": refreshToken
+            }
         });
     }
 }

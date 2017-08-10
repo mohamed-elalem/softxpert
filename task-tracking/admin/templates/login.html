@@ -17,12 +17,10 @@
                     </div>
                 </div>
             </form>
-            <div class="alert alert-danger fx-fade-up fx-ease-sine" ng-show="forbidden">
-                <h4>You're not authorized to access this page<br>Please refer to your access domain</h4>
+            <div ngfx-rubberband="true" ngfx-speed="fast" class="alert alert-danger fx-light-speed fx-dur-750" ng-show="loginError">
+                <h4>{{errorMessage}}</h4>
             </div>
-            <div class="alert alert-warning fx-fade-up fx-ease-sine" ng-show="invalidCredintials">
-                <h4>Your credintials doesn't meet ours in database</h4>
-            </div>
+
         </div>
     </div>
 </div>

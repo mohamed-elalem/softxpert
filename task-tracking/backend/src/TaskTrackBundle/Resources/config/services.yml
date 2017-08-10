@@ -20,6 +20,9 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@jms_serializer'
             
+    services.form_service:
+        class: TaskTrackBundle\Service\FormService
+            
     services.graph_service.kosaraju:
         class: TaskTrackBundle\Graphs\Kosaraju
         
@@ -66,7 +69,10 @@ services:
             
     helpers.paginator_helper:
         class: TaskTrackBundle\Helpers\PaginatorHelper
-            
+    
+    helpers.form_helper:
+        class: TaskTrackBundle\Helpers\FormHelper
+
 #    exception_subscriber:
 #        class: TaskTrackBundle\EventListener\ExceptionListener
 #        tags:
