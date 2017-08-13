@@ -89,30 +89,30 @@ class TaskService {
         ];
     }
 
-    public function updateUserTaskScore($user_id, $challenge_id, $score) {
+    public function updateUserTaskScore($task_id, $score) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
 
-        $taskRepository->updateScore($user_id, $challenge_id, $score);
+        $taskRepository->updateScore($task_id, $score);
 
         return [
             "code" => Status::STATUS_SUCCESS
         ];
     }
 
-    public function updateUserTaskDuration($user_id, $challenge_id, $duartion) {
+    public function updateUserTaskDuration($task_id, $duartion) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
 
-        $taskRepository->updateDuration($user_id, $challenge_id, $duration);
+        $taskRepository->updateDuration($task_id, $duration);
 
         return [
             "code" => Status::STATUS_SUCCESS
         ];
     }
 
-    public function updateTaskDone($user_id, $challenge_id, $done) {
+    public function updateTaskDone($task_id, $done) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
 
-        $taskRepository->updateDone($user_id, $challenge_id, $done);
+        $taskRepository->updateDone($task_id, $done);
 
         return [
             "code" => Status::STATUS_SUCCESS
@@ -124,6 +124,7 @@ class TaskService {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
         $supervisor = $userRepository->find($supervisor_id);
+        $trainee = $userRepository->find($user_id);
 
         /**
          * Checking whether this task finished its prerequisites successfully
@@ -131,7 +132,8 @@ class TaskService {
          * Idea is simple just use the same topological sort but on the graph transpose
          * (i.e. Flip edges direction) 
          */
-        $tasks = $taskRepository->getTraineeTasks($user_id);
+//        $tasks = $taskRepository->getTraineeTasks($user_id);
+        $tasks = $trainee->getTasks();
         
         $edgeList = $this->getEdgeListByChallenge($challenge_id);
         $graph->setup($edgeList);
@@ -146,10 +148,16 @@ class TaskService {
             $priority = [];
             $challengeIdx = $this->getChallengeIdx($this->getInitialStack($tasks));
             $n = count($topoSort);
+            
+            if($n > 0) {
+                $challengeTitles = $this->getTitles($topoSort);
+            }
+            
             for ($i = $n - 1; $i >= 0; $i--) {
                 if (!isset($challengeIdx[$topoSort[$i]]) && $challenge_id != $topoSort[$i]) {
-                    $challengesToAdd[] = $topoSort[$i];
+                    $challengesToAdd[] = $challengeTitles[$topoSort[$i]];
                     $allOk = false;
+                    $tmp[$i][0] = $challengeTitles[$tmp[$i][0]];
                     $priority[] = $tmp[$i];
                 }
             }
@@ -296,5 +304,15 @@ class TaskService {
             }
         }
         return $edgeList;
+    }
+    
+    private function getTitles($ids) {
+        $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
+        $idAndTitles = $challengeRepository->getIDAndTitles($ids);
+        $titles = [];
+        foreach($idAndTitles as $row) {
+            $titles[$row["id"]] = $row["title"];
+        }
+        return $titles;
     }
 }

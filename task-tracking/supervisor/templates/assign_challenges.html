@@ -1,21 +1,73 @@
-<table class="table table-hover">
-    <tr>
-        <th>#</th>
-        <th>Challenge Title</th>
-        <th>Challenge Duration</th>
-        <th>Assign</th>
-    </tr>
-    <tr ng-repeat="challenge in challenges">
-        <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
-        <td><strong>{{challenge.title}}</strong></td>
-        <td>{{challenge.duration}} Hours</td>
-        <td>
-            <a ng-click="assignChallenge(challenge.id)"><i style="font-size: 3em;" class="fa fa-arrow-circle-right text-success"></i></a>
-        </td>
-    </tr>
-</table>
+<div class="container">
+    <div class="row">
+        <div class="col-md-2">
+            <strong>Username</strong>  
+        </div>
+        <div class="col-md-6">
+            {{user.username}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <strong>Email</strong>
+        </div>
+        <div class="col-md-6">
+            {{user.email}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <strong>Name</strong>
+        </div>
+        <div class="col-md-6">
+            {{user.name}}
+        </div>
+    </div>
+    <div class="panel panel-info" style="margin-top: 15px;">
+        <div class="panel-heading">
+            <h5>Available challenges</h5>
+        </div>
+        <div class="panel-body">
+            <table class="table table-hover">
+                <tr>
+                    <th>#</th>
+                    <th>Challenge Title</th>
+                    <th>Challenge Duration</th>
+                    <th>Assign</th>
+                </tr>
+                <tr ng-repeat="challenge in challenges">
+                    <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
+                    <td><strong>{{challenge.title}}</strong></td>
+                    <td>{{challenge.duration}} Hours</td>
+                    <td>
+                        <a ng-click="assignChallenge(challenge.id)"><i style="font-size: 2em;" class="fa fa-arrow-circle-right text-success"></i></a>
+                    </td>
+                </tr>
+            </table>
 
-<div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page} hover title text" text-title-first="First Page hover title text" text-title-last="Last Page hover title text"
-    text-title-next="Next Page hover title text" text-title-prev="Previous hover Page title text" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left"
-    page="page" page-size="itemsPerPage" total="total" paging-action="getUnassignedChallenges(page)" show-prev-next="true" show-first-last="true">
+            <div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page} hover title text" text-title-first="First Page hover title text" text-title-last="Last Page hover title text"
+                text-title-next="Next Page hover title text" text-title-prev="Previous hover Page title text" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left"
+                page="page" page-size="itemsPerPage" total="total" paging-action="getUnassignedChallenges(page)" show-prev-next="true" show-first-last="true">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container" ng-show="error">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h4>Prerequisits needed before assigning this challenge</h4>
+                </div>
+                <div class="panel panel-body">
+                    <div class="container">
+                        <div class="row" ng-repeat="prerequisit in prerequisits">
+                            <div class="col-md-8">
+                            <p><strong><span style="color: red;">*</span> {{prerequisit[0]}}</strong><span class="pull-right">Distance to targeted challenge is {{prerequisit[1]}}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

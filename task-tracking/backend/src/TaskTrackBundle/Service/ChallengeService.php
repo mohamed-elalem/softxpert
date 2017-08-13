@@ -97,6 +97,13 @@ class ChallengeService {
         
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
         
+        $parent = $challengeRepository->find($parent_id);
+        $child = $challengeRepository->find($child_id);
+
+        if($parent->getChildren()->contains($child)) {
+            throw new Exception("Error Connection already exists");
+        }
+        
         $edgeList = $this->getEdgeList([$challengeRepository->find($parent_id), $challengeRepository->find($child_id)], true);
         $edgeList[] = [(int)$parent_id, (int)$child_id];
         
@@ -164,6 +171,15 @@ class ChallengeService {
         ];
     }
     
+    public function getSingleChallenge($challenge_id) {
+        $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
+        $challenge = $challengeRepository->getChallenge($challenge_id);
+        return [
+            "code" => Status::STATUS_SUCCESS,
+            "extra" => ["challenge" => $challenge]
+        ];
+    }
+    
     private function getChallengeIdx($stack) {
         $challengeIdx = [];
         foreach ($stack as $challenge) {
@@ -223,8 +239,8 @@ class ChallengeService {
         $cyclesWithTitles = [];
         foreach($cycles as $cycle) {
             $curIndex = count($cyclesWithTitles);
-            $cyclesWithTitles[] = [];
             if(count($cycle) > 1) {
+                $cyclesWithTitles[] = [];
                 foreach($cycle as $id) {
                     $cyclesWithTitles[$curIndex][] = $titles[$id];
                 }

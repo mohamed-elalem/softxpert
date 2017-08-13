@@ -10,7 +10,8 @@ function challengeFactory($http) {
         newChallenge: newChallenge,
         getChallengeChildren: getChallengeChildren,
         connect: connect,
-        deleteChallenge: deleteChallenge
+        deleteChallenge: deleteChallenge,
+        getChallenge: getChallenge,
     }
 
 
@@ -26,13 +27,13 @@ function challengeFactory($http) {
     function assignChallenge(token, userId, challengeId) {
         return $http({
             "url": "http://localhost:8000/api/supervisor/trainees/" + userId + "/challenges",
-            method: "post",
-            headers: {
+            "method": "post",
+            "headers": {
                 "Authorization": "Bearer " + token,
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            transformRequest: toFormData,
-            data: {
+            "transformRequest": toFormData,
+            "data": {
                 "challenge_id": challengeId,
             }
         });
@@ -90,7 +91,6 @@ function challengeFactory($http) {
     }
 
     function deleteChallenge(token, challenge_id) {
-        console.log("Called");
         return $http({
             "url": "http://localhost:8000/api/supervisor/challenges",
             "method": "delete",
@@ -103,6 +103,15 @@ function challengeFactory($http) {
                 "challenge_id": challenge_id
             }
         })
+    }
+
+    function getChallenge(token, challenge_id) {
+        return $http({
+            "url": "http://localhost:8000/api/supervisor/challenges/" + challenge_id + "/info",
+            "headers": {
+                "Authorization": "Bearer " + token
+            }
+        });
     }
 
 

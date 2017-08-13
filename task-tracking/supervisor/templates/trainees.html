@@ -1,14 +1,15 @@
-<table class="table table-hover">
+<table class="table table-hover table-bordered">
     <tr>
-        <th>#</th>
-        <th>Username</th>
-        <th>Current tasks</th>
+        <th class="text-center">#</th>
+        <th class="text-center">Username</th>
+        <th class="text-center">Available challenges</th>
+        <th class="text-center">Currently assigned challenges</th>
     </tr>
     <tr ng-repeat="user in users">
-        <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
-        <td>{{user.username}}</td>
-        <td><a href="#!/trainees/{{user.id}}/challenges"><i style="color: #720035" class="fa fa-cog"></i></a></td>
-        <td><a href="#!/trainees/{{user.id}}/tasks"><i class="fa fa-tasks text-primary"></i></a></td>
+        <td class="text-center">{{$index + itemsPerPage * (page - 1) + 1}}</td>
+        <td class="text-center">{{user.username}}</td>
+        <td class="text-center"><a href="#!/trainees/{{user.id}}/challenges"><i style="color: #720035" class="fa fa-cog"></i></a></td>
+        <td class="text-center"><a href="#!/trainees/{{user.id}}/tasks"><i class="fa fa-tasks text-primary"></i></a></td>
     </tr>
 </table>
 

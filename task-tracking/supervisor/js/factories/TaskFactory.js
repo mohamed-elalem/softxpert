@@ -6,7 +6,9 @@ function taskFactory($http) {
     return {
         getUserTasks: getUserTasks,
         deleteTask: deleteTask,
-        createNewTask: createNewTask
+        createNewTask: createNewTask,
+        setScore: setScore,
+        setDone: setDone
     }
 
     function getUserTasks(token, userId, page) {
@@ -44,6 +46,36 @@ function taskFactory($http) {
             "data": {
                 "challenge_id": challengeId,
                 "userId": userId
+            }
+        });
+    }
+
+    function setScore(token, userId, taskId, score) {
+        return $http({
+            "url": "http://localhost:8000/api/supervisor/trainees/" + userId + "/tasks/" + taskId + "/score",
+            "method": "put",
+            "headers": {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "transformRequest": transformRequest,
+            "data": {
+                "score": score
+            }
+        });
+    }
+
+    function setDone(token, userId, taskId, done) {
+        return $http({
+            "url": "http://localhost:8000/api/supervisor/trainees/" + userId + "/tasks/" + taskId + "/done",
+            "method": "put",
+            "headers": {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "transformRequest": transformRequest,
+            "data": {
+                "done": done
             }
         });
     }

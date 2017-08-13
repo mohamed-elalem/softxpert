@@ -1,24 +1,62 @@
-<table class="table table-hover">
-    <tr>
-        <th>#</th>
-        <th>Challenge Title</th>
-        <th>Challenge Description</th>
-        <th>Challenge Duration</th>
-        <th class="text-center">Task Tree</th>
-    </tr>
-    <tr ng-repeat="challenge in challenges">
-        <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
-        <td><strong>{{challenge.title}}</td>
-        <td>{{challenge.description}}</td>
-        <td>{{challenge.duration}} Hours</td>
-        <td class="text-center"><a ng-click="connect(challenge.id)"><i class="fa fa-connectdevelop text-success"></i></a></td>
-    </tr>
-</table>
+<div class="container">
+    <div class="row">
+        <div class="col-md-2">
+            <strong>Title</strong>
+        </div>
+        <div class="col-md-6">
+            {{challenge.title}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <strong>Description</strong>
+    </div>
+        <div class="col-md-6">
+            {{challenge.description}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <strong>Expected duration</strong>
+        </div>
+        <div class="col-md-6">
+            {{challenge.duration}}
+        </div>
+    </div>
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-md-12">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h4>Available challenges</h4>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-hover">
+                        <tr>
+                            <th>#</th>
+                            <th>Challenge Title</th>
+                            <th>Challenge Description</th>
+                            <th>Challenge Duration</th>
+                            <th class="text-center">Task Tree</th>
+                        </tr>
+                        <tr ng-repeat="challenge in challenges">
+                            <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
+                            <td><strong>{{challenge.title}}</td>
+                            <td>{{challenge.description}}</td>
+                            <td>{{challenge.duration}} Hours</td>
+                            <td class="text-center"><a ng-click="connect(challenge.id)"><i class="fa fa-connectdevelop text-success"></i></a></td>
+                        </tr>
+                    </table>
 
-<div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page}" text-title-first="First Page" text-title-last="Last Page hover title text" text-title-next="Next Page hover"
-    text-title-prev="Previous hover" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left" page="page" page-size="itemsPerPage"
-    total="total" paging-action="getChallengeChildren(page)" show-prev-next="true" show-first-last="true">
+                    <div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page}" text-title-first="First Page" text-title-last="Last Page hover title text" text-title-next="Next Page hover"
+                        text-title-prev="Previous hover" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left" page="page" page-size="itemsPerPage"
+                        total="total" paging-action="getChallengeChildren(page)" show-prev-next="true" show-first-last="true">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
 </div>
+
 <div class="container" ng-show="error">
     <div class="row">
         <div class="col-md-12">
@@ -39,4 +77,5 @@
             </div>
         </div>
     </div>
-</div>
+</div>           
+

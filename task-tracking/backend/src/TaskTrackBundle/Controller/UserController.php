@@ -149,18 +149,18 @@ class UserController extends Controller
         return $this->getResponse($data);
     }
     
-    public function updateUserTaskScoreAction(Request $request, $user_id, $challenge_id) {
-        $data = $this->get("services.task_service")->updateUserTaskScore($user_id, $challenge_id, $request->request->get("score"));
+    public function updateUserTaskScoreAction(Request $request, $task_id) {
+        $data = $this->get("services.task_service")->updateUserTaskScore($task_id, $request->request->get("score"));
         return $this->getResponse($data);
     }
     
-    public function updateUserTaskDurationAction(Request $request, $user_id, $challenge_id) {
-        $data = $this->get("services.user_service")->updaterUserTaskDuration($user_id, $challenge_id, $request->request->get("duration"));
+    public function updateUserTaskDurationAction(Request $request, $task_id) {
+        $data = $this->get("services.user_service")->updaterUserTaskDuration($task_id, $request->request->get("duration"));
         return $this->getResponse($data);
     }
     
-    public function updateTaskDoneAction(Request $request, $user_id, $challenge_id) {
-        $data = $this->get("services.task_service")->updateTaskDone($user_id, $challenge_id, $request->request->get("done"));
+    public function updateTaskDoneAction(Request $request, $task_id) {
+        $data = $this->get("services.task_service")->updateTaskDone($task_id, $request->request->get("done"));
         return $this->getResponse($data);
     }
     
@@ -305,6 +305,11 @@ class UserController extends Controller
     public function deleteChallengeAction(Request $request) {
         $data = $this->get("services.challenge_service")->deleteChallenge($this->getUser()->getId(), $request->request->get("challenge_id"));
         
+        return $this->getResponse($data);
+    }
+    
+    public function getSingleChallengeAction($challenge_id) {
+        $data = $this->get("services.challenge_service")->getSingleChallenge($challenge_id);
         return $this->getResponse($data);
     }
     

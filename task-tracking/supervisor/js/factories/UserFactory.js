@@ -8,15 +8,8 @@ function userFactory($http) {
         authUser: authUser,
         refreshToken: refreshToken,
         logout: logout,
-        getTrainees: getTrainees, // In progress
-        // getChallenges: getChallenges, // In progress
-        // assignTask: assignTask, // In progress
-        // addChallengeRelation: addChallengeRelation, // In progress
-        // setTaskDone: setTaskDone, // In progress
-        // setTaskScore: setTaskScore, // In progress
-        // removeChallenge: removeChallenge, // In progress
-        // removeTask: removeTask, // In progress
-        // updateChallenge: updateChallenge, // In progress
+        getTrainees: getTrainees,
+        getSingleUser: getSingleUser
     }
 
     function login(username, password) {
@@ -66,6 +59,15 @@ function userFactory($http) {
     function getTrainees(token, page = 1) {
         return $http({
             "url": "http://localhost:8000/api/supervisor/trainees/" + page,
+            "headers": {
+                "Authorization": "Bearer " + token
+            }
+        });
+    }
+
+    function getSingleUser(token, user_id) {
+        return $http({
+            "url": "http://localhost:8000/api/supervisor/trainees/" + user_id + "/info",
             "headers": {
                 "Authorization": "Bearer " + token
             }

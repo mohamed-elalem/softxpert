@@ -142,7 +142,7 @@ add_challenge_child:
     
 get_filtered_tasks:
     path: /api/supervisor/tasks/{page}
-    defaults: { _controller: TaskTrackBundle:User:getFilteredTasks, page:1 }
+    defaults: { _controller: TaskTrackBundle:Us/api/supervisor/challenges/er:getFilteredTasks, page:1 }
     methods: [GET]
     requirements: 
         page: '\d*'
@@ -173,3 +173,32 @@ delete_user_task:
     defaults: { _controller: TaskTrackBundle:User:deleteTask }
     requirements: 
         user_id: '\d+'
+        
+update_task_score:
+    path: /api/supervisor/trainees/{user_id}/tasks/{task_id}/score
+    methods: [PUT]
+    defaults: { _controller: TaskTrackBundle:User:updateUserTaskScore }
+    requirements:
+        user_id: '\d+'
+        task_id: '\d+'
+    
+update_task_done:
+    path: /api/supervisor/trainees/{user_id}/tasks/{task_id}/done
+    methods: [PUT]
+    defaults: { _controller: TaskTrackBundle:User:updateTaskDone }
+    requirements:
+        user_id: '\d+'
+        task_id: '\d+'
+        
+update_task_duration:
+    path: /api/supervisor/trainees/{user_id}/tasks/{task_id}/duration
+    methods: [PUT]
+    defaults: { _controller: TaskTrackBundle:User:updateUserTaskDuration }
+    requirements:
+        user_id: '\d+'
+        task_id: '\d+'
+        
+get_single_challenge:
+    path: /api/supervisor/challenges/{challenge_id}/info
+    methods: [GET]
+    defaults: { _controller: TaskTrackBundle:User:getSingleChallenge }

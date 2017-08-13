@@ -18,7 +18,7 @@ function challengeChildrenController($scope, $routeParams, ChallengeFactory, $wi
 
 
     var token = localStorage.getItem("token");
-
+    getChallenge();
     getChallengeChildren(1);
 
     function getChallengeChildren(page) {
@@ -66,4 +66,22 @@ function challengeChildrenController($scope, $routeParams, ChallengeFactory, $wi
         console.log(exp);
     }
 
+
+    function getChallenge() {
+        vm.challengeFactory.getChallenge(token, vm.routeParams.challenge_id).then(getChallengeSuccess, getChallengeError).catch(getChallengeException);
+    }
+
+    function getChallengeSuccess(res) {
+        if(res.status == 200) {
+            vm.scope.challenge = res.data.data.challenge;
+        }
+    }
+
+    function getChallengeError(err) {
+        console.log(err);
+    }
+
+    function getChallengeException(exp) {
+        console.log(exp);
+    }
 }

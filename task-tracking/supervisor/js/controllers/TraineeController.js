@@ -11,6 +11,7 @@ function traineeController($scope, $rootScope, $location, UserFactory, $routePar
     vm.routeParams = $routeParams;
 
     vm.scope.getAllTrainees = getAllTrainees;
+    vm.rootScope.challengeId = -1;
 
     var token = localStorage.getItem("token");
 

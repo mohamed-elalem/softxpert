@@ -21,39 +21,37 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         return $task;
     }
     
-    public function updateUserTaskScore($user_id, $challenge_id, $score) {
-        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id]);
-        if(! $task) {
-            throw new Exception("Task wasn't found");
-        }
-        
-        $task->setScore($score);
-        
-        return $task;
+    public function updateScore($task_id, $score) {
+        $updated = $this->createQueryBuilder("t")
+                ->update()
+                ->set("t.score", $score)
+                ->where("t.id = :task_id")
+                ->setParameter("task_id", $task_id)
+                ->getQuery()
+                ->execute();
+        return $updated;
     }
     
-    public function updateUserTaskDuration($user_id, $challenge_id, $duration) {
-        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id]);
-        
-        if(! $task) {
-            throw new Exception("Task wasn't found");
-        }
-        
-        $task->setSeconds($task->getSeconds() + $duration);
-        
-        return $task;
+    public function updateDuration($task_id, $duration) {
+        $updated = $this->createQueryBuilder("t")
+                ->update()
+                ->set("t.duration", $duration)
+                ->where("t.id = :task_id")
+                ->setParameter("task_id", $task_id)
+                ->getQuery()
+                ->execute();
+        return $updated;
     }
     
-    public function updateUserTaskDone($user_id, $challenge_id, $done) {
-        $task = $this->findOneBy(["user_id" => $user_id, "challenge_id", $challenge_id]);
-        
-        if(! $task) {
-            throw new Exception("Task wasn't found");
-        }
-        
-        $task->setDone($done);
-        
-        return $task;
+    public function updateDone($task_id, $done) {
+        $updated = $this->createQueryBuilder("t")
+                ->update()
+                ->set("t.done", $done)
+                ->where("t.id = :task_id")
+                ->setParameter("task_id", $task_id)
+                ->getQuery()
+                ->execute();
+        return $updated;
     }
     
     public function addNewTask($supervisor, $user, $challenge, $score = 0, $seconds = 0, $done = false) {
@@ -98,8 +96,6 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
             return $paginator->getCount($tasks);
         }
         return $paginator->getResult($tasks, $page, $itemsPerPage);
-                
-        return $tasks; 
     }
     
     public function getTraineeTasks($user_id) {
