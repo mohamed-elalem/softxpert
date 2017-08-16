@@ -30,8 +30,8 @@ TaskTrackBundle\Entity\User:
             - NotNull:
                 message: Email cannot be null.
             - Regex:
-                pattern: '/[a-zA-Z0-9-_]*[A-Z][a-zA-Z0-9-_]*/'
-                message: "Required atleast 1 capital letter, allowed [a-z, -, _]"
+                pattern: '/[a-z0-9-_]{6,}/'
+                message: "Required atleast 6 letters, allowed [a-z, -, _]"
 
 TaskTrackBundle\Entity\Challenge:
     properties:
@@ -66,6 +66,8 @@ TaskTrackBundle\Entity\Task:
                 minMessage: Score must be greater than or equal to 0
                 maxMessage: Score must be less than or equal to 100
                 invalidMessage: Score must be between 0 and 100
+            - Type:
+                type: int
         seconds:
             - GreaterThan:
                 value: 0

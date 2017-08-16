@@ -1,0 +1,28 @@
+<table class="table table-hover">
+    <tr>
+        <th>#</th>
+        <th>Challenge Title</th>
+        <th>Challenge Duration</th>
+        <th>Working time</th>
+        <th>Score</th>
+        <th>Done</th>
+        <th>In progress</th>
+    </tr>
+    <tr ng-repeat="task in tasks">
+        <td>{{$index + itemsPerPage * (page - 1) + 1}}</td>
+        <td><strong>{{task.title}}</td>
+        <td>{{task.duration}}</td>
+        <td>{{task.seconds | timeformat}}</td>
+        <td>{{task.score}}</td>
+        <td>{{task.done}}</td>
+        <td>
+            <md-switch ng-click="toggleTaskInProgress(task.id)" ng-model="task.in_progress" aria-label="Switch 1" ng-disabled="task.done">
+            </md-switch>
+        </td>
+    </tr>
+</table>
+
+<div class="text-center" paging text-first="&laquo;" text-last="&raquo;" text-next="&rsaquo;" text-prev="&lsaquo;" text-title-page="Page {page}" text-title-first="First Page" text-title-last="Last Page hover title text" text-title-next="Next Page hover"
+    text-title-prev="Previous hover" text-first-class="glyphicon glyphicon-backward" text-last-class="glyphicon glyphicon-forward" text-next-class="glyphicon glyphicon-chevron-right" text-prev-class="glyphicon glyphicon-chevron-left" page="page" page-size="itemsPerPage"
+    total="total" paging-action="getFilteredTasks(page)" show-prev-next="true" show-first-last="true">
+</div>

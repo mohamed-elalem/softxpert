@@ -19,7 +19,6 @@ class SerializationHandler {
         $normalizer->setCircularReferenceHandler(function ($object) {
             return $object;
         });
-        
         $this->serializer = new Serializer([$normalizer], [$xmlEncoder, $jsonEncoder]);
     }
     

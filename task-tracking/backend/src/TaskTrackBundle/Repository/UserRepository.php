@@ -48,6 +48,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         foreach($data as $key => $value) {
             $q = $q->set("u." . $key, "'$value'");
         }
+        dump($data);
+        die;
         return $q->where("u.id = :id")->setParameter("id", $user->getId())->getQuery()->execute();
     }
     

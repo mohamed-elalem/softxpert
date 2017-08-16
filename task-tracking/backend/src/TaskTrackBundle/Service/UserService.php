@@ -100,11 +100,10 @@ class UserService {
     public function updateUserInfo($user_id, $password, $password_confirmation, $email, $name) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
         
-        $user = $userRepository->getUser($user_id);
         $data = [];
         
         if($password && $password != $password_confirmation) {
-            throw new Exception("Password confirmation not equal password");
+            throw new Exception("password and password confirmation doesn't match", 1001);
         }
         
         if($password) {
@@ -116,8 +115,7 @@ class UserService {
         if($name) {
             $data["name"] = $name;
         }
-        
-        $userRepository->updateUser($user, $data);
+        $userRepository->updateUser($user_id, $data);
         
         return [
             "code" => Status::STATUS_SUCCESS

@@ -12,6 +12,15 @@ use TaskTrackBundle\Entity\Task;
  */
 class TaskRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getUserTasks($user_id) {
+        $tasks = $this->createQueryBuilder("t")
+                ->select()
+                ->where("t.user = :user_id")
+                ->setParameter("user_id", $user_id)
+                ->getQuery()
+                ->getResult();
+    }
+    
     public function getUserTask($user_id, $challenge_id) {
         $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id]);
         if(! $task) {
@@ -64,6 +73,7 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         $task->setScore($score);
         $task->setSeconds($seconds);
         $task->setDone($done);
+        $task->setInProgress(false);
         
         $em->persist($task);
         $em->flush();
@@ -85,17 +95,39 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
         return $qs;
     }
     
-    public function getTraineeUnfinishedTasks($user_id, $paginator, $page, $itemsPerPage, $count = false) {
+    public function getTraineeUnfinishedTasks($user_id) {
+        return $this->createQueryBuilder("t")
+                ->select("t, c.title, c.duration")
+                ->innerJoin("t.challenge", "c")
+                ->where("t.user = :user_id")
+                ->andWhere("t.done = :done")
+                ->setParameter("done", false)
+                ->setParameter("user_id", $user_id);
+    }
+    
+    public function getTraineeUnfinishedTasksPaginated($user_id, $paginator, $page, $itemsPerPage, $count = false) {
         $tasks = $this->createQueryBuilder("t")
                 ->select("t, c.title, c.duration")
                 ->innerJoin("t.challenge", "c")
-                ->where("t.user = :user_id and t.done = false")
+                ->where("t.user = :user_id")
+                ->andWhere("t.done = :done")
+                ->setParameter("done", false)
                 ->setParameter("user_id", $user_id);
-                
         if($count) {
             return $paginator->getCount($tasks);
         }
         return $paginator->getResult($tasks, $page, $itemsPerPage);
+    }
+    
+    public function getTraineeUnfinishedTasksNonPaginated($user_id) {
+        return $this->createQueryBuilder("t")
+                ->select()
+                ->where("t.user = :user_id")
+                ->andWhere("t.done = :done")
+                ->setParameter("done", false)
+                ->setParameter("user_id", $user_id)
+                ->getQuery()
+                ->getResult();
     }
     
     public function getTraineeTasks($user_id) {
@@ -110,8 +142,14 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
     
     public function getFilteredTasks($filter, $paginator, $page, $itemsPerPage, $count = false) {
         
-        $qb = $this->createQueryBuilder("t")->select();
+        $qb = $this
+                ->createQueryBuilder("t")
+                ->select("t.id, t.seconds, t.score, t.in_progress, t.done, c.title, c.duration, u.username")
+                ->join("t.challenge", "c")
+                ->join("t.supervisor", "u");
+        
         $tasks = $filter->filter($qb);
+        
         if($count) {
             $tasks = $paginator->getCount($tasks);
         }
@@ -130,6 +168,21 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
                 ->getResult();
     
         return $tasks;
+    }
+    
+    public function toggleTaskInProgress($task_id) {
+        $em = $this->getEntityManager();
+        $task = $this->find($task_id);
+        $inProgress = $task->getInProgress();
+        dump($inProgress);
+        if($inProgress == true) {
+            $startedAt = $task->getUpdatedAt();
+            $now = new \DateTime;
+            $task->setSeconds($task->getSeconds() + $now->getTimestamp() - $startedAt->getTimeStamp());
+        }
+        $task->setInProgress(! $task->getInProgress());
+        $em->persist($task);
+        $em->flush();
     }
    
 }

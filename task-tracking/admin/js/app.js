@@ -5,6 +5,9 @@
 function kickStarter($rootScope, $location, UserFactory, $route, $window) {
     var vim = this;
     vim.rootScope = $rootScope;
+    vim.route = $route;
+
+
     vim.rootScope.logout = logout;
     vim.rootScope.submitSearch = submitSearch;
 
@@ -33,7 +36,7 @@ function kickStarter($rootScope, $location, UserFactory, $route, $window) {
             console.log(res);
             if (res.status == 200) {
                 localStorage.setItem("token", res.data.token);
-                $window.location.reload();
+                vim.route.reload();
             }
         }
 

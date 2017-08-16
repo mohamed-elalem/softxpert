@@ -3,6 +3,7 @@
 namespace TaskTrackBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Task
@@ -272,5 +273,34 @@ class Task
     public function getSupervisor()
     {
         return $this->supervisor;
+    }
+    /**
+     * @var boolean
+     */
+    private $in_progress;
+
+
+    /**
+     * Set inProgress
+     *
+     * @param boolean $inProgress
+     *
+     * @return Task
+     */
+    public function setInProgress($inProgress)
+    {
+        $this->in_progress = $inProgress;
+
+        return $this;
+    }
+
+    /**
+     * Get inProgress
+     *
+     * @return boolean
+     */
+    public function getInProgress()
+    {
+        return $this->in_progress;
     }
 }

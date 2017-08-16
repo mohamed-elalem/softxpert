@@ -26,22 +26,22 @@ class FormService {
     
     public function isValid() {
         $this->form = $this->form->submit($this->data);
-        dump($this->form);
-        die();
         return $this->form->isValid();
     }
     
-    public function getErrors() {
+    public function getErrors($form = null) {
         $errors = array();
-        
-        foreach ($this->form->getErrors() as $key => $error) {
+        if($form == null) {
+            $form = $this->form;
+        }
+        foreach ($form->getErrors() as $key => $error) {
             if ($form->isRoot()) {
                 $errors['#'][] = $error->getMessage();
             } else {
                 $errors[] = $error->getMessage();
             }
         }
-        foreach ($this->form->all() as $child) {
+        foreach ($form->all() as $child) {
             if (!$child->isValid()) {
                 
                 $errors[$child->getName()] = $this->getErrors($child);

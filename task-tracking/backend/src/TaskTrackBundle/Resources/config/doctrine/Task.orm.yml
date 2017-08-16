@@ -46,6 +46,8 @@ TaskTrackBundle\Entity\Task:
             type: integer
         done:
             type: boolean
+        in_progress:
+            type: boolean
         created_at:
             type: datetime
             nullable: true

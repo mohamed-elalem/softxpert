@@ -46,7 +46,7 @@ function challengeChildrenController($scope, $routeParams, ChallengeFactory, $wi
     }
 
     function connect(challengeId) {
-        vm.challengeFactory.connect(token, vm.routeParams.challenge_id, challengeId).then(connectSuccess, connectError).then(connectException);
+        vm.challengeFactory.connect(token, vm.routeParams.challenge_id, challengeId).then(connectSuccess, connectError).catch(connectException);
     }
 
     function connectSuccess(res) {
@@ -72,8 +72,8 @@ function challengeChildrenController($scope, $routeParams, ChallengeFactory, $wi
     }
 
     function getChallengeSuccess(res) {
-        if(res.status == 200) {
-            vm.scope.challenge = res.data.data.challenge;
+        if (res.status == 200) {
+            vm.scope.challenge = res.data.data.challenge[0];
         }
     }
 

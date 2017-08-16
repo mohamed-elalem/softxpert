@@ -36,19 +36,6 @@ class User implements UserInterface
     
 
     /**
-     * @Assert\NotBlank(
-     *  message="Username field cannot be blank",
-     * )
-     * @Assert\Length(
-     *  min=6,
-     *  max=40,
-     *  message="Username must be of length [6 - 40]
-     * )
-     * @Assert\Regex(
-     *  pattern = "/[a-zA-z\-_]",
-     *  message = "Alphabet and -_ are allowed"
-     * )
-     *
      * @var string
      */
     private $username = "";

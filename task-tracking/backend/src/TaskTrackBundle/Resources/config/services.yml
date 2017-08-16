@@ -56,9 +56,12 @@ services:
     services.filters.entity_filter.filter_by_supervisor:
         class: TaskTrackBundle\Filters\FilterBySupervisor
         
+    services.filters.entity_filter.filter_by_user:
+        class: TaskTrackBundle\Filters\FilterByUser
+        
     services.filters.entity_filter.factory:
         class: TaskTrackBundle\Filters\Factory
-            
+    
     user_agent_subscriber:
         class: TaskTrackBundle\EventListener\UserAgentSubscriber
         tags:

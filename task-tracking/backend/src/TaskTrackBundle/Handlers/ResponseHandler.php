@@ -41,7 +41,7 @@ class ResponseHandler {
                 $responseBody["err_message"] = (! is_null($message) ? $message : Status::MESSAGES[$errorCode]);
             }
         }
-        if(count($extra)) {
+        if(! empty($extra)) {
             $responseBody["data"] = static::fillData($extra);
         }
         if($errorCode > -1) {
@@ -64,7 +64,6 @@ class ResponseHandler {
             $data[$key] = $value;
         }
         return $data;
-        
     }
     
 }

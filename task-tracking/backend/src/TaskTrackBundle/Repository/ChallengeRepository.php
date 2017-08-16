@@ -26,7 +26,19 @@ class ChallengeRepository extends \Doctrine\ORM\EntityRepository
     }
     
     public function getChallenge($id) {
-        return $this->findOneById($id);
+        return $this->createQueryBuilder("c")
+                ->select()
+                ->where("c.id = :id")
+                ->setParameter("id", $id)
+                ->getQuery();
+    }
+    
+    public function getChallengeAsEntity($id) {
+        return $this->find($id);
+    }
+    
+    public function getChallengeAsArray($id) {
+        return $this->getChallenge($id)->getArrayResult();
     }
     
     public function updateChallenge($challenge_id, $data) {
@@ -44,8 +56,8 @@ class ChallengeRepository extends \Doctrine\ORM\EntityRepository
     
     public function makeConnection($parent_id, $child_id) {
         $em = $this->getEntityManager();
-        $parent = $this->getChallenge($parent_id);
-        $child = $this->getChallenge($child_id);
+        $parent = $this->find($parent_id);
+        $child = $this->find($child_id);
         $child->addParent($parent);
         $parent->addChild($child);
         $em->persist($child);
@@ -80,18 +92,28 @@ class ChallengeRepository extends \Doctrine\ORM\EntityRepository
     }
     
     public function getUnassignedChallenges($supervisor_id, $trainee_id, $paginator, $page, $itemsPerPage, $count = false) {
-        $sqb = $this->createQueryBuilder("sc")
+        $ids = $this->createQueryBuilder("sc")
                 ->select("sc.id")
                 ->join("sc.tasks", "t")
                 ->where("t.user = :trainee_id")
-                ->andWhere("sc.supervisor = :supervisor_id")
-                ->getDQL();
+                ->setParameter("trainee_id", $trainee_id)
+                ->getQuery()
+                ->getResult();
+        
+        foreach($ids as $idx => $row) {
+            $ids[$idx] = $row["id"];
+        }
+        
+        if(empty($ids)) {
+            $ids = [0];
+        }
+         
         $qb = $this->createQueryBuilder("c");
         $challenges = $qb->select()
-                ->where($qb->expr()->notIn("c.id", $sqb))
-                ->setParameter("trainee_id", $trainee_id)
+                ->where($qb->expr()->notIn("c.id", $ids))
+                ->andWhere("c.supervisor = :supervisor_id")
                 ->setParameter("supervisor_id", $supervisor_id);
-                
+
 
         if($count) {
             return $paginator->getCount($challenges);
@@ -100,24 +122,32 @@ class ChallengeRepository extends \Doctrine\ORM\EntityRepository
     }
     
     public function getChallengeChildren($supervisor_id, $challenge_id, $paginator, $page, $itemsPerPage, $count = false) {
-        $sqb = $this->getEntityManager()
+        $ids = $this->getEntityManager()
                 ->createQueryBuilder()
                 ->select("c.id")
                 ->from("TaskTrackBundle:Challenge", "p")
                 ->join("p.children", "c")
                 ->where("p.id = :challenge_id")
                 ->orWhere("c.id = :challenge_id")
-                ->getDQL();
-
+                ->setParameter("challenge_id", $challenge_id)
+                ->getQuery()->getResult();
+        
+        foreach($ids as $idx => $row) {
+            $ids[$idx] = $row["id"];
+        }
+        
+        if(empty($ids)) {
+            $ids = [0];
+        }
+        
         $qb = $this->createQueryBuilder("pp");
         $children = $qb->select()
-                ->where($qb->expr()->notIn("pp.id", $sqb))
+                ->where($qb->expr()->notIn("pp.id", $ids))
                 ->andWhere("pp.supervisor = :supervisor_id")
                 ->andWhere("pp.id != :challenge_id")
                 ->setParameter("challenge_id", $challenge_id)
                 ->setParameter("supervisor_id", $supervisor_id);
-//        dump($children->getQuery()->getDQL());
-//        die;
+        
         if($count) {
             return $paginator->getCount($children);
         }
@@ -134,6 +164,9 @@ class ChallengeRepository extends \Doctrine\ORM\EntityRepository
     }
     
     public function getIdAndTitles($ids) {
+        if(empty($ids)) {
+            $ids = [0];
+        }
         $qb = $this->createQueryBuilder("c");
         $challenges = $qb
                 ->select("c.id, c.title")

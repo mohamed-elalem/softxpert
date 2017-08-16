@@ -6,7 +6,6 @@ use Symfony\Component\Config\Definition\Exception\Exception;
 
 class Kosaraju extends Graph {
 
-    private $adjList;
     private $adjListTranspose;
     private $maxVertex;
 
@@ -47,9 +46,11 @@ class Kosaraju extends Graph {
                 $this->discovered[$v] = 0;
                 $this->state[$v] = parent::WHITE;
             }
-            $this->adjList[$u][] = $v;
-            $this->adjListTranspose[$v][] = $u;
-            $this->inward[$v]++;
+            if($v != $u) {
+                $this->adjList[$u][] = $v;
+                $this->adjListTranspose[$v][] = $u;
+                $this->inward[$v]++;
+            }
         }
 
         parent::initialize($this->adjList);

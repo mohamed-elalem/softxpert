@@ -24,6 +24,7 @@ abstract class Graph implements StronglyConnectedComponents {
     protected $parent;
     private $vertices;
     protected $inward;
+    protected $adjList;
     
     /**
      * State colors
@@ -167,5 +168,9 @@ abstract class Graph implements StronglyConnectedComponents {
     
     protected function setVertex($vertex) {
         $this->vertices[$vertex] = true;
+    }
+    
+    public function unsetAdjListExtraVertices() {
+        unset($this->adjList[-1]);
     }
 }

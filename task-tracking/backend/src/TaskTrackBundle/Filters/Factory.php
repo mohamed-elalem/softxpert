@@ -16,6 +16,7 @@ use Symfony\Component\Config\Definition\Exception\Exception;
  */
 class Factory {
     public function getInstance($id) {
+        
         if($id == "user_id") {
             return new FilterByUser();
         }
@@ -60,6 +61,12 @@ class Factory {
         }
         else if($id == "role") {
             return new FilterByRole();
+        }
+        else if($id == "user") {
+            return new FilterByUser();
+        }
+        else if($id == "in_progress") {
+            return new FilterByInProgress();
         }
         else {
             throw new Exception("Invalid filter id provided => '$id'");

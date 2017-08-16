@@ -62,7 +62,7 @@ class ChallengeService {
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
         $userRepsitory = $this->em->getRepository("TaskTrackBundle:User");
         
-        $challenge = $challengeRepository->getChallenge($challenge_id);
+        $challenge = $challengeRepository->getChallengeAsEntity($challenge_id);
         $user = $userRepsitory->getUser($user_id);
         
         if(! $challenge) {
@@ -161,7 +161,7 @@ class ChallengeService {
     
     public function deleteChallenge($supervisor_id, $challenge_id) {
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
-        $challenge = $challengeRepository->getChallenge($challenge_id);
+        $challenge = $challengeRepository->getChallengeAsEntity($challenge_id);
         if($challenge->getSupervisor()->getId() != $supervisor_id) {
             throw new Exception("Trying to delete non owned challenge");
         }
@@ -173,7 +173,7 @@ class ChallengeService {
     
     public function getSingleChallenge($challenge_id) {
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
-        $challenge = $challengeRepository->getChallenge($challenge_id);
+        $challenge = $challengeRepository->getChallengeAsArray($challenge_id);
         return [
             "code" => Status::STATUS_SUCCESS,
             "extra" => ["challenge" => $challenge]

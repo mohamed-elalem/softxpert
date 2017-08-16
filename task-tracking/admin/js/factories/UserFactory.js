@@ -97,6 +97,7 @@ function userFactory($http) {
     function logout(token) {
         return $http({
             "url": "http://localhost:8000/api/logout",
+            "method": "delete",
             "headers": {
                 "Authorization": "Bearer " + token
             }

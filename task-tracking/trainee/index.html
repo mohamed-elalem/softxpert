@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html ng-app="app">
+
+<head>
+    <title>Supervisor</title>
+
+    <link rel="stylesheet" type="text/css" href="node_modules/bootswatch/paper/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="node_modules/material-components-web/dist/material-components-web.min.css" />
+    <link rel="stylesheet" type="text/css" href="node_modules/angular-ui-switch/angular-ui-switch.min.css" />
+    <link rel="stylesheet" type="text/css" href="node_modules/angular-material/angular-material.min.css" />
+    <script src="node_modules/tether/dist/js/tether.min.js"></script>
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="node_modules/material-components-web/dist/material-components-web.min.js"></script>
+    <script src="node_modules/angular/angular.js "></script>
+    <script src="node_modules/angular-route/angular-route.js "></script>
+    <script src="node_modules/angular-animate/angular-animate.js "></script>
+    <script src="node_modules/ng-fx/dist/ng-fx.min.js "></script>
+    <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap.js "></script>
+    <script src="node_modules/angularjs-datepicker/dist/angular-datepicker.min.js "></script>
+    <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js "></script>
+    <script src="node_modules/angular-paging/dist/paging.min.js "></script>
+    <script src="node_modules/angular-fx/dist/angular-fx.min.js"></script>
+    <script src="node_modules/angular-ui-switch/angular-ui-switch.min.js"></script>
+    <script src="node_modules/angular-aria/angular-aria.min.js"></script>
+    <script src="node_modules/angular-material/angular-material.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/filters/TimeFormatFilter.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/factories/UserFactory.js"></script>
+    <script src="js/factories/TaskFactory.js"></script>
+    <script src="js/directives/ParseIntDirective.js"></script>
+    <script src="js/controllers/LoginController.js"></script>
+    <script src="js/controllers/TasksController.js"></script>
+    <script src="js/controllers/CurrentTasksController.js"></script>
+    <script src="js/controllers/RecommendedCurrentTasksController.js"></script>
+
+</head>
+
+<body>
+
+    <head>
+        <nav class="navbar navbar-default">
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">{{username}}</a>
+                    </div>
+
+                    <ul class="nav navbar-nav" ng-show="auth">
+                        <li><a ng-href="#!/tasks">Tasks</a></li>
+                        <li><a ng-href="#!/tasks/current">Current tasks</a></li>
+                        <li><a ng-href="#!/tasks/current/recommended">Recommended tasks</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav pull-right" ng-show="!auth">
+                        <li><a ng-href="#!/login">Login</a></li>
+                        <li><a ng-href="#!/register">Register</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav pull-right" ng-show="auth">
+                        <li><a ng-click="logout()">Logout</a></li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container-fluid -->
+        </nav>
+    </head>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <uib-accordion close-others="false" ng-show="auth">
+                    <div uib-accordion-group class="panel panel-info filter" heading="Filter">
+                        <div uib-accordion-group class="panel panel-primary" heading="Filter by score">
+                            <div class="form-group">
+                                <label>Minimum score</label>
+                                <input type="number" ng-model="filter.score_min" min="0" max="100" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label>Maximum score</label>
+                                <input type="number" ng-model="filter.score_max" min="0" max="100" class="form-control" />
+                            </div>
+                        </div>
+                        <div uib-accordion-group class="panel panel-primary" heading="Filter by working hours">
+                            <div class="form-group">
+                                <label>Minimum working hours</label>
+                                <input type="number" ng-model="filter.seconds_min" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label>Maximum working hours</label>
+                                <input type="number" ng-model="filter.seconds_max" class="form-control" />
+                            </div>
+                        </div>
+                        <div uib-accordion-group class="panel panel-primary" heading="Filter by tasks in progress">
+                            <div class="form-group">
+                                <label>Currently in progress</label>
+                                <input type="radio" class="pull-right" ng-model="filter.in_progress" class="pull-right" value="1" />
+                            </div>
+                            <div class="form-group">
+                                <label>Currently not progress</label>
+                                <input type="radio" class="pull-right" ng-model="filter.in_progress" class="pull-right" value="0" />
+                            </div>
+                        </div>
+                        <div uib-accordion-group class=" panel panel-primary filter " heading="Filter by Assignment date ">
+                            <div class="form-group ">
+                                <label>Starting date</label>
+                                <input type="date" ng-model="filter.created_at_min " class="form-control " />
+                            </div>
+                            <div class="form-group ">
+                                <label>Ending date</label>
+                                <input type="date" ng-model="filter.created_at_max " class="form-control " />
+                            </div>
+                        </div>
+                        <div uib-accordion-group class="panel panel-primary filter " heading="Filter Working dates ">
+                            <div class="form-group ">
+                                <label>Starting date</label>
+                                <input type="date" ng-model="filter.updated_at_min " class="form-control " />
+                            </div>
+                            <div class="form-group ">
+                                <label>Ending date</label>
+                                <input type="date" ng-model="filter.updated_at_max " class="form-control " />
+                            </div>
+                        </div>
+                        <button type="button " ng-click="getFilteredResults() " style="margin-top: 10px; " class="btn btn-block btn-lg btn-info ">Filter</button>
+                    </div>
+                </uib-accordion>
+            </div>
+            <div class="col-md-9 ">
+                <div ng-view></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        mdc.autoInit();
+    </script>
+</body>
+
+</html>
