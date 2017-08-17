@@ -24,10 +24,10 @@ class TaskService {
         $this->em = $em;
     }
 
-    public function getUserTasks($user_id, $paginator, $page, $itemsPerPage) {
+    public function getUserTasks($supervisor_id, $user_id, $paginator, $page, $itemsPerPage) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
-        $tasks = $taskRepository->getTraineeUnfinishedTasksPaginated($user_id, $paginator, $page, $itemsPerPage);
-        $total = $taskRepository->getTraineeUnfinishedTasksPaginated($user_id, $paginator, $page, $itemsPerPage, true);
+        $tasks = $taskRepository->getTraineeUnfinishedTasksPaginated($supervisor_id, $user_id, $paginator, $page, $itemsPerPage);
+        $total = $taskRepository->getTraineeUnfinishedTasksPaginated($supervisor_id, $user_id, $paginator, $page, $itemsPerPage, true);
 
         return [
             "code" => Status::STATUS_SUCCESS,
@@ -104,6 +104,11 @@ class TaskService {
     }
 
     public function updateUserTaskScore($task_id, $score) {
+        
+        if($score < 0 || $score > 100) {
+            throw new Exception("Error Score must be between 0 and 100", 1006);
+        }
+        
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
 
         $taskRepository->updateScore($task_id, $score);
@@ -115,6 +120,7 @@ class TaskService {
 
     public function updateUserTaskDuration($task_id, $duartion) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
+        
 
         $taskRepository->updateDuration($task_id, $duration);
 

@@ -41,7 +41,7 @@ class Status {
         self::ERR_CHALLENGE_OWNER => "You're not the owner of this action please select an owned one.",
         self::ERR_MISSING_TASKS => "You didn't add this task's prerequisites please add them before attempting this one.",
         self::ERR_INVALID_CHALLENGES_STRUCTURE => "Invalid challenge structures that contains cycles",
-        self::ERR_FORM_VALIDATION_ERROR => "Date that you entered was not valid.",
+        self::ERR_FORM_VALIDATION_ERROR => "Data that you entered is not valid.",
     ];
     
     /**
@@ -51,6 +51,7 @@ class Status {
     const ACCESS_DENIED_HTTP_EXCEPTION = 1003;
     const NOT_FOUND_HTTP_EXCEPTION = 1004;
     const SERVICE_NOT_FOUND_EXCEPTION = 1005;
+    const SCORE_RANGE_ERROR_EXCEPTION = 1006;
     const CUSTOM_THROWN_EXCEPTION = 1000;
     
     
@@ -82,6 +83,7 @@ class Status {
         self::ACCESS_DENIED_HTTP_EXCEPTION => 500,
         self::NOT_FOUND_HTTP_EXCEPTION => 500,
         self::SERVICE_NOT_FOUND_EXCEPTION => 500,
+        self::SCORE_RANGE_ERROR_EXCEPTION => 406,
     ];
     
 }

@@ -24,6 +24,7 @@ class UserType extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => 'TaskTrackBundle\Entity\User',
             'csrf_protection' => false,
+            'allow_extra_fields' => true,
         ));
     }
 

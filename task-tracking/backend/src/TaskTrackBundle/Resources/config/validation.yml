@@ -16,6 +16,9 @@ TaskTrackBundle\Entity\User:
                 message: Password cannot be empty.
             - NotNull: 
                 message: Password cannot be null.
+            - Length:
+                min: 6
+                max: 60
         email: 
             - NotBlank:
                 message: Email cannot be blank.
@@ -32,6 +35,9 @@ TaskTrackBundle\Entity\User:
             - Regex:
                 pattern: '/[a-z0-9-_]{6,}/'
                 message: "Required atleast 6 letters, allowed [a-z, -, _]"
+            - Length:
+                min: 6
+                max: 30
 
 TaskTrackBundle\Entity\Challenge:
     properties:

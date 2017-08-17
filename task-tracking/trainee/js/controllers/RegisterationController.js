@@ -1,5 +1,5 @@
 (function() {
-    angular.module("app").controller("RegisterationController", registrationController);
+    angular.module("app").controller("RegistrationController", registrationController);
 })()
 
 function registrationController($scope, $rootScope, $location, UserFactory) {
@@ -12,17 +12,17 @@ function registrationController($scope, $rootScope, $location, UserFactory) {
     vim.scope.submit = submit;
 
     var token = localStorage.getItem("token");
-    UserFactory.getUserInfo(token).then(success, error).catch(exception);
 
     function submit() {
         vim.scope.createdSuccess = false;
-        var username = vim.scope.supervisor.username;
-        var password = vim.scope.supervisor.password;
-        var passwordConfirmation = vim.scope.supervisor.passwordConfirmation;
-        var email = vim.scope.supervisor.email;
-        var name = vim.scope.supervisor.name;
+        vim.scope.error = false;
+        var username = vim.scope.username;
+        var password = vim.scope.password;
+        var passwordConfirmation = vim.scope.passwordConfirmation;
+        var email = vim.scope.email;
+        var name = vim.scope.name;
 
-        vim.userFactory.register(token, username, name, email, password).then(success, error).catch(exception);
+        vim.userFactory.register(token, username, name, email, password, passwordConfirmation).then(success, error).catch(exception);
 
         function success(res) {
             if (res.status == 200) {
@@ -31,6 +31,7 @@ function registrationController($scope, $rootScope, $location, UserFactory) {
         }
 
         function error(err) {
+            console.log(err);
             vim.scope.error = true;
             vim.scope.formErrors = err.data.data;
             vim.scope.errorMessages = err.data.err_message;

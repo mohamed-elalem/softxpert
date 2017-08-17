@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div class="panel panel-default fx-stagger-200 fx-light-speed">
     <div class="panel panel-heading">
         <h4 class="text-danger">Current challenges priorities</h4>
     </div>
@@ -8,7 +8,7 @@
                 {{$index + 1}}. <strong>{{challenge[0]}}</strong>
             </div>
             <div class="col-md-8">
-                <meter style="width: 100%; height: 25px;" value="{{maxPriority - challenge[1]}}" low="25" high="{{maxPriority}} * 0.75" min="0" max="{{maxPriority}}" optimum="{{maxPriority}}"></meter>
+                <meter style="width: 100%; height: 25px;" value="{{maxPriority - challenge[1]}}" low="{{maxPriority * 30 / 100}}" high="{{maxPriority * 70 / 100}}" min="0" max="{{maxPriority}}" optimum="{{maxPriority}}"></meter>
             </div>
         </div>
     </div>

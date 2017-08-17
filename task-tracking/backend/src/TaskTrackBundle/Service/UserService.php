@@ -39,12 +39,13 @@ class UserService {
         
         $registered = count($userRepository->checkIfRegistered($username, $email)) == 1;
         
-        if (!$registered) {
-            $userRepository->addNewUser($name, $username, $email, $password, $role);
-            $data["code"] = Status::STATUS_SUCCESS;
-        } else {
+        if ($registered) {
             $data["code"] = Status::STATUS_FAILURE;
             $data["err_code"] = Status::ERR_USER_EXIST;
+        }
+        else {
+            $userRepository->addNewUser($name, $username, $email, $password, $role);
+            $data["code"] = Status::STATUS_SUCCESS;
         }
         return $data;
     }

@@ -12,6 +12,7 @@ use TaskTrackBundle\Constants\Role;
 use TaskTrackBundle\Constants\Status;
 use TaskTrackBundle\Handlers\ResponseHandler;
 use TaskTrackBundle\Entity\Challenge;
+use TaskTrackBundle\Entity\Task;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -61,25 +62,31 @@ class UserController extends Controller {
 
     public function register(Request $request, $role) {
         $encoder = $this->container->get('security.password_encoder');
-
-        $data = $this->get("services.user_service")
-                ->register($request->request->get("username"), $request->request->get("email"), $encoder->encodePassword(new User, $request->request->get("password")), $request->request->get("name"), $role);
-
+        $validator = $this->get("services.form_service")->init($this->createForm(UserType::class, new User()), $request->request->all());
+        $data = [];
+        
+        $password = $request->request->get("password");
+        $password_confirmation = $request->request->get("password_confirmation");
+        
+        if($password != $password_confirmation) {
+            $data["code"] = Status::STATUS_FAILURE;
+            $data["err_code"] = Status::ERR_FORM_VALIDATION_ERROR;
+            $data["err_message"] = "Password confirmation doesn't match";
+        }
+        else if ($validator->isValid()) {
+            $data = $this->get("services.user_service")
+                    ->register($request->request->get("username"), $request->request->get("email"), $encoder->encodePassword(new User, $request->request->get("password")), $request->request->get("name"), $role);
+        }
+        else {
+            $data["code"] = Status::STATUS_FAILURE;
+            $data["extra"] = $validator->getErrors();
+            $data["err_code"] = Status::ERR_FORM_VALIDATION_ERROR;
+        }
         return $this->getResponse($data);
     }
 
     public function registerSupervisorAction(Request $request) {
-        $validator = $this->get("services.form_service")->init($this->createForm(UserType::class, new User()), $request->request->all());
-        $data = [];
-        if ($validator->isValid()) {
-            $data = $this->register($request, Role::SUPERVISOR);
-        }
-        
-        $data["code"] = Status::STATUS_FAILURE;
-        $data["extra"] = $validator->getErrors();
-        $data["err_code"] = Status::ERR_FORM_VALIDATION_ERROR;
-        
-        return $this->getResponse($data);
+        return $this->register($request, Role::SUPERVISOR);
     }
 
     public function getAuthenticatedUserAction() {
@@ -122,7 +129,7 @@ class UserController extends Controller {
     public function getUserTasksAction($user_id, $page) {
         $paginator = $this->get("helpers.paginator_helper");
         $itemsPerPage = $this->getParameter("paginator_items_per_page");
-        $data = $this->get("services.task_service")->getUserTasks($user_id, $paginator, $page, $itemsPerPage);
+        $data = $this->get("services.task_service")->getUserTasks($this->getUser()->getId(), $user_id, $paginator, $page, $itemsPerPage);
         return $this->getResponse($data);
     }
 
@@ -180,7 +187,7 @@ class UserController extends Controller {
     }
 
     public function createNewChallengeAction(Request $request) {
-        $validator = $this->get("services.form_service")->init($this->createForm(ChallengeType::class, new Challenge), $request->request->all());
+//        $validator = $this->get("services.form_service")->init($this->createForm(ChallengeType::class, new Challenge), $request->request->all());
         $data = $this->get("services.challenge_service")
                 ->createNewChallenge(
                 $this->getUser()->getId(), $request->request->get("title"), $request->request->get("duration"), $request->request->get("description")
@@ -189,14 +196,14 @@ class UserController extends Controller {
     }
 
     public function createNewTaskAction(Request $request, $user_id) {
-        $validator = $this->get("services.form_service")->init($this->createForm(TaskType::class, new Task), $request->request->all());
-        if($validator->isValid()) {
+//        $validator = $this->get("services.form_service")->init($this->createForm(TaskType::class, new Task), $request->request->all());
+//        if($validator->isValid()) {
             $data = $this->get("services.task_service")->createNewTask($this->getUser()->getId(), $user_id, $request->request->get("challenge_id"), $this->get("services.graph_service.kosaraju"));
-        }
-        else {
-            $data["code"] = Status::STATUS_FAILURE;
-            $data["extra"] = $validator->getErrors();
-        }
+//        }
+//        else {
+//            $data["code"] = Status::STATUS_FAILURE;
+//            $data["extra"] = $validator->getErrors();
+//        }
         return $this->getResponse($data);
     }
 
@@ -281,7 +288,10 @@ class UserController extends Controller {
     }
 
     public function getTraineeFilteredTasksAction(Request $request, $page) {
-        $filters = array_merge($request->query->all(), ["_user", "user" => $this->getUser()->getId()]);
+        $filters = $request->query->all();
+        $filters["_user"] = true;
+        $filters["user"] = $this->getUser()->getId();
+        
         return $this->getResponse($this->getFilteredTasks($filters, $page));
     }
 

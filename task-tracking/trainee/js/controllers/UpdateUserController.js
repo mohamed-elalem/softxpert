@@ -1,5 +1,5 @@
 (function() {
-    angular.module("app").controller("RegisterationController", registrationController);
+    angular.module("app").controller("RegistrationController", registrationController);
 })()
 
 function registrationController($scope, $rootScope, $location, UserFactory) {
@@ -12,7 +12,6 @@ function registrationController($scope, $rootScope, $location, UserFactory) {
     vim.scope.submit = submit;
 
     var token = localStorage.getItem("token");
-    UserFactory.getUserInfo(token).then(success, error).catch(exception);
 
     function submit() {
         vim.scope.createdSuccess = false;
@@ -31,9 +30,7 @@ function registrationController($scope, $rootScope, $location, UserFactory) {
         }
 
         function error(err) {
-            vim.scope.error = true;
-            vim.scope.formErrors = err.data.data;
-            vim.scope.errorMessages = err.data.err_message;
+            console.log(err);
         }
 
         function exception(exp) {

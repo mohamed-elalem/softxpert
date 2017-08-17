@@ -105,14 +105,16 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter("user_id", $user_id);
     }
     
-    public function getTraineeUnfinishedTasksPaginated($user_id, $paginator, $page, $itemsPerPage, $count = false) {
+    public function getTraineeUnfinishedTasksPaginated($supervisor_id, $user_id, $paginator, $page, $itemsPerPage, $count = false) {
         $tasks = $this->createQueryBuilder("t")
                 ->select("t, c.title, c.duration")
                 ->innerJoin("t.challenge", "c")
                 ->where("t.user = :user_id")
                 ->andWhere("t.done = :done")
+                ->andWhere("t.supervisor = :supervisor_id")
                 ->setParameter("done", false)
-                ->setParameter("user_id", $user_id);
+                ->setParameter("user_id", $user_id)
+                ->setParameter("supervisor_id", $supervisor_id);
         if($count) {
             return $paginator->getCount($tasks);
         }

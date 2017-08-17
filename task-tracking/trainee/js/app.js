@@ -72,6 +72,7 @@ function bootstrap($rootScope, UserFactory, $location, $route, UserFactory) {
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         rootScope.auth = false;
+        $location.url("/login");
     }
 
     function logoutError(err) {

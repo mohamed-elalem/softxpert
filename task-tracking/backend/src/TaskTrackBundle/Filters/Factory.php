@@ -77,7 +77,9 @@ class Factory {
         if(is_null($filter)) {
             $filter = new EntityConcrete;
         }
+        
         foreach($parameters as $key => $value) {
+            
             if($key[0] == $key[1] && $key[1] == "_") {
                 $colName = substr($key, 2);
                 $colMinValue = $parameters[$colName . "_min"];

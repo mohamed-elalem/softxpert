@@ -19,6 +19,9 @@ function routing($routeProvider, $httpProvider) {
         }).when("/tasks/current/recommended", {
             "templateUrl": "templates/recommended_current_tasks.html",
             "controller": "RecommendedCurrentTasksController"
+        }).when("/register", {
+            "templateUrl": "templates/register.html",
+            "controller": "RegistrationController"
         });
 
     $httpProvider.defaults.headers.common = {};

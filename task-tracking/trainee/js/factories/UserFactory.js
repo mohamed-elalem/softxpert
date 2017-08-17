@@ -8,6 +8,7 @@ function userFactory($http) {
         authUser: authUser,
         refreshToken: refreshToken,
         logout: logout,
+        register: register,
     }
 
     function login(username, password) {
@@ -53,6 +54,26 @@ function userFactory($http) {
             }
         });
     }
+
+    function register(token, username, name, email, password, password_confirmation) {
+        return $http({
+            url: "http://localhost:8000/api/register",
+            method: "post",
+            headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            transformRequest: toFormData,
+            data: {
+                "username": username,
+                "name": name,
+                "email": email,
+                "password": password,
+                "password_confirmation": password_confirmation
+            }
+        });
+    }
+
 
     /**
      * Helpers
