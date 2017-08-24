@@ -29,7 +29,7 @@ get_supervisors:
     methods: [GET]
     
 get_trainees:
-    path: /api/{role}/trainees/{page}
+    path: /api/{role}/trainees
     defaults: { _controller: TaskTrackBundle:User:getAllTrainees, page:1 }
     methods: [GET]
     requirements:
@@ -40,11 +40,9 @@ check:
     defaults: { _controller: TaskTrackBundle:User:api }
     
 get_users:
-    path: /api/admin/users/{page}
-    defaults: { _controller: TaskTrackBundle:User:getFilteredUsers, page:1 }
+    path: /api/admin/users
+    defaults: { _controller: TaskTrackBundle:User:getFilteredUsers }
     methods: [GET]
-    requirements:
-        page: '\d*'
 
 #get_trainees:
 #    path: /api/supervisor/users
@@ -52,7 +50,7 @@ get_users:
 #    methods: [GET]
 
 get_user:
-    path: /api/{role}/{type}/{id}/info
+    path: /api/{role}/{type}/{id}
     defaults: { _controller: TaskTrackBundle:User:getUser }
     methods: [GET]
     requirements:
@@ -62,39 +60,36 @@ get_user:
 
 
 get_user_tasks:
-    path: /api/supervisor/trainees/{user_id}/tasks/{page}
-    defaults: { _controller: TaskTrackBundle:User:getUserTasks, page:1 }
+    path: /api/supervisor/trainees/{user_id}/tasks
+    defaults: { _controller: TaskTrackBundle:Task:getUserTasks }
     requirements:
         user_id: '\d+'
-        page: '\d*'
     methods: [GET]
     
     
  
 get_my_tasks:
     path: /api/tasks
-    defaults: { _controller: TaskTrackBundle:User:getMyTasks}
+    defaults: { _controller: TaskTrackBundle:Task:getMyTasks}
     methods: [GET]
     
 get_my_recommended_tasks:
     path: /api/tasks/recommended
-    defaults: { _controller: TaskTrackBundle:User:getMyRecommendedTasks }
+    defaults: { _controller: TaskTrackBundle:Task:getMyRecommendedTasks }
     methods: [GET]
         
 get_supervisor_challenges:
-    path: /api/supervisor/challenges/{page}
-    defaults: { _controller: TaskTrackBundle:User:getMyChallenges, page: 1 }
+    path: /api/supervisor/challenges
+    defaults: { _controller: TaskTrackBundle:Challenge:getMyChallenges }
     methods: [GET]
-    requirements:
-        page: '\d*'
     
 create_new_challenge:
     path: /api/supervisor/challenges
-    defaults: { _controller: TaskTrackBundle:User:createNewChallenge }
+    defaults: { _controller: TaskTrackBundle:Challenge:createNewChallenge }
     methods: [POST]
     
 delete_user:
-    path: /api/admin/users
+    path: /api/admin/users/{id}
     defaults: { _controller: TaskTrackBundle:User:deleteUser }
     requirements:
         id: '\d+'
@@ -130,54 +125,46 @@ update_user:
 
 new_task:
     path: /api/supervisor/trainees/{user_id}/challenges
-    defaults: { _controller: TaskTrackBundle:User:createNewTask }
+    defaults: { _controller: TaskTrackBundle:Task:createNewTask }
     methods: [POST]
     requirements:
         trainee_id: '\d+'
         
 update_challenge:
     path: /api/supervisor/challenges
-    defaults: { _controller: TaskTrackBundle:User:updateChallenge }
+    defaults: { _controller: TaskTrackBundle:Challenge:updateChallenge }
     methods: [PUT]
     
 add_challenge_child:
     path: /api/supervisor/challenges
-    defaults: { _controller: TaskTrackBundle:User:addChallengeChild }
+    defaults: { _controller: TaskTrackBundle:Challenge:addChallengeChild }
     methods: [PATCH]
     
 get_supervisor_filtered_tasks:
-    path: /api/supervisor/tasks/{page}
-    defaults: { _controller: TaskTrackBundle:getSupervisorFilteredTasks, page:1 }
+    path: /api/supervisor/tasks
+    defaults: { _controller: TaskTrackBundle:Task:getSupervisorFilteredTasks }
     methods: [GET]
-    requirements: 
-        page: '\d*'
         
 get_trainee_filtered_tasks:
-    path: /api/tasks/{page}
-    defaults: { _controller: TaskTrackBundle:User:getTraineeFilteredTasks, page:1 }
+    path: /api/tasks
+    defaults: { _controller: TaskTrackBundle:User:getTraineeFilteredTasks }
     methods: [GET]
-    requirements:
-        page: '\d+'
         
 get_unassigned_challenges:
-    path: /api/supervisor/trainees/{user_id}/challenges/{page}
-    defaults: { _controller: TaskTrackBundle:User:getUnassignedChallenges, page:1}
+    path: /api/supervisor/trainees/{user_id}/challenges
+    defaults: { _controller: TaskTrackBundle:Challenge:getUnassignedChallenges }
     methods: [GET]
-    requirements:
-        page: '\d*'
 
 get_challenge_children:
-    path: /api/supervisor/challenges/{challenge_id}/dependents/{page}
+    path: /api/supervisor/challenges/{challenge_id}/dependents
     methods: [GET]
-    defaults: { _controller: TaskTrackBundle:User:getChallengeChildren, page:1 }
-    requirements:
-        page: '\d*'
+    defaults: { _controller: TaskTrackBundle:Challenge:getChallengeChildren }
         
 
 delete_supervisor_challenge:
     path: /api/supervisor/challenges
     methods: [DELETE]
-    defaults: { _controller: TaskTrackBundle:User:deleteChallenge }
+    defaults: { _controller: TaskTrackBundle:Challenge:deleteChallenge }
     
 delete_user_task:
     path: /api/supervisor/trainees/{user_id}/tasks
@@ -189,7 +176,7 @@ delete_user_task:
 update_task_score:
     path: /api/supervisor/trainees/{user_id}/tasks/{task_id}/score
     methods: [PUT]
-    defaults: { _controller: TaskTrackBundle:User:updateUserTaskScore }
+    defaults: { _controller: TaskTrackBundle:Task:updateUserTaskScore }
     requirements:
         user_id: '\d+'
         task_id: '\d+'
@@ -197,7 +184,7 @@ update_task_score:
 update_task_done:
     path: /api/supervisor/trainees/{user_id}/tasks/{task_id}/done
     methods: [PUT]
-    defaults: { _controller: TaskTrackBundle:User:updateTaskDone }
+    defaults: { _controller: TaskTrackBundle:Task:updateTaskDone }
     requirements:
         user_id: '\d+'
         task_id: '\d+'
@@ -205,17 +192,17 @@ update_task_done:
 update_task_duration:
     path: /api/supervisor/trainees/{user_id}/tasks/{task_id}/duration
     methods: [PUT]
-    defaults: { _controller: TaskTrackBundle:User:updateUserTaskDuration }
+    defaults: { _controller: TaskTrackBundle:Task:updateUserTaskDuration }
     requirements:
         user_id: '\d+'
         task_id: '\d+'
         
 get_single_challenge:
-    path: /api/supervisor/challenges/{challenge_id}/info
+    path: /api/supervisor/challenges/{challenge_id}
     methods: [GET]
-    defaults: { _controller: TaskTrackBundle:User:getSingleChallenge }
+    defaults: { _controller: TaskTrackBundle:Challenge:getSingleChallenge }
     
 toggle_task_in_progress:
     path: /api/tasks/{task_id}/in_progress/toggle
     methods: [PUT]
-    defaults: { _controller: TaskTrackBundle:User:toggleTaskInProgress }
+    defaults: { _controller: TaskTrackBundle:Task:toggleTaskInProgress }

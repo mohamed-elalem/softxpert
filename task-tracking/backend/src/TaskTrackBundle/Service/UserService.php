@@ -92,6 +92,10 @@ class UserService {
     
     public function deleteUser($id) {
         $userRepository = $this->em->getRepository("TaskTrackBundle:User");
+        $user = $userRepository->find($id);
+        if($user->getRole() == Role::ADMIN) {
+            throw new \TaskTrackBundle\Exceptions\ActionForbiddenException();
+        }
         $userRepository->deleteUser($id);
         return [
             "code" => Status::STATUS_SUCCESS
@@ -104,23 +108,26 @@ class UserService {
         $data = [];
         
         if($password && $password != $password_confirmation) {
-            throw new Exception("password and password confirmation doesn't match", 1001);
+            $data = [
+                "code" => Status::STATUS_FAILURE,
+                "err_code" => Status::ERR_FORM_VALIDATION_ERROR,
+                "err_message" => "Confirmation password doesn't match"
+            ];
         }
-        
-        if($password) {
-            $data["password"] = $password;
+        else {
+            if($password) {
+                $data["password"] = $password;
+            }
+            if($email) {
+                $data["email"] = $email;
+            }
+            if($name) {
+                $data["name"] = $name;
+            }
+            $userRepository->updateUser($user_id, $data);
+            $data = ["code" => Status::STATUS_SUCCESS];
         }
-        if($email) {
-            $data["email"] = $email;
-        }
-        if($name) {
-            $data["name"] = $name;
-        }
-        $userRepository->updateUser($user_id, $data);
-        
-        return [
-            "code" => Status::STATUS_SUCCESS
-        ];
+        return $data;
     }
     
     public function getFilteredUsers($filter, $paginator, $pages, $itemsPerPage) {

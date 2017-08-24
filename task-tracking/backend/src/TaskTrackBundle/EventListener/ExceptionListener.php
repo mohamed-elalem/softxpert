@@ -18,6 +18,10 @@ class ExceptionListener {
     public function onKernelException(GetResponseForExceptionEvent $event) {
         $exception = $event->getException();
         $code = $exception->getCode();
+        $message = $exception->getMessage();
+        if(strlen($message) == 0) {
+            $message = null;
+        }
         if($exception instanceof \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException) {
             $code = Status::ACCESS_DENIED_HTTP_EXCEPTION;
         }
@@ -28,7 +32,7 @@ class ExceptionListener {
             $code = Status::SERVICE_NOT_FOUND_EXCEPTION;
         }
         
-        $event->setResponse(ResponseHandler::handle(Status::STATUS_FAILURE, [], $code, $exception->getMessage()));
+        $event->setResponse(ResponseHandler::handle(Status::STATUS_FAILURE, $exception->getExtra(), $code, $message));
     }
 
     public static function getSubscribedEvents(): array {

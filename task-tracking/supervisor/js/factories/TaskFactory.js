@@ -13,7 +13,10 @@ function taskFactory($http) {
 
     function getUserTasks(token, userId, page) {
         return $http({
-            "url": "http://localhost:8000/api/supervisor/trainees/" + userId + "/tasks/" + page,
+            "url": "http://localhost:8000/api/supervisor/trainees/" + userId + "/tasks",
+            "params": {
+                "page": page
+            },
             "headers": {
                 "Authorization": "Bearer " + token
             }

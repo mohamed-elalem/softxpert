@@ -16,11 +16,11 @@ function registrationController($scope, $rootScope, $location, UserFactory) {
 
     function submit() {
         vim.scope.createdSuccess = false;
-        var username = vim.scope.supervisor.username;
-        var password = vim.scope.supervisor.password;
-        var passwordConfirmation = vim.scope.supervisor.passwordConfirmation;
-        var email = vim.scope.supervisor.email;
-        var name = vim.scope.supervisor.name;
+        var username = vim.scope.username;
+        var password = vim.scope.password;
+        var passwordConfirmation = vim.scope.passwordConfirmation;
+        var email = vim.scope.email;
+        var name = vim.scope.name;
 
         vim.userFactory.register(token, username, name, email, password).then(success, error).catch(exception);
 

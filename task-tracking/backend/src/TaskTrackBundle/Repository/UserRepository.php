@@ -48,8 +48,6 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         foreach($data as $key => $value) {
             $q = $q->set("u." . $key, "'$value'");
         }
-        dump($data);
-        die;
         return $q->where("u.id = :id")->setParameter("id", $user->getId())->getQuery()->execute();
     }
     
@@ -95,27 +93,17 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter("id", $id)
                 ->getQuery()->getArrayResult();
         
-        if(! $user) {
-            throw new Exception("User " . $id . " wasn't found");
-        }
         return $user;
     }
     
     public function getUserByRole($id, $role) {
         $user = $this->findOneBy(["id" => $id, "role" => $role]);
-        
-        if(! $user) {
-            throw new Exception("User " . $id . " wasn't found");
-        }
+     
         return $user;
     }
     
     public function getUserChallenges($id) {
         $user = $this->findOneBy($id);
-        
-        if(! $user) {
-            throw new Exception("User " . $id . " wasn't found");
-        }
         
         return $user->getChallenges();
     }
@@ -123,9 +111,6 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     public function getUserTasks($id) {
         $user = $this->findByOne($id);
         
-        if(! $user) {
-            throw new Exception("User " . $id . " wasn't found");
-        }
         
         return $user->getTasks();
     }

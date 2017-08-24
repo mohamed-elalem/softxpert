@@ -68,8 +68,8 @@ function userFactory($http) {
                 "username": username,
                 "name": name,
                 "email": email,
-                "password": password,
-                "password_confirmation": password_confirmation
+                "password[first]": password,
+                "password[second]": password_confirmation,
             }
         });
     }

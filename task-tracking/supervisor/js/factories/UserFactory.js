@@ -58,7 +58,10 @@ function userFactory($http) {
 
     function getTrainees(token, page = 1) {
         return $http({
-            "url": "http://localhost:8000/api/supervisor/trainees/" + page,
+            "url": "http://localhost:8000/api/supervisor/trainees",
+            "params": {
+                "page": page
+            },
             "headers": {
                 "Authorization": "Bearer " + token
             }
@@ -67,7 +70,7 @@ function userFactory($http) {
 
     function getSingleUser(token, user_id) {
         return $http({
-            "url": "http://localhost:8000/api/supervisor/trainees/" + user_id + "/info",
+            "url": "http://localhost:8000/api/supervisor/trainees/" + user_id,
             "headers": {
                 "Authorization": "Bearer " + token
             }

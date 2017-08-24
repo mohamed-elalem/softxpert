@@ -23,10 +23,7 @@ class TaskRepository extends \Doctrine\ORM\EntityRepository
     
     public function getUserTask($user_id, $challenge_id) {
         $task = $this->findOneBy(["user_id" => $user_id, "challenge_id" => $challenge_id]);
-        if(! $task) {
-            throw new Exception("Task wasn't found");
-        }
-        
+
         return $task;
     }
     

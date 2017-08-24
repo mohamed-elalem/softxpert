@@ -13,13 +13,14 @@ use TaskTrackBundle\Constants\Status;
 use TaskTrackBundle\Handlers\ResponseHandler;
 use TaskTrackBundle\Entity\Challenge;
 use TaskTrackBundle\Entity\Task;
-use Symfony\Component\Config\Definition\Exception\Exception;
+//use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Output\BufferedOutput;
 use \Symfony\Component\Console\Input\ArrayInput;
 use TaskTrackBundle\Form\UserType;
 use TaskTrackBundle\Form\TaskType;
 use TaskTrackBundle\Form\ChallengeType;
+use TaskTrackBundle\Exceptions;
 
 class UserController extends Controller {
 
@@ -36,7 +37,7 @@ class UserController extends Controller {
         $application->run($input);
 
 
-        return $this->getResponse(["code" => Status::STATUS_SUCCESS]);
+        return ResponseHandler::getResponse(["code" => Status::STATUS_SUCCESS]);
     }
 
     public function logoutAction(Request $request) {
@@ -53,7 +54,7 @@ class UserController extends Controller {
 //        
 //        $application->run($input);
 
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
     public function registerTraineeAction(Request $request) {
@@ -68,21 +69,22 @@ class UserController extends Controller {
         $password = $request->request->get("password");
         $password_confirmation = $request->request->get("password_confirmation");
         
-        if($password != $password_confirmation) {
-            $data["code"] = Status::STATUS_FAILURE;
-            $data["err_code"] = Status::ERR_FORM_VALIDATION_ERROR;
-            $data["err_message"] = "Password confirmation doesn't match";
-        }
-        else if ($validator->isValid()) {
+//        if($password != $password_confirmation) {
+//            $data["code"] = Status::STATUS_FAILURE;
+//            $data["err_code"] = Status::ERR_FORM_VALIDATION_ERROR;
+//            $data["err_message"] = "Password confirmation doesn't match";
+//        }
+        if ($validator->isValid()) {
             $data = $this->get("services.user_service")
                     ->register($request->request->get("username"), $request->request->get("email"), $encoder->encodePassword(new User, $request->request->get("password")), $request->request->get("name"), $role);
         }
         else {
-            $data["code"] = Status::STATUS_FAILURE;
-            $data["extra"] = $validator->getErrors();
-            $data["err_code"] = Status::ERR_FORM_VALIDATION_ERROR;
+//            $data["code"] = Status::STATUS_FAILURE;
+//            $data["extra"] = $validator->getErrors();
+//            $data["err_code"] = Status::ERR_FORM_VALIDATION_ERROR;
+            throw new Exceptions\FormValidationException(null, $validator->getErrors());
         }
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
     public function registerSupervisorAction(Request $request) {
@@ -91,120 +93,40 @@ class UserController extends Controller {
 
     public function getAuthenticatedUserAction() {
         $data = $this->get("services.user_service")->getAuthenticatedUser($this->getUser()->getId());
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
     public function getUserAction($id) {
         $data = $this->get("services.user_service")->getUser($id);
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
     public function getAllUsersAction($page) {
         $paginator = $this->get("helpers.paginator_helper");
         $itemsPerPage = $this->getParameter("paginator_items_per_page");
         $data = $this->get("services.user_service")->getAllUsers($paginator, $page, $itemsPerPage);
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
     public function getAllSupervisorsAction($page) {
         $paginator = $this->get("helpers.paginator_helper");
         $itemsPerPage = $this->getParameter("paginator_items_per_page");
         $data = $this->get("services.user_service")->getAllUsersByRole(Role::SUPERVISOR, $paginator, $itemsPerPage);
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
-    public function getAllTraineesAction($page) {
+    public function getAllTraineesAction(Request $request) {
+        $page = $request->query->get("page");
         $paginator = $this->get("helpers.paginator_helper");
         $itemsPerPage = $this->getParameter("paginator_items_per_page");
 
         $data = $this->get("services.user_service")->getAllUsersByRole(Role::TRAINEE, $paginator, $page, $itemsPerPage);
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
-    public function deleteUserAction(Request $request) {
-        $data = $this->get("services.user_service")->deleteUser($request->request->get("id"));
-        return $this->getResponse($data);
-    }
-
-    public function getUserTasksAction($user_id, $page) {
-        $paginator = $this->get("helpers.paginator_helper");
-        $itemsPerPage = $this->getParameter("paginator_items_per_page");
-        $data = $this->get("services.task_service")->getUserTasks($this->getUser()->getId(), $user_id, $paginator, $page, $itemsPerPage);
-        return $this->getResponse($data);
-    }
-
-    public function getUserTaskAction($user_id, $challenge_id) {
-
-
-        $data = $this->get("services.user_service")->getUserTasks($user_id, $challenge_id, $paginator, $page, $itemsPerPage);
-
-        return $this->getResponse($data);
-    }
-
-    public function getMyTasksAction() {
-        $data = $this->get("services.task_service")->getMyTasks($this->getUser()->getId(), $this->get("services.graph_service.kosaraju"));
-        return $this->getResponse($data);
-    }
-    
-    public function getMyRecommendedTasksAction() {
-        $data = $this->get("services.task_service")->getMyRecommendedTasks($this->getUser()->getId(), $this->get("services.graph_service.kosaraju"));
-        return $this->getResponse($data);
-    }
-
-    public function getMyChallengesAction($page) {
-        $data = $this->get("services.challenge_service")
-                ->getMyChallenges(
-                $this->getUser()->getId(), $this->get("helpers.paginator_helper"), $page, $this->getParameter("paginator_items_per_page")
-        );
-        return $this->getResponse($data);
-    }
-
-    public function updateUserTaskScoreAction(Request $request, $task_id) {
-        $validator = $this->get("services.form_service")->init($this->createForm(TaskType::class, new Task), $request->request->all());
-        $data = [];
-        if($validator->isValid()) {
-            $data = $this->get("services.task_service")->updateUserTaskScore($task_id, $request->request->get("score"));
-        }
-        else {
-            $data["code"] = Status::STATUS_FAILURE;
-            $data["extra"] = $validator->getErrors();
-        }
-        
-        return $this->getResponse($data);
-    }
-
-    public function updateUserTaskDurationAction(Request $request, $task_id) {
-        if($request->request->get("duration") <= 0) {
-            throw new Exception("Error duration cannot be less than 1", 1001);
-        }
-        $data = $this->get("services.user_service")->updaterUserTaskDuration($task_id, $request->request->get("duration"));
-        return $this->getResponse($data);
-    }
-
-    public function updateTaskDoneAction(Request $request, $task_id) {
-        $data = $this->get("services.task_service")->updateTaskDone($task_id, $request->request->get("done"));
-        return $this->getResponse($data);
-    }
-
-    public function createNewChallengeAction(Request $request) {
-//        $validator = $this->get("services.form_service")->init($this->createForm(ChallengeType::class, new Challenge), $request->request->all());
-        $data = $this->get("services.challenge_service")
-                ->createNewChallenge(
-                $this->getUser()->getId(), $request->request->get("title"), $request->request->get("duration"), $request->request->get("description")
-        );
-        return $this->getResponse($data);
-    }
-
-    public function createNewTaskAction(Request $request, $user_id) {
-//        $validator = $this->get("services.form_service")->init($this->createForm(TaskType::class, new Task), $request->request->all());
-//        if($validator->isValid()) {
-            $data = $this->get("services.task_service")->createNewTask($this->getUser()->getId(), $user_id, $request->request->get("challenge_id"), $this->get("services.graph_service.kosaraju"));
-//        }
-//        else {
-//            $data["code"] = Status::STATUS_FAILURE;
-//            $data["extra"] = $validator->getErrors();
-//        }
-        return $this->getResponse($data);
+    public function deleteUserAction(Request $request, $id) {
+        $data = $this->get("services.user_service")->deleteUser($id);
+        return ResponseHandler::getResponse($data);
     }
 
     public function updateUserInfoAction(Request $request) {
@@ -252,135 +174,24 @@ class UserController extends Controller {
             $data["code"] = Status::STATUS_FAILURE;
             $data["extra"] = $validator->getErrors();
         }
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
-    public function updateChallengeAction(Request $request) {
-        $data = $this->get("services.challenge_service")
-                ->updateChallenge(
-                $this->getUser()->getId(), $request->request->get("challenge_id"), $request->request->get("duration"), $request->request->get("description")
-        );
-        return $this->getResponse($data);
-    }
-
-    public function addChallengeChildAction(Request $request) {
-        $data = $this->get("services.challenge_service")->addChallengeChild($request->request->get("parent_id"), $request->request->get("child_id"), $this->get("services.graph_service.kosaraju"));
-        return $this->getResponse($data);
-    }
-
-    public function getSupervisorFilteredTasksAction(Request $request, $page) {
-        $filter = $this->get("services.filters.entity_filter.filter_by_supervisor")
-                ->init(
-                $this->getUser()->getId(), $this->get("services.filters.entity_filter")
-        );
-        return $this->getResponse($this->getFilteredTasks($request, $page, $filter));
-    }
-
-    public function getFilteredTasks($filters, $page) {
-        $filter = $this->get("services.filters.entity_filter.factory")->getFilters($filters);
-
-        $paginator = $this->get("helpers.paginator_helper");
-        $itemsPerPage = $this->getParameter("paginator_items_per_page");
-
-        $data = $this->get("services.task_service")->getFilteredTasks($filter, $paginator, $page, $itemsPerPage);
-
-        return $data;
-    }
-
-    public function getTraineeFilteredTasksAction(Request $request, $page) {
+    public function getFilteredUsersAction(Request $request) {
         $filters = $request->query->all();
-        $filters["_user"] = true;
-        $filters["user"] = $this->getUser()->getId();
-        
-        return $this->getResponse($this->getFilteredTasks($filters, $page));
-    }
-
-    public function getFilteredUsersAction(Request $request, $page) {
-
-        $filter = $this->get("services.filters.entity_filter.factory")->getFilters($request->query->all());
+        $page = $filters["page"];
+        unset($filters["page"]);
+        $filter = $this->get("services.filters.entity_filter.factory")->getFilters($filters);
         $paginator = $this->get("helpers.paginator_helper");
         $itemsPerPage = $this->getParameter("paginator_items_per_page");
 
         $data = $this->get("services.user_service")->getFilteredUsers($filter, $paginator, $page, $itemsPerPage);
 
-        return $this->getResponse($data);
-    }
-
-    public function getFilteredChallengesAction(Request $request, $page) {
-        $filter = $this->get("services.filters.entity_filter.filter_by_user")
-                ->init(
-                $this->getUser()->getId(), $this->get("services.filters.entity_filter")
-        );
-
-        $filter = $this->get("services.filters.entity_filter.factory")->getFilters($request->query->all(), $filter);
-
-        $paginator = $this->get("helpers.paginator_helper");
-        $itemsPerPage = $this->getParameter("paginator_items_per_page");
-
-        $data = $this->get("services.challenge_service")->getFilteredChallenges($filter, $paginator, $page, $itemsPerPage);
-
-        return $this->getResponse($data);
-    }
-
-    public function getUnassignedChallengesAction(Request $request, $user_id, $page) {
-        $paginator = $this->get("helpers.paginator_helper");
-        $itemsPerPage = $this->getParameter("paginator_items_per_page");
-
-        $data = $this->get("services.challenge_service")->getUnassignedChallenges(
-                $this->getUser()->getId(), $user_id, $paginator, $page, $itemsPerPage
-        );
-        return $this->getResponse($data);
-    }
-
-    public function getChallengeChildrenAction(Request $request, $challenge_id, $page) {
-        $paginator = $this->get("helpers.paginator_helper");
-        $itemsPerPage = $this->getParameter("paginator_items_per_page");
-
-        $data = $this->get("services.challenge_service")->getChallengeChildren(
-                $this->getUser()->getId(), $challenge_id, $paginator, $page, $itemsPerPage
-        );
-        return $this->getResponse($data);
-    }
-
-    public function deleteTaskAction(Request $request) {
-        $data = $this->get("services.task_service")->deleteTask($this->getUser()->getId(), $request->request->get("task_id"));
-        return $this->getResponse($data);
-    }
-
-    public function deleteChallengeAction(Request $request) {
-        $data = $this->get("services.challenge_service")->deleteChallenge($this->getUser()->getId(), $request->request->get("challenge_id"));
-
-        return $this->getResponse($data);
-    }
-
-    public function getSingleChallengeAction($challenge_id) {
-        $data = $this->get("services.challenge_service")->getSingleChallenge($challenge_id);
-        return $this->getResponse($data);
-    }
-
-    public function toggleTaskInProgressAction($task_id) {
-        $data = $this->get("services.task_service")->toggleTaskInProgress($this->getUser()->getId(), $task_id);
-        return $this->getResponse($data);
+        return ResponseHandler::getResponse($data);
     }
 
     public function apiAction(Request $request) {
         return new Response(sprintf('Logged in as %s', $this->getUser()->getUsername()));
-    }
-
-    private function getResponse($data) {
-        if (!isset($data["code"])) {
-            $data["code"] = Status::STATUS_FAILURE;
-        }
-        if (!isset($data["extra"])) {
-            $data["extra"] = [];
-        }
-        if (!isset($data["err_code"])) {
-            $data["err_code"] = -1;
-        }
-        if (!isset($data["err_message"])) {
-            $data["err_message"] = null;
-        }
-        return ResponseHandler::handle($data["code"], $data["extra"], $data["err_code"], $data["err_message"]);
     }
 
 }

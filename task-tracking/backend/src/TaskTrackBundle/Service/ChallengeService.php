@@ -13,10 +13,14 @@ namespace TaskTrackBundle\Service;
 use Doctrine\ORM\EntityManager;
 use TaskTrackBundle\Handlers\ResponseHandler;
 use TaskTrackBundle\Constants\Status;
-use Symfony\Component\Config\Definition\Exception\Exception;
+//use Symfony\Component\Config\Definition\Exception\Exception;
 use JMS\Serializer\Serializer;
 use TaskTrackBundle\Entity\Challenge;
 use TaskTrackBundle\Graphs\Graph;
+//use TaskTrackBundle\Exceptions\GenericException;
+//use \TaskTrackBundle\Exceptions\ChallengeDurationException;
+//use TaskTrackBundle\Exceptions\SelfReferenceException;
+use TaskTrackBundle\Exceptions;
 
 class ChallengeService {
 
@@ -43,19 +47,26 @@ class ChallengeService {
     
     public function createNewChallenge($user_id, $title, $duration, $description) {
         
+        $data = [];
+        
         if($duration <= 0) {
-            throw new Exception("Duration cannot be less than 1");
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_FORM_VALIDATION_ERROR,
+//                "err_message" => "Challenge duration cannot be less than 1"
+//            ];
+            throw new \TaskTrackBundle\Exceptions\ChallengeDurationException();
         }
+        else {
+            $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
+            $userRepository = $this->em->getRepository("TaskTrackBundle:User");
+            $user = $userRepository->find($user_id);
+
+            $challengeRepository->addNewChallenge($user, $title, $duration, $description);
         
-        $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
-        $userRepository = $this->em->getRepository("TaskTrackBundle:User");
-        $user = $userRepository->find($user_id);
-        
-        $challengeRepository->addNewChallenge($user, $title, $duration, $description);
-        
-        return [
-            "code" => Status::STATUS_SUCCESS
-        ];
+            $data = ["code" => Status::STATUS_SUCCESS];
+        }
+        return $data;
     }
     
     public function updateChallenge($user_id, $challenge_id, $duration, $description) {
@@ -64,69 +75,93 @@ class ChallengeService {
         
         $challenge = $challengeRepository->getChallengeAsEntity($challenge_id);
         $user = $userRepsitory->getUser($user_id);
-        
-        if(! $challenge) {
-            throw new Exception("Challenge " . $challenge_id . " wasn't found");
-        }
-        
-        if(! $user->getChallenges()->contains($challenge)) {
-            throw new Exception("You cannot update a challenge that's not owned by you");
-        }
-        
         $data = [];
         
-        if($description) {
-            $data["description"] = $description;
+        if(! $challenge) {
+            $data = [
+                "code" => Status::STATUS_FAILURE,
+                "err_code" => Status::ERR_CHALLENGE_NOT_EXIST,
+            ];
+//            throw new Resour
         }
-        if($duration) {
-            $data["duration"] = $duration;
+        else if(! $user->getChallenges()->contains($challenge)) {
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_CHALLENGE_OWNER,
+//            ];
+            throw new \TaskTrackBundle\Exceptions\ChallengeOwnerException;
         }
+        else {
+            if($description) {
+                $data["description"] = $description;
+            }
+            if($duration) {
+                $data["duration"] = $duration;
+            }
+
+            $challengeRepository->updateChallenge($challenge_id, $data);
         
-        $challengeRepository->updateChallenge($challenge_id, $data);
-        
-        return [
-            "code" => Status::STATUS_SUCCESS
-        ];
+            $data = [
+                "code" => Status::STATUS_SUCCESS
+            ];
+        }
+        return $data;
     }
     
     public function addChallengeChild($parent_id, $child_id, Graph $graph) {
         
-        if($parent_id == $child_id) {
-            throw new Exception("Error self referencing is forbidden");
-        }
-        
-        $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
-        
-        $parent = $challengeRepository->find($parent_id);
-        $child = $challengeRepository->find($child_id);
-
-        if($parent->getChildren()->contains($child)) {
-            throw new Exception("Error Connection already exists");
-        }
-        
-        $edgeList = $this->getEdgeList([$challengeRepository->find($parent_id), $challengeRepository->find($child_id)], true);
-        $edgeList[] = [(int)$parent_id, (int)$child_id];
-        
-        $graph->setup($edgeList);
-        
         $data = [];
         
-        $valid = $graph->checkForCycles();
-        
-        if($valid) {
-            $challengeRepository->makeConnection($parent_id, $child_id);
-            $data["code"] = Status::STATUS_SUCCESS;
-            $data["extra"] = ["valid" => true];
+        if($parent_id == $child_id) {
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_FORM_VALIDATION_ERROR,
+//                "err_message" => "Self reference is prohibited",
+//            ];
+            throw new Exceptions\SelfReferenceException();
         }
         else {
-            $cycles = $graph->getCycles();
-            $challengeTitles = $this->getCorrospondingTitles($cycles);
-            $data["code"] = Status::STATUS_FAILURE;
-            $data["err_code"] = Status::ERR_INVALID_CHALLENGES_STRUCTURE;
-            $data["extra"] = [
-                "valid" => false,
-                "cycles" => $challengeTitles
-            ];
+            $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
+
+            $parent = $challengeRepository->find($parent_id);
+            $child = $challengeRepository->find($child_id);
+
+            if($parent->getChildren()->contains($child)) {
+//                $data = [
+//                    "code" => Status::STATUS_FAILURE,
+//                    "err_code" => Status::ERR_FORM_VALIDATION_ERROR,
+//                    "err_message" => "Challenges are already connected",
+//                ];
+                throw new \TaskTrackBundle\Exceptions\ConnectionExistException();
+            }
+            else {
+                $edgeList = $this->getEdgeList([$challengeRepository->find($parent_id), $challengeRepository->find($child_id)], true);
+                $edgeList[] = [(int)$parent_id, (int)$child_id];
+
+                $graph->setup($edgeList);
+
+                $data = [];
+
+                $valid = $graph->checkForCycles();
+
+                if($valid) {
+                    $challengeRepository->makeConnection($parent_id, $child_id);
+                    $data["code"] = Status::STATUS_SUCCESS;
+                    $data["extra"] = ["valid" => true];
+                }
+                else {
+                    $cycles = $graph->getCycles();
+                    $challengeTitles = $this->getCorrospondingTitles($cycles);
+//                    $data["code"] = Status::STATUS_FAILURE;
+//                    $data["err_code"] = Status::ERR_INVALID_CHALLENGES_STRUCTURE;
+//                    $data["extra"] = [
+//                        "valid" => false,
+//                        "cycles" => $challengeTitles
+//                    ];
+                    
+                    throw new \TaskTrackBundle\Exceptions\CircularDependencyException(null, ["valid" => false, "cycles" => $challengeTitles]);
+                }
+            }
         }
         return $data;
     }
@@ -162,13 +197,18 @@ class ChallengeService {
     public function deleteChallenge($supervisor_id, $challenge_id) {
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
         $challenge = $challengeRepository->getChallengeAsEntity($challenge_id);
+        $data = [];
         if($challenge->getSupervisor()->getId() != $supervisor_id) {
-            throw new Exception("Trying to delete non owned challenge");
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_CHALLENGE_OWNER
+//            ];
+            throw new Exceptions\ChallengeOwnerException;
         }
-        $data = $challengeRepository->deleteChallenge($challenge_id);
-        return [
-            "code" => Status::STATUS_SUCCESS,
-        ];
+        else {
+            $data = $challengeRepository->deleteChallenge($challenge_id);
+        }
+        return $data;
     }
     
     public function getSingleChallenge($challenge_id) {

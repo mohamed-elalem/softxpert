@@ -17,7 +17,10 @@ function challengeFactory($http) {
 
     function getUnassignedChallenges(token, user_id, page) {
         return $http({
-            "url": "http://localhost:8000/api/supervisor/trainees/" + user_id + "/challenges/" + page,
+            "url": "http://localhost:8000/api/supervisor/trainees/" + user_id + "/challenges",
+            "params": {
+                "page": page
+            },
             "headers": {
                 "Authorization": "Bearer " + token
             }
@@ -41,7 +44,10 @@ function challengeFactory($http) {
 
     function getMyChallenges(token, page) {
         return $http({
-            "url": "http://localhost:8000/api/supervisor/challenges/" + page,
+            "url": "http://localhost:8000/api/supervisor/challenges",
+            "params": {
+                "page": page
+            },
             "headers": {
                 "Authorization": "Bearer " + token
             }
@@ -67,7 +73,10 @@ function challengeFactory($http) {
 
     function getChallengeChildren(token, challengeId, page) {
         return $http({
-            "url": "http://localhost:8000/api/supervisor/challenges/" + challengeId + "/dependents/" + page,
+            "url": "http://localhost:8000/api/supervisor/challenges/" + challengeId + "/dependents",
+            "params": {
+                "page": page
+            },
             "headers": {
                 "Authorization": "Bearer " + token
             }
@@ -107,7 +116,7 @@ function challengeFactory($http) {
 
     function getChallenge(token, challenge_id) {
         return $http({
-            "url": "http://localhost:8000/api/supervisor/challenges/" + challenge_id + "/info",
+            "url": "http://localhost:8000/api/supervisor/challenges/" + challenge_id,
             "headers": {
                 "Authorization": "Bearer " + token
             }

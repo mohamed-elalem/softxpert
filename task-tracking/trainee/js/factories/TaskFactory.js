@@ -12,8 +12,9 @@ function taskFactory($http) {
     }
 
     function getFilteredTasks(token, data, page) {
+        data.page = page;
         return $http({
-            "url": "http://localhost:8000/api/tasks/" + page,
+            "url": "http://localhost:8000/api/tasks",
             "params": data,
             "headers": {
                 "Authorization": "Bearer " + token

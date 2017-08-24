@@ -75,8 +75,9 @@ function userFactory($http) {
     }
 
     function getUsers(token, data = {}, page = 1) {
+        data.page = page;
         return $http({
-            "url": "http://localhost:8000/api/admin/users/" + page,
+            "url": "http://localhost:8000/api/admin/users",
             "method": "get",
             "params": data,
             "headers": {
@@ -87,7 +88,7 @@ function userFactory($http) {
 
     function getSingleUser(token, id) {
         return $http({
-            "url": "http://localhost:8000/api/admin/users/" + id + "/info",
+            "url": "http://localhost:8000/api/admin/users/" + id,
             "headers": {
                 "Authorization": "Bearer " + token
             }

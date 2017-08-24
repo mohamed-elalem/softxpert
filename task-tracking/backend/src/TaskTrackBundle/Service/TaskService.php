@@ -15,6 +15,7 @@ use TaskTrackBundle\Constants\Role;
 use \TaskTrackBundle\Graphs\Graph;
 use TaskTrackBundle\Filters\TaskInterface;
 use JMS\Serializer\Serializer;
+use TaskTrackBundle\Exceptions;
 
 class TaskService {
 
@@ -59,6 +60,7 @@ class TaskService {
         
         $valid = $graph->checkForCycles();
         
+        $data = [];
         
         if ($valid) {
             $taskToChallenge = $this->getTaskToChallenge($tasks);
@@ -91,31 +93,47 @@ class TaskService {
     public function deleteTask($supervisor_id, $task_id) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
         $task = $taskRepository->find($task_id);
+        $data = [];
         if(! $task) {
-            throw new Exception("Task with id $task_id is not found");
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_TASK_NOT_EXIST,
+//            ];
+            throw new Exceptions\ItemNotFoundException("Task " . $task_id . " Wasn't found");
         }
         else if($task->getSupervisor()->getId() != $supervisor_id) {
-            throw new Exception("You're not the supervisor of this task");
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_CHALLENGE_OWNER,
+//            ];
+            throw new Exceptions\ChallengeOwnerException;
         }
-        $data = $taskRepository->deleteTask($task_id);
-        return [
-            "code" => Status::STATUS_SUCCESS,
-        ];
+        else {
+            $taskRepository->deleteTask($task_id);
+            $data = ["code" => Status::STATUS_SUCCESS];
+        }
+        return $data;
     }
 
     public function updateUserTaskScore($task_id, $score) {
         
-        if($score < 0 || $score > 100) {
-            throw new Exception("Error Score must be between 0 and 100", 1006);
-        }
+        $data = [];
         
-        $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
+        if($score < 0 || $score > 100) {
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_FORM_VALIDATION_ERROR,
+//                "err_message" => "Score must be between 0 and 100",
+//            ];
+            throw new Exceptions\FormValidationException("Score must be between 0 and 100");
+        }
+        else { 
+            $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
 
-        $taskRepository->updateScore($task_id, $score);
-
-        return [
-            "code" => Status::STATUS_SUCCESS
-        ];
+            $taskRepository->updateScore($task_id, $score);
+            $data = ["code" => Status::STATUS_SUCCESS];
+        }
+        return $data;
     }
 
     public function updateUserTaskDuration($task_id, $duartion) {
@@ -131,6 +149,10 @@ class TaskService {
 
     public function updateTaskDone($task_id, $done) {
         $taskRepository = $this->em->getRepository("TaskTrackBundle:Task");
+        
+        if(!is_bool($done)) {
+            throw new Exceptions\FormValidationException("Done must be true or false");
+        }
         
         $taskRepository->updateDone($task_id, $done);
 
@@ -191,8 +213,9 @@ class TaskService {
         $task = $taskRepository->checkIfTaskExists($supervisor_id, $user_id, $challenge_id);
         $data = [];
         if (!$valid) {
-            $data["code"] = Status::ERR_INVALID_CHALLENGES_STRUCTURE;
-            $data["extra"] = $graph->getCycles();
+//            $data["code"] = Status::ERR_INVALID_CHALLENGES_STRUCTURE;
+//            $data["extra"] = $graph->getCycles();
+            throw new Exceptions\CircularDependencyException(null, $graph->getCycles());
         } else if (!$task && $allOk) {
             $user = $userRepository->getUserByRole($user_id, Role::TRAINEE);
             $challenge = $challengeRepository->find($challenge_id);
@@ -206,18 +229,25 @@ class TaskService {
                 $data["code"] = Status::STATUS_FAILURE;
                 $data["err_code"] = Status::ERR_CHALLENGE_OWNER;
             }
-        } else if ($task) {
-            $data["code"] = Status::STATUS_FAILURE;
-            $data["err_code"] = Status::ERR_TASK_EXIST;
+//        } else if ($task) {
+//            $data["code"] = Status::STATUS_FAILURE;
+//            $data["err_code"] = Status::ERR_TASK_EXIST;
+            throw new Exceptions\DuplicateResourceException;
         } else if (!$allOk) {
             
-            $data["code"] = Status::STATUS_FAILURE;
-            $data["err_code"] = Status::ERR_MISSING_TASKS;
-            $data["extra"] = [
+//            $data["code"] = Status::STATUS_FAILURE;
+//            $data["err_code"] = Status::ERR_MISSING_TASKS;
+//            $data["extra"] = [
+//                "challengesToAdd" => $challengesToAdd,
+//                "order" => "asc",
+//                "taskPriorities" => $priority,
+//            ];
+            
+            throw new Exceptions\MissingDependenciesException(null, [
                 "challengesToAdd" => $challengesToAdd,
                 "order" => "asc",
-                "taskPriorities" => $priority,
-            ];
+                "taskPriorities" => $priority
+            ]);
         }
         return $data;
     }
@@ -238,12 +268,21 @@ class TaskService {
         
         $user = $userRepository->find($user_id);
         $task = $taskRepository->find($task_id);
-        
+        $data = [];
         if(! $user->getTasks()->contains($task)) {
-            throw new Exception("Error Task isn't assigned by you", 1005);
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_CHALLENGE_OWNER
+//            ];
+            throw new Exceptions\ChallengeOwnerException;
         }
         else if($task->getDone()) {
-            throw new Exception("Error Task is already completed", 1006);
+//            $data = [
+//                "code" => Status::STATUS_FAILURE,
+//                "err_code" => Status::ERR_ACTION_FORBIDDEN,
+//                "err_message" => "Task you requested is already done"
+//            ];
+            throw new Exceptions\ActionForbiddenException("Task " . $task_id . " is already done");
         }
         else {
             $task = $taskRepository->toggleTaskInProgress($task_id);

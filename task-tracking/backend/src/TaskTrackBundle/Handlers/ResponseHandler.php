@@ -54,6 +54,22 @@ class ResponseHandler {
         return $response;
     }
     
+    public static function getResponse($data) {
+        if (!isset($data["code"])) {
+            $data["code"] = Status::STATUS_FAILURE;
+        }
+        if (!isset($data["extra"])) {
+            $data["extra"] = [];
+        }
+        if (!isset($data["err_code"])) {
+            $data["err_code"] = -1;
+        }
+        if (!isset($data["err_message"])) {
+            $data["err_message"] = null;
+        }
+        return self::handle($data["code"], $data["extra"], $data["err_code"], $data["err_message"]);
+    }
+    
     public static function setSerializer($serializer) {
         self::$serializer = $serializer;
     }
