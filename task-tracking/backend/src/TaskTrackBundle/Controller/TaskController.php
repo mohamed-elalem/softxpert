@@ -3,6 +3,24 @@
 namespace TaskTrackBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use TaskTrackBundle\Entity\User;
+use TaskTrackBundle\Constants\Role;
+use TaskTrackBundle\Constants\Status;
+use TaskTrackBundle\Handlers\ResponseHandler;
+use TaskTrackBundle\Entity\Challenge;
+use TaskTrackBundle\Entity\Task;
+//use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Output\BufferedOutput;
+use \Symfony\Component\Console\Input\ArrayInput;
+use TaskTrackBundle\Form\UserType;
+use TaskTrackBundle\Form\TaskType;
+use TaskTrackBundle\Form\ChallengeType;
+use TaskTrackBundle\Exceptions;
 
 class TaskController extends Controller
 {
@@ -78,8 +96,7 @@ class TaskController extends Controller
         return ResponseHandler::getResponse($data);
     }
     
-        public function getFilteredTasks($filters) {
-        $page = $request->query->get("page");
+        public function getFilteredTasks($filters, $page) {
         $filter = $this->get("services.filters.entity_filter.factory")->getFilters($filters);
 
         $paginator = $this->get("helpers.paginator_helper");
@@ -106,11 +123,12 @@ class TaskController extends Controller
                 ->init(
                 $this->getUser()->getId(), $this->get("services.filters.entity_filter")
         );
-        return ResponseHandler::getResponse($this->getFilteredTasks($request, $page, $filter));
+        return ResponseHandler::getResponse($this->getFilteredTasks($filters, $page));
     }
     
     public function deleteTaskAction(Request $request) {
         $data = $this->get("services.task_service")->deleteTask($this->getUser()->getId(), $request->request->get("task_id"));
+        
         return ResponseHandler::getResponse($data);
     }
     

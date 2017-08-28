@@ -22,11 +22,12 @@ use TaskTrackBundle\Graphs\Graph;
 //use TaskTrackBundle\Exceptions\SelfReferenceException;
 use TaskTrackBundle\Exceptions;
 
-class ChallengeService {
+class ChallengeService extends GraphService {
 
     private $em;
 
     public function __construct(EntityManager $em, Serializer $serializer) {
+        parent::__constructor($em);
         $this->em = $em;
     }
     
@@ -198,7 +199,10 @@ class ChallengeService {
         $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
         $challenge = $challengeRepository->getChallengeAsEntity($challenge_id);
         $data = [];
-        if($challenge->getSupervisor()->getId() != $supervisor_id) {
+        if(! $challenge) {
+            throw new Exceptions\ResourceNotFoundException;
+        }
+        else if($challenge->getSupervisor()->getId() != $supervisor_id) {
 //            $data = [
 //                "code" => Status::STATUS_FAILURE,
 //                "err_code" => Status::ERR_CHALLENGE_OWNER
@@ -206,7 +210,7 @@ class ChallengeService {
             throw new Exceptions\ChallengeOwnerException;
         }
         else {
-            $data = $challengeRepository->deleteChallenge($challenge_id);
+            $challengeRepository->deleteChallenge($challenge_id);
         }
         return $data;
     }
@@ -220,72 +224,72 @@ class ChallengeService {
         ];
     }
     
-    private function getChallengeIdx($stack) {
-        $challengeIdx = [];
-        foreach ($stack as $challenge) {
-            $challengeIdx[$challenge->getId()] = true;
-        }
-        return $challengeIdx;
-    }
-    
-    private function getEdgeList($stack, $deep = false) {
-        $challengeIdx = $this->getChallengeIdx($stack);
-        $childUsed = [];
-        $edgeList = [];
-        while (count($stack)) {
-            $child = array_pop($stack);
-            if (! isset($childUsed[$child->getId()])) {
-                $childUsed[$child->getId()] = true;
-                $parents = $child->getParents();
-                foreach ($parents as $parent) {
-                    if ($deep || isset($challengeIdx[$parent->getId()])) {
-                        $edgeList[] = [$parent->getId(), $child->getId()];
-                        $stack[] = $parent;
-                    }
-                }
-            }
-        }
-        return $edgeList;
-    }
-    
-    private function getCorrospondingTitles($cycles) {
-        $ids = $this->getMergedIdArray($cycles);
-        $titles = $this->getTitles($ids);
-        $cyclesWithTitles = $this->getCyclesWithTitles($cycles, $titles);
-        return $cyclesWithTitles;
-    }
-    
-    private function getMergedIdArray($cycles) {
-        $ids = [];
-        foreach($cycles as $cycle) {
-            if(count($cycle) > 1) {
-                $ids = array_merge($ids, $cycle);
-            }
-        }
-        return $ids;
-    }
-    
-    private function getTitles($ids) {
-        $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
-        $idAndTitles = $challengeRepository->getIDAndTitles($ids);
-        $titles = [];
-        foreach($idAndTitles as $row) {
-            $titles[$row["id"]] = $row["title"];
-        }
-        return $titles;
-    }
-    
-    private function getCyclesWithTitles($cycles, $titles) {
-        $cyclesWithTitles = [];
-        foreach($cycles as $cycle) {
-            $curIndex = count($cyclesWithTitles);
-            if(count($cycle) > 1) {
-                $cyclesWithTitles[] = [];
-                foreach($cycle as $id) {
-                    $cyclesWithTitles[$curIndex][] = $titles[$id];
-                }
-            }
-        }
-        return $cyclesWithTitles;
-    }
+//    private function getChallengeIdx($stack) {
+//        $challengeIdx = [];
+//        foreach ($stack as $challenge) {
+//            $challengeIdx[$challenge->getId()] = true;
+//        }
+//        return $challengeIdx;
+//    }
+//    
+//    private function getEdgeList($stack, $deep = false) {
+//        $challengeIdx = $this->getChallengeIdx($stack);
+//        $childUsed = [];
+//        $edgeList = [];
+//        while (count($stack)) {
+//            $child = array_pop($stack);
+//            if (! isset($childUsed[$child->getId()])) {
+//                $childUsed[$child->getId()] = true;
+//                $parents = $child->getParents();
+//                foreach ($parents as $parent) {
+//                    if ($deep || isset($challengeIdx[$parent->getId()])) {
+//                        $edgeList[] = [$parent->getId(), $child->getId()];
+//                        $stack[] = $parent;
+//                    }
+//                }
+//            }
+//        }
+//        return $edgeList;
+//    }
+//    
+//    private function getCorrospondingTitles($cycles) {
+//        $ids = $this->getMergedIdArray($cycles);
+//        $titles = $this->getTitles($ids);
+//        $cyclesWithTitles = $this->getCyclesWithTitles($cycles, $titles);
+//        return $cyclesWithTitles;
+//    }
+//    
+//    private function getMergedIdArray($cycles) {
+//        $ids = [];
+//        foreach($cycles as $cycle) {
+//            if(count($cycle) > 1) {
+//                $ids = array_merge($ids, $cycle);
+//            }
+//        }
+//        return $ids;
+//    }
+//    
+//    private function getTitles($ids) {
+//        $challengeRepository = $this->em->getRepository("TaskTrackBundle:Challenge");
+//        $idAndTitles = $challengeRepository->getIDAndTitles($ids);
+//        $titles = [];
+//        foreach($idAndTitles as $row) {
+//            $titles[$row["id"]] = $row["title"];
+//        }
+//        return $titles;
+//    }
+//    
+//    private function getCyclesWithTitles($cycles, $titles) {
+//        $cyclesWithTitles = [];
+//        foreach($cycles as $cycle) {
+//            $curIndex = count($cyclesWithTitles);
+//            if(count($cycle) > 1) {
+//                $cyclesWithTitles[] = [];
+//                foreach($cycle as $id) {
+//                    $cyclesWithTitles[$curIndex][] = $titles[$id];
+//                }
+//            }
+//        }
+//        return $cyclesWithTitles;
+//    }
 }

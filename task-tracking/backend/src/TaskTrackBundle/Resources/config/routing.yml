@@ -69,7 +69,7 @@ get_user_tasks:
     
  
 get_my_tasks:
-    path: /api/tasks
+    path: /api/tasks/suggested_order
     defaults: { _controller: TaskTrackBundle:Task:getMyTasks}
     methods: [GET]
     
@@ -147,7 +147,7 @@ get_supervisor_filtered_tasks:
         
 get_trainee_filtered_tasks:
     path: /api/tasks
-    defaults: { _controller: TaskTrackBundle:User:getTraineeFilteredTasks }
+    defaults: { _controller: TaskTrackBundle:Task:getTraineeFilteredTasks }
     methods: [GET]
         
 get_unassigned_challenges:

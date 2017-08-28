@@ -3,6 +3,24 @@
 namespace TaskTrackBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use TaskTrackBundle\Entity\User;
+use TaskTrackBundle\Constants\Role;
+use TaskTrackBundle\Constants\Status;
+use TaskTrackBundle\Handlers\ResponseHandler;
+use TaskTrackBundle\Entity\Challenge;
+use TaskTrackBundle\Entity\Task;
+//use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Output\BufferedOutput;
+use \Symfony\Component\Console\Input\ArrayInput;
+use TaskTrackBundle\Form\UserType;
+use TaskTrackBundle\Form\TaskType;
+use TaskTrackBundle\Form\ChallengeType;
+use TaskTrackBundle\Exceptions;
 
 class ChallengeController extends Controller
 {
