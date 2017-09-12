@@ -47,7 +47,7 @@ function userFactory($http) {
             url: "http://localhost:8000/api/admin/supervisors",
             method: "post",
             headers: {
-                "Authorization": "Bearer " + token,
+                // "Authorization": "Bearer " + token,
                 "Content-Type": "application/x-www-form-urlencoded"
             },
             transformRequest: function(obj) {
@@ -69,7 +69,7 @@ function userFactory($http) {
         return $http({
             "url": "http://localhost:8000/api/admin",
             "headers": {
-                "Authorization": "Bearer " + token
+                // "Authorization": "Bearer " + token
             }
         });
     }
@@ -81,7 +81,7 @@ function userFactory($http) {
             "method": "get",
             "params": data,
             "headers": {
-                "Authorization": "Bearer " + token
+                // "Authorization": "Bearer " + token
             },
         })
     }
@@ -90,7 +90,7 @@ function userFactory($http) {
         return $http({
             "url": "http://localhost:8000/api/admin/users/" + id,
             "headers": {
-                "Authorization": "Bearer " + token
+                // "Authorization": "Bearer " + token
             }
         })
     }
@@ -100,7 +100,7 @@ function userFactory($http) {
             "url": "http://localhost:8000/api/logout",
             "method": "delete",
             "headers": {
-                "Authorization": "Bearer " + token
+                // "Authorization": "Bearer " + token
             }
         });
     }
@@ -119,7 +119,7 @@ function userFactory($http) {
                 "id": id
             },
             "headers": {
-                "Authorization": "Bearer " + token,
+                // "Authorization": "Bearer " + token,
                 "Content-Type": "application/x-www-form-urlencoded"
             },
         });

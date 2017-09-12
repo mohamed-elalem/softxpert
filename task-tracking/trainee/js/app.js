@@ -16,9 +16,9 @@ function bootstrap($rootScope, UserFactory, $location, $route, UserFactory, Auth
 
     var token = localStorage.getItem("token");
 
-    if (token !== null) {
+    // if (token !== null) {
         authUser(token);
-    }
+    // }
 
     function refreshToken(token) {
         vm.userFactory.refreshToken(token).then(refreshTokenSuccess, refreshTokenError).catch(refreshTokenException);
@@ -44,7 +44,7 @@ function bootstrap($rootScope, UserFactory, $location, $route, UserFactory, Auth
 
     function authUserError(err) {
         var refreshToken = localStorage.getItem("refreshToken");
-        vm.userFactory.refreshToken(refreshToken).then(refreshTokenSuccess, refreshTokenError).catch(refreshTokenException);
+        // vm.userFactory.refreshToken(refreshToken).then(refreshTokenSuccess, refreshTokenError).catch(refreshTokenException);
         Auth.logout();
     }
 
@@ -76,7 +76,7 @@ function bootstrap($rootScope, UserFactory, $location, $route, UserFactory, Auth
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         rootScope.auth = false;
-        $location.url("/login");
+        $location.url("/");
         Auth.logout();
     }
 
@@ -140,9 +140,12 @@ function bootstrap($rootScope, UserFactory, $location, $route, UserFactory, Auth
     function routeChangeStart(event, next, current) {
         var route = next || current;
         console.log(route);
-        console.log(route.restricted, Auth.isLoggedIn());
-        if(! Auth.isLoggedIn() && route.restricted) {
+        console.log(route.AuthenticationRequired, Auth.isLoggedIn());
+        if(! Auth.isLoggedIn() && route.AuthenticationRequired) {
             $location.url("/login");
+        }
+        else if(Auth.isLoggedIn() && route.GuestRequired) {
+            $location.url("/");
         }
     }
 }

@@ -16,15 +16,22 @@ function myInterceptor($q, $injector) {
     }
 
     function request(config) {
-        // var token = localStorage.getItem("token");
+        var token = localStorage.getItem("token");
+        console.log("token", token);
         // var refreshToken = localStorage.getItem("refreshToken");
         //
         // if(token === null && refreshToken === null) {
         //     // to be checked later
         // }
         // else if(token === null) {
-        //     var userFactory = $injector.get("UserFactory");
-        //     return userFactory.refreshToken(refreshToken).then(refreshTokenSuccess, refreshTokenError).catch(refreshTokenException);
+        //     var http = vm.injector.get("http")
+        //     return http({
+        //         "url": "http://localhost:8000/api/token/refresh",
+        //         params: {
+        //             "refresh_token": refreshToken
+        //         }
+        //     })
+        //     .then(refreshTokenSuccess, refreshTokenError).catch(refreshTokenException);
         // }
         // else {
         //     config.headers["Authorization"] = "Bearer " + token;
@@ -34,7 +41,6 @@ function myInterceptor($q, $injector) {
         return config;
 
         function refreshTokenSuccess(res) {
-            console.log(res);
             localStorage.setItem("token", res.data.token);
             config.headers["Authorization"] = "Bearer " + token;
             return config;

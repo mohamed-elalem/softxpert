@@ -76,7 +76,7 @@ services:
     helpers.form_helper:
         class: TaskTrackBundle\Helpers\FormHelper
 
-#    exception_subscriber:
-#        class: TaskTrackBundle\EventListener\ExceptionListener
-#        tags:
-#           - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+    exception_subscriber:
+        class: TaskTrackBundle\EventListener\ExceptionListener
+        tags:
+           - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }

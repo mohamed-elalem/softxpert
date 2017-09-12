@@ -2,7 +2,7 @@
     angular.module("app").controller("LoginController", loginController);
 })()
 
-function loginController($scope, $rootScope, $location, UserFactory) {
+function loginController($scope, $rootScope, $location, UserFactory, Auth) {
     var vm = this;
     vm.scope = $scope;
     vm.rootScope = $rootScope;
@@ -34,18 +34,21 @@ function loginController($scope, $rootScope, $location, UserFactory) {
         if (res.status == 200) {
             var token = res.data.token;
             var refreshToken = res.data.refresh_token;
+            localStorage.setItem("token", token);
+            localStorage.setItem("refreshToken", refreshToken);
             vm.userFactory.authUser(token).then(loginSuccessSuccess, loginSuccessError).catch(loginSuccessException);
         }
 
         function loginSuccessSuccess(res) {
-            localStorage.setItem("token", token);
-            localStorage.setItem("refreshToken", refreshToken);
             vm.rootScope.auth = true;
             vm.location.url("/");
+            Auth.loggedIn();
         }
 
         function loginSuccessError(err) {
             vm.rootScope.auth = false;
+            localStorage.clear();
+            Auth.logout();
             if (err.status == 401) {
                 vm.scope.error = true;
                 vm.scope.errMessage = "You're not authorized to use this domain. Please contact us for more information."

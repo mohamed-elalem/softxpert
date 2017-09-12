@@ -2,7 +2,7 @@
     angular.module("app", ["ngAnimate", "ngRoute", "ui.bootstrap", ngFx, "720kb.fx", "bw.paging"]).run(kickStarter);
 })();
 
-function kickStarter($rootScope, $location, UserFactory, $route, $window) {
+function kickStarter($rootScope, $location, UserFactory, $route, $window, Auth) {
     var vim = this;
     vim.rootScope = $rootScope;
     vim.route = $route;
@@ -15,6 +15,7 @@ function kickStarter($rootScope, $location, UserFactory, $route, $window) {
     vim.rootScope.filter = {};
     vim.rootScope.role = {};
     vim.rootScope.search = {};
+    vim.rootScope.$on("$routeChangeStart", routeChangeStart);
 
     var token = localStorage.getItem("token");
     UserFactory.getUserInfo(token).then(userInfoSuccess, userInfoError).catch(userInfoException);
@@ -26,9 +27,12 @@ function kickStarter($rootScope, $location, UserFactory, $route, $window) {
 
     function userInfoError(err) {
         var refreshToken = localStorage.getItem("refreshToken");
-        console.log(refreshToken);
-        if (refreshToken != undefined) {
+        console.log("refreshToken", refreshToken);
+        if (refreshToken !== null) {
             UserFactory.refreshLogin(refreshToken).then(refreshLoginSuccess, refreshLoginError).catch(refreshLoginException);
+        }
+        else {
+            Auth.logout();
         }
 
 
@@ -36,6 +40,8 @@ function kickStarter($rootScope, $location, UserFactory, $route, $window) {
             console.log(res);
             if (res.status == 200) {
                 localStorage.setItem("token", res.data.token);
+                vim.rootScope.auth = true;
+                Auth.loggedIn();
                 vim.route.reload();
             }
         }
@@ -43,6 +49,7 @@ function kickStarter($rootScope, $location, UserFactory, $route, $window) {
         function refreshLoginError(err) {
             vim.rootScope.auth = false;
             console.log(err);
+            Auth.logout();
         }
 
         function refreshLoginException(exp) {
@@ -67,7 +74,8 @@ function kickStarter($rootScope, $location, UserFactory, $route, $window) {
         vim.rootScope.auth = false;
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
-        $location.url("/login");
+        $location.url("/");
+        Auth.logout();
     }
 
     function logoutError(err) {
@@ -137,5 +145,16 @@ function kickStarter($rootScope, $location, UserFactory, $route, $window) {
         // vim.rootScope.$emit("filtering", data);
         vim.rootScope.data = data;
         $location.url("/users");
+    }
+
+    function routeChangeStart(event, next, current) {
+        var route = next || current;
+        console.log(route.AuthenticationRequired, Auth.isLoggedIn());
+        if(! Auth.isLoggedIn() && route.AuthenticationRequired) {
+            $location.url("/login");
+        }
+        else if(Auth.isLoggedIn() && route.GuestRequired) {
+            $location.url("/");
+        }
     }
 }

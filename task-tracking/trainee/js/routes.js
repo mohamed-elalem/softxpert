@@ -6,28 +6,36 @@ function routing($routeProvider, $httpProvider) {
     $routeProvider
         .when("/", {
             "templateUrl": "templates/home.html",
-            "restricted": false
+            "AuthenticationRequired": false,
+            "GuestRequired": false
         })
         .when("/login", {
             "templateUrl": "templates/login.html",
             "controller": "LoginController",
-            "restricted": false
+            "AuthenticationRequired": false,
+            "GuestRequired": true
         }).when("/tasks", {
             "templateUrl": "templates/tasks.html",
             "controller": "TaskController",
-            "restricted": true
+            "AuthenticationRequired": true,
+            "GuestRequired": false
         }).when("/tasks/current", {
             "templateUrl": "templates/current_tasks.html",
             "controller": "CurrentTasksController",
-            "restricted": true
+            "AuthenticationRequired": true,
+            "GuestRequired": false
         }).when("/tasks/current/recommended", {
             "templateUrl": "templates/recommended_current_tasks.html",
             "controller": "RecommendedCurrentTasksController",
-            "restricted": true
+            "AuthenticationRequired": true,
+            "GuestRequired": false
         }).when("/register", {
             "templateUrl": "templates/register.html",
             "controller": "RegistrationController",
-            "restricted": false
+            "AuthenticationRequired": false,
+            "GuestRequired": true
+        }).otherwise({
+            "templateUrl": "templates/404.html"
         });
 
     $httpProvider.defaults.headers.common = {};

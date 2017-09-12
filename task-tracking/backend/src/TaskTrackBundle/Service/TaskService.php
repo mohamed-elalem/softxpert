@@ -229,7 +229,7 @@ class TaskService extends GraphService {
                 $data["code"] = Status::STATUS_FAILURE;
                 $data["err_code"] = Status::ERR_CHALLENGE_OWNER;
             }
-//        } else if ($task) {
+        } else if ($task) {
 //            $data["code"] = Status::STATUS_FAILURE;
 //            $data["err_code"] = Status::ERR_TASK_EXIST;
             throw new Exceptions\DuplicateResourceException;

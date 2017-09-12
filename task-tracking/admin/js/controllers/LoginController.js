@@ -2,7 +2,7 @@
     angular.module("app").controller("LoginController", LoginController)
 })()
 
-function LoginController($scope, $location, $rootScope, UserFactory) {
+function LoginController($scope, $location, $rootScope, UserFactory, Auth) {
 
     vim = this;
     vim.scope = $scope;
@@ -14,7 +14,7 @@ function LoginController($scope, $location, $rootScope, UserFactory) {
 
     /**
      * Handling submitting form
-     * @param {} loginForm 
+     * @param {} loginForm
      */
 
     function submit(loginForm) {
@@ -24,42 +24,46 @@ function LoginController($scope, $location, $rootScope, UserFactory) {
 
         /**
          * Handling Login request Promise success
-         * @param {*} res 
+         * @param {*} res
          */
         function success(res) {
             if (res.status == 200) {
                 var token = res.data.token;
                 var refreshToken = res.data.refresh_token;
+                localStorage.setItem("token", token);
+                localStorage.setItem("refreshToken", refreshToken);
                 vim.userFactory.getUserInfo(token).then(success, error).catch(exception);
             }
 
             /**
              * Handling User info request success
-             * @param {*} res 
+             * @param {*} res
              */
 
             function success(res) {
                 var user = res.data.data[0];
-                localStorage.setItem("token", token);
-                localStorage.setItem("refreshToken", refreshToken);
+
                 vim.rootScope.name = user.name;
                 vim.rootScope.auth = true;
+                Auth.loggedIn();
                 vim.location.path("/");
             }
 
             /**
              * Handling User info request reject
-             * @param {*} err 
+             * @param {*} err
              */
 
             function error(err) {
                 vim.scope.loginError = true;
                 vim.scope.errorMessage = "You're not authorized to access this domain. Please contact us for more information";
+                Auth.logout();
+                localStorage.clear();
             }
 
             /**
              * Handling User info request exceptions
-             * @param {*} exp 
+             * @param {*} exp
              */
 
             function exception(exp) {
@@ -69,7 +73,7 @@ function LoginController($scope, $location, $rootScope, UserFactory) {
 
         /**
          * Handling login request reject
-         * @param {*} err 
+         * @param {*} err
          */
 
         function error(err) {
@@ -85,7 +89,7 @@ function LoginController($scope, $location, $rootScope, UserFactory) {
 
         /**
          * Handling login exceptions
-         * @param {*} exp 
+         * @param {*} exp
          */
 
         function exception(exp) {
