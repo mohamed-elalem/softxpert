@@ -1,7 +1,0 @@
-task_track:
-    resource: "@TaskTrackBundle/Resources/config/routing.yml"
-    prefix:   /
-
-app:
-    resource: '@AppBundle/Controller/'
-    type: annotation
