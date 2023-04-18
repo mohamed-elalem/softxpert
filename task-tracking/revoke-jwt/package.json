@@ -21,7 +21,7 @@
     "include-all": "^1.0.0",
     "moment": "^2.18.1",
     "rc": "1.0.1",
-    "sails": "~0.12.13",
+    "sails": "~1.5.4",
     "sails-disk": "~0.10.9",
     "sails-mongo": "^0.12.2"
   },
